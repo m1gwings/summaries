@@ -1,0 +1,31 @@
+:root {
+    --titles: #2E86AB;
+    --accent: #F24236;
+    --text: #0D1821;
+    --background: #FFFFFF;
+}
+
+* {
+    color: var(--text);
+}
+
+h1 {
+    text-align: center;
+}
+
+.author {
+    text-align: center;
+}
+
+h1, h2, h3 {
+    color: var(--titles);
+}
+
+html {
+    font-family: 'Noto Sans';
+    font-size: 18pt;
+}
+
+strong, strong * {
+    color: var(--accent)
+}
