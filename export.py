@@ -8,7 +8,7 @@ from datetime import datetime as dt
 LIVE_OUTPUT_FILE_PATH = '/tmp/summaries-out.pdf'
 PANDOC_COMMAND = 'pandoc'
 LAUNCH_PDF_VIEWER_COMMAND = 'open'
-UPDATE_PERIOD_S = 5
+UPDATE_PERIOD_S = 1
 
 parser = argparse.ArgumentParser(
     prog='./export.py',
@@ -25,7 +25,8 @@ if not args.live:
 
 def render():
     print(f'[{dt.now()}] Rendering document...')
-    subprocess.run([PANDOC_COMMAND, args.input_file_path, '-F', 'mermaid-filter', '-o', LIVE_OUTPUT_FILE_PATH])
+    subprocess.run([PANDOC_COMMAND, args.input_file_path, '-o', LIVE_OUTPUT_FILE_PATH,
+                    '--defaults', 'defaults'])
 
 render()
 
