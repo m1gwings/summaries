@@ -135,8 +135,34 @@ The **exactness** of Prim's algorithm comes from the **cut property**: given a p
 
 - **Idea behind the proof of the cut property**: let $e$ be the edge of minimum cost in $\delta(S)$ and $T^*$ the set of edges of the minimum cost spanning tree which contains the partial one ($F \subset T^*$). If $e \in T^*$ there is nothing to prove. Otherwise there exists (it can be proved) an edge $f \in T^*$ s. t. $f \in \delta(S)$, $f$ belongs to the unique cycle which we create when we add $e$ to $T^*$. Then it must be $c_f = c_e$ (otherwise the tree with edges $T^*$ would not be optimal). Then the tree of edges $T^{**} = T^* \setminus \{ f \} \cup \{ e \}$ is also optimal and contains $F \cup \{ e \}$.
 
-Let's see how to implement the $argmin_f$ function at line `4` efficiently:
+Let's see how to implement the $argmin_f$ function at line `4` efficiently.
 
+Let $G = (N, E)$.
 <div class=algorithm>
-1. $S \gets $
+1. $S \gets \{ s \}$
+1. $T \gets \{ \}$
+1. **`for`** $j \in S^c$:
+1. $~~~~$ $K_j \gets s$
+1. $~~~~$ **`if`** $\{ s, j \} \in E$:
+1. $~~~~$ $~~~~$ $C_j \gets c(\{ s, j \})$ 
+1. $~~~~$ **`else `**:
+1. $~~~~$ $~~~~$ $C_j \gets + \infty$
+1. **`while`** $|S| \neq |N|$:
+1. $~~~~$ $n \gets argmin_j\{ C_j \mid j \in S^c \}$ `// O(n)`
+1. $~~~~$ $S \gets \{ n \}$
+1. $~~~~$ $T \gets (K_n, n)$
+1. $~~~~$ **`for`** $j \in S^c$: $~~$ `// O(n)`
+1. $~~~~$ $~~~~$ **`if`** $\{n, j\} \in E$ **`and`** $c(\{n, j\}) < C_j$:
+1. $~~~~$ $~~~~$ $~~~~$ $K_j \gets n$
+1. $~~~~$ $~~~~$ $~~~~$ $C_j \gets c(\{n, j\})$
 </div>
+
+The overall complexity is $O(n^2)$.
+
+## More sophisticated definitions and properties
+
+### Optimality condition for MST
+
+- Given a spanning tree of edges $T$, an **edge** $e \not \in T$ is **cost decreasing** if when is added to $T$ it creates a cycle $C$ with $C \subset T \cup \{ e \}$ and $\exists f \in C \setminus \{ e \}$ such that $c_e < c_f$.
+
+- A **tree is of minimum cost** $\iff$ it **has no cost decreasing edge**.
