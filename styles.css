@@ -4,6 +4,7 @@
     --accent: #D1462F;
     --text: #00272B;
     --background: #FFFFFF;
+    --algorithms: #E78F8E7F;
 }
 
 * {
@@ -22,15 +23,23 @@ h1, h2 {
     color: var(--titles);
 }
 
-h3 {
+h3, h4 {
     color: var(--sub-titles)
 }
 
 html {
     font-family: 'Noto Sans';
-    font-size: 18pt;
+    font-size: 16pt;
 }
 
 strong, strong * {
     color: var(--accent);
+}
+
+.algorithm {
+    margin-top: 0.2cm;
+    margin-bottom: 0.2cm;
+    padding: 0.3cm;
+    background-color: var(--algorithms);
+    border-radius: 0.5cm;
 }
