@@ -1,7 +1,8 @@
 :root {
-    --titles: #2E86AB;
-    --accent: #F24236;
-    --text: #0D1821;
+    --titles: #E78F8E;
+    --sub-titles: #5D4E60;
+    --accent: #D1462F;
+    --text: #00272B;
     --background: #FFFFFF;
 }
 
@@ -17,8 +18,12 @@ h1 {
     text-align: center;
 }
 
-h1, h2, h3 {
+h1, h2 {
     color: var(--titles);
+}
+
+h3 {
+    color: var(--sub-titles)
 }
 
 html {
@@ -27,5 +32,5 @@ html {
 }
 
 strong, strong * {
-    color: var(--accent)
+    color: var(--accent);
 }
