@@ -10,11 +10,14 @@
 * {
     font-family: 'Noto Sans', sans-serif;
     color: var(--text);
-    font-size: 16pt;
 }
 
 math * {
     font-family: 'Noto Sans Math', sans-serif;
+}
+
+html, p, li {
+    font-size: 16pt;
 }
 
 h4 {
@@ -38,11 +41,11 @@ h1 {
     text-align: center;
 }
 
-h1, h2 {
+h1, h1 *, h2, h2 * {
     color: var(--titles);
 }
 
-h3, h4 {
+h3, h3 *, h4, h4 * {
     color: var(--sub-titles)
 }
 
