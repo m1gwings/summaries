@@ -1,18 +1,33 @@
 :root {
-    --titles: #E78F8E;
-    --sub-titles: #5D4E60;
-    --accent: #D1462F;
-    --text: #00272B;
+    --titles: #827081;
+    --sub-titles: #1F7A8C;
+    --accent: #E57A44;
+    --text: #022B3A;
     --background: #FFFFFF;
-    --algorithms: #E78F8E7F;
+    --algorithms: #8270813F;
 }
 
 * {
+    font-family: 'Noto Sans', sans-serif;
     color: var(--text);
+    font-size: 16pt;
+}
+
+h4 {
+    font-size: 18pt;
+}
+
+h3 {
+    font-size: 20pt;
+}
+
+h2 {
+    font-size: 22pt;
 }
 
 h1 {
     text-align: center;
+    font-size: 24pt;
 }
 
 .author {
@@ -25,11 +40,6 @@ h1, h2 {
 
 h3, h4 {
     color: var(--sub-titles)
-}
-
-html {
-    font-family: 'Noto Sans';
-    font-size: 16pt;
 }
 
 strong, strong * {

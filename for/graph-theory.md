@@ -97,14 +97,14 @@ Given a node $s$ in a directed graph $G = (N, A)$, we want to find all the nodes
 
 We can solve this problem through the so-called **Breadth First Search (BFS)** algorithm:
 <div class="algorithm">
-1. $Q \gets \{ s \}$ `// Q is a queue`
+1. $Q \gets \{ s \}$ // Q is a queue
 1. $M \gets \emptyset$
-1. **`while`** $Q \neq \{ \}$:
-1. $~~~~$ $n, Q \gets FIFOpop(Q)$
-1. $~~~~$ $M \gets M \cup \{ n \}$
-1. $~~~~$ **`for`** $a = (n, v) \in \delta^+(\{ n \})$:
-1. $~~~~$ $~~~~$ **`if`** $v \not \in M$ **`and`** $v \not \in Q$:
-1. $~~~~$ $~~~~$ $~~~~$ $Q \gets FIFOpush(Q, v)$
+1. **while** $Q \neq \{ \}$:
+1. &emsp; $n, Q \gets FIFOpop(Q)$
+1. &emsp; $M \gets M \cup \{ n \}$
+1. &emsp; **for** $a = (n, v) \in \delta^+(\{ n \})$:
+1. &emsp; &emsp; **if** $v \not \in M$ **and** $v \not \in Q$:
+1. &emsp; &emsp; &emsp; $Q \gets FIFOpush(Q, v)$
 </div>
 At the end of the computation, the reachable nodes are in $M$.
 The complexity of the algorithm is $O(|N| + |A|)$.
@@ -120,13 +120,13 @@ Let $s \in E$.
 <div class="algorithm">
 1. $S \gets \{ s \}$
 1. $T \gets \emptyset$
-1. **`while`** $|S| \neq |N|$:
-1. $~~~~$ $e = \{ i, j \} = argmin_f \{ c(f) \mid f \in \delta(S) \}$
-1. $~~~~$ $T \gets T \cup \{ e \}$
-1. $~~~~$ **`if`** $i \not \in S$:
-1. $~~~~$ $~~~~$ $S \gets S \cup \{  i \}$
-1. $~~~~$ **`else`**:
-1. $~~~~$ $~~~~$ $S \gets S \cup \{ j \}$
+1. **while** $|S| \neq |N|$:
+1. &emsp; $e = \{ i, j \} = argmin_f \{ c(f) \mid f \in \delta(S) \}$
+1. &emsp; $T \gets T \cup \{ e \}$
+1. &emsp; **if** $i \not \in S$:
+1. &emsp; &emsp; $S \gets S \cup \{  i \}$
+1. &emsp; **else**:
+1. &emsp; &emsp; $S \gets S \cup \{ j \}$
 </div>
 
 The computed spanning tree is $G' = (S, T)$.
@@ -135,26 +135,26 @@ The **exactness** of Prim's algorithm comes from the **cut property**: given a p
 
 - **Idea behind the proof of the cut property**: let $e$ be the edge of minimum cost in $\delta(S)$ and $T^*$ the set of edges of the minimum cost spanning tree which contains the partial one ($F \subset T^*$). If $e \in T^*$ there is nothing to prove. Otherwise there exists (it can be proved) an edge $f \in T^*$ s. t. $f \in \delta(S)$, $f$ belongs to the unique cycle which we create when we add $e$ to $T^*$. Then it must be $c_f = c_e$ (otherwise the tree with edges $T^*$ would not be optimal). Then the tree of edges $T^{**} = T^* \setminus \{ f \} \cup \{ e \}$ is also optimal and contains $F \cup \{ e \}$.
 
-Let's see how to implement the $argmin_f$ function at line `4` efficiently.
+Let's see how to implement the $argmin_f$ function at line 4 efficiently.
 
 Let $G = (N, E)$.
 <div class=algorithm>
 1. $S \gets \{ s \}$
 1. $T \gets \{ \}$
-1. **`for`** $j \in S^c$:
-1. $~~~~$ $K_j \gets s$
-1. $~~~~$ **`if`** $\{ s, j \} \in E$:
-1. $~~~~$ $~~~~$ $C_j \gets c(\{ s, j \})$ 
-1. $~~~~$ **`else `**:
-1. $~~~~$ $~~~~$ $C_j \gets + \infty$
-1. **`while`** $|S| \neq |N|$:
-1. $~~~~$ $n \gets argmin_j\{ C_j \mid j \in S^c \}$ `// O(n)`
-1. $~~~~$ $S \gets \{ n \}$
-1. $~~~~$ $T \gets (K_n, n)$
-1. $~~~~$ **`for`** $j \in S^c$: $~~$ `// O(n)`
-1. $~~~~$ $~~~~$ **`if`** $\{n, j\} \in E$ **`and`** $c(\{n, j\}) < C_j$:
-1. $~~~~$ $~~~~$ $~~~~$ $K_j \gets n$
-1. $~~~~$ $~~~~$ $~~~~$ $C_j \gets c(\{n, j\})$
+1. **for** $j \in S^c$:
+1. &emsp; $K_j \gets s$
+1. &emsp; **if** $\{ s, j \} \in E$:
+1. &emsp; &emsp; $C_j \gets c(\{ s, j \})$ 
+1. &emsp; **else **:
+1. &emsp; &emsp; $C_j \gets + \infty$
+1. **while** $|S| \neq |N|$:
+1. &emsp; $n \gets argmin_j\{ C_j \mid j \in S^c \}$ // O(n)
+1. &emsp; $S \gets \{ n \}$
+1. &emsp; $T \gets (K_n, n)$
+1. &emsp; **for** $j \in S^c$: $~~$ // O(n)
+1. &emsp; &emsp; **if** $\{n, j\} \in E$ **and** $c(\{n, j\}) < C_j$:
+1. &emsp; &emsp; &emsp; $K_j \gets n$
+1. &emsp; &emsp; &emsp; $C_j \gets c(\{n, j\})$
 </div>
 
 The overall complexity is $O(n^2)$.
