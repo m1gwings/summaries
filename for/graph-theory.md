@@ -17,7 +17,7 @@ author: Cristiano Migali
 
 - An edge $e$ is **incident** in a node $n$ if $n$ is an endpoint of $e$.
 
-- For **undirected** graphs we define the **degree** of a node $n$ as the number of edges which are incident to that node. For **directed** graphs we distinguish between the **in-degree**: the number of arcs $(j, n) \in A$ and the **out-degree**: the number of arcs $(n, j) \in A$.
+- For **undirected** graphs we define the **degree** of a node $n$ as the number of edges which are incident to that node. For **directed** graphs we distinguish between the **in-degree**: the number of arcs $(i, n) \in A$ and the **out-degree**: the number of arcs $(n, j) \in A$.
 
 ### Paths
 

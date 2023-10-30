@@ -13,6 +13,10 @@
     font-size: 16pt;
 }
 
+math * {
+    font-family: 'Noto Sans Math', sans-serif;
+}
+
 h4 {
     font-size: 18pt;
 }
@@ -22,12 +26,12 @@ h3 {
 }
 
 h2 {
-    font-size: 22pt;
+    font-size: 26pt;
 }
 
 h1 {
     text-align: center;
-    font-size: 24pt;
+    font-size: 30pt;
 }
 
 .author {
