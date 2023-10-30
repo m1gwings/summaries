@@ -9,6 +9,7 @@ LIVE_OUTPUT_FILE_PATH = '/tmp/summaries-out.pdf'
 PANDOC_COMMAND = 'pandoc'
 LAUNCH_PDF_VIEWER_COMMAND = 'open'
 UPDATE_PERIOD_S = 1
+TO_WATCH = [ 'styles.css', 'template.html' ]
 
 parser = argparse.ArgumentParser(
     prog='./export.py',
@@ -19,6 +20,8 @@ parser.add_argument('input_file_path', metavar='input-file')
 parser.add_argument('-l', '--live', action='store_true')
 
 args = parser.parse_args()
+
+TO_WATCH.append(args.input_file_path)
 
 if not args.live:
     raise NotImplementedError
@@ -32,13 +35,13 @@ render()
 
 subprocess.Popen([LAUNCH_PDF_VIEWER_COMMAND, LIVE_OUTPUT_FILE_PATH])
 
-old_stamp = os.stat(args.input_file_path).st_mtime
+old_stamps = [ os.stat(file_path).st_mtime for file_path in TO_WATCH ]
 
 while True:
     time.sleep(UPDATE_PERIOD_S)
 
-    current_stamp = os.stat(args.input_file_path).st_mtime
+    current_stamps = [ os.stat(file_path).st_mtime for file_path in TO_WATCH ]
 
-    if current_stamp != old_stamp:
-        old_stamp = current_stamp
+    if current_stamps != old_stamps:
+        old_stamps = current_stamps
         render()
