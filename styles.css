@@ -8,12 +8,9 @@
 }
 
 * {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'FiraMath', sans-serif;
+    line-height: 22pt;
     color: var(--text);
-}
-
-math * {
-    font-family: 'Noto Sans Math', sans-serif;
 }
 
 html, p, li {
@@ -59,4 +56,8 @@ strong, strong * {
     padding: 0.3cm;
     background-color: var(--algorithms);
     border-radius: 0.5cm;
+}
+
+mover mo {
+    margin-bottom: -5pt;
 }
