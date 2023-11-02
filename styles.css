@@ -9,29 +9,33 @@
 
 * {
     font-family: 'FiraMath', sans-serif;
-    line-height: 22pt;
     color: var(--text);
 }
 
 html, p, li {
     font-size: 16pt;
+    line-height: 22pt;
 }
 
 h4 {
     font-size: 18pt;
+    line-height: 20pt;
 }
 
 h3 {
     font-size: 20pt;
+    line-height: 22pt;
 }
 
 h2 {
     font-size: 26pt;
+    line-height: 28pt;
 }
 
 h1 {
     text-align: center;
     font-size: 30pt;
+    line-height: 32pt;
 }
 
 .author {
