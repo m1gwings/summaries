@@ -60,6 +60,9 @@ strong, strong * {
     padding: 0.3cm;
     background-color: var(--algorithms);
     border-radius: 0.5cm;
+    border-style: solid;
+    border-color: var(--text);
+    border-width: 3pt;
 }
 
 mover mo {
