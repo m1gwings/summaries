@@ -101,13 +101,38 @@ A **directed graph** has $m < n(n - 1)$ arcs ($m = |A|$), while an **undirected 
 
 For every **DAG** it is possible to define an **order relation** between its nodes such that $i < j \forall (i, j) \in A$.
 
-For doing so there exists a simple algorithm:
+For doing so there exists a simple procedure:
 
 - Any DAG has (at least) one node $n$ with in-degree equal to 0 (otherwise there would be at least a circuit): $n$ is the first in the topological ordering.
 
-- We remove $n$ from the DAG and all its outgoing arcs ($n$ has only outgoing arcs), the result is again a DAG (by removing arcs and nodes we can't introduce cricuits).
+- We remove $n$ from the DAG and all its outgoing arcs ($n$ has only outgoing arcs), the result is again a DAG (by removing arcs and nodes we can't introduce circuits).
 
 - We repeat the process finding the second node in the topological ordering and iterate until we have removed all the nodes.
+
+We can translate this procedure in an algorithm as follows:
+
+<div class="algorithm">
+1. $FindNodeWithNoPredecessors(n, A)$:
+1. &emsp; **while** $Predecessors(n, A) \neq \emptyset$:
+1. &emsp; &emsp; $n \gets RandomNode(Predecessors(n, A))$
+1. &emsp; **return** $n$
+</div>
+
+<div class="algorithm">
+1. $u \gets RandomNode(N)$
+1. $i \gets 1$
+1. $R \gets \emptyset$
+1. **while** $N \neq \emptyset$:
+1. &emsp; $u \gets FindNodeWithNoPredecessors(u, A)$
+1. &emsp; $s \gets RandomNode(Successors(u, A))$
+1. &emsp; $N \gets N \setminus \{ u \}$
+1. &emsp; $A \gets A \setminus \{ (u, j) \mid (u, j) \in A \}$
+1. &emsp; $R \gets R \cup \{ (u, i) \}$
+1. &emsp; $i \gets i + 1$
+1. &emsp; $u \gets s$
+</div>
+
+At the end, the ordering can be derived from the couples in $R$. The algorithm considers every node and every arc at mosts twice (one time in the _"backward step"_ of finding a node with no predecessors and one time in the _"forward step"_ of deleting the node), then the overall complexity is $O(|N| + |A|)$.
 
 ### Recursive equation for shortest paths
 
@@ -134,7 +159,7 @@ If the graph is a **DAG** we can exploit the **topological ordering** to rewrite
 
 - The **value of the flow through the cut $\delta(S)$ separating $s$ from $t$** is $\phi(S) = \sum_{(i, j) \in \delta^+(S)} x_{ij} - \sum_{(i, j) \in \delta^-(S)} x_{ij}$.
 
-- It is possible to prove that $\phi(S) = \phi(\{ s \})$ for every cut $\delta(S)$ separating $s$ from $t$.
+- It is possible to prove that **$\phi(S) = \phi(\{ s \})$** for every cut $\delta(S)$ separating $s$ from $t$. _(The proof follows very easily by induction once we have demonstrated the following identity: $\phi(R \cup \{ u \}) = \phi(R) + \phi(\{ u \})$ $\forall R \subset N$, $u \in N$, $u \not \in R$ which comes from splitting the sums in $\phi(R \cup \{ u \})$ over different subsets of $\delta^+(R \cup \{ u \})$ and $\delta^-(R \cup \{ u \})$ plus the usual adding and subtracting trick involving the arcs in $\{ (i, u) \in A \mid i \in R \}$ and $\{ (u, j) \in A \mid j \in R \}$)._
 
 - It is clear that $\phi(S) \leq k(S)$ for every cut $\delta(S)$ separating $s$ from $t$: this implies that if we find a **feasible flow** $\underline{x}$ and a **cut separating $s$ from $t$ $\delta(S)$** s. t. $\phi(S) = k(S)$, then the **value** of $\underline{x}$ is **maximum** (**weak duality**).
 
@@ -182,10 +207,8 @@ Let $s \in E$.
 1. **while** $|S| \neq |N|$:
 1. &emsp; $e = \{ i, j \} \gets argmin_f \{ c(f) \mid f \in \delta(S) \}$
 1. &emsp; $T \gets T \cup \{ e \}$
-1. &emsp; **if** $i \not \in S$:
-1. &emsp; &emsp; $S \gets S \cup \{  i \}$
-1. &emsp; **else**:
-1. &emsp; &emsp; $S \gets S \cup \{ j \}$
+1. &emsp; **if** $i \not \in S$: $S \gets S \cup \{  i \}$
+1. &emsp; **else**: $S \gets S \cup \{ j \}$
 </div>
 
 The computed spanning tree is $G' = (S, T)$.
@@ -209,8 +232,8 @@ Let $G = (N, E)$.
 1. &emsp; &emsp; $C_j \gets + \infty$
 1. **while** $|S| \neq |N|$:
 1. &emsp; $n \gets argmin_j\{ C_j \mid j \in S^c \}$ // $O(n)$
-1. &emsp; $S \gets \{ n \}$
-1. &emsp; $T \gets (K_n, n)$
+1. &emsp; $S \gets S \cup \{ n \}$
+1. &emsp; $T \gets T \cup \{ (K_n, n) \}$
 1. &emsp; **for** $j \in S^c$: &ensp; // $O(n)$
 1. &emsp; &emsp; **if** $\{n, j\} \in E$ **and** $c(\{n, j\}) < C_j$:
 1. &emsp; &emsp; &emsp; $K_j \gets n$
@@ -249,9 +272,9 @@ Let $G = (N, A)$.
 
 The overall complexity is $O(n^2)$.
 
-The algorithm **exactness** follows (through induction) by the following statement: at every step $L_j$ is **the cost of the shortest path** from $s$ to $j \forall j \in S$ and it is **the cost of the shortest path** from $s$ to $j$ **with all intermediate nodes in $S$**, $\forall j \in S^c$.
+The algorithm **exactness** follows (through induction) by the following statement: at every step $L_j$ is **the cost of the shortest path** from $s$ to $j$ $\forall j \in S$, and it is **the cost of the shortest path** from $s$ to $j$ **with all intermediate nodes in $S$** $\forall j \in S^c$.
 
-To prove the inductive step just split every path $\pi$ from $s$ to **the chosen** $v \in S^c$ in $\pi_1 \cup (i, j) \cup \pi_2$ with $(i, j) \in \delta^+(S)$. Then $\pi_1 \geq L_i$ ($i \in S \implies L_i$ minimum cost of a path from $s$ to $i$), $\pi_2 \geq 0$ and so $c(\pi) \geq L_i + c(i, j)$.
+To prove the inductive step just split every path $\pi$ from $s$ to **the chosen** $v \in S^c$ in $\pi_1 \cup (i, j) \cup \pi_2$ with $(i, j) \in \delta^+(S)$. Then $\pi_1 \geq L_i$ ($i \in S \implies L_i$ minimum cost of a path from $s$ to $i$), $\pi_2 \geq 0$ and so $c(\pi) \geq L_i + c(i, j) \geq min_{(k, l) \in \delta^+(S)}\{ L_k + c(k, l) \} = L_u + c(u, v) = c(\phi)$ where $\phi$ is the path from $s$ to $v$ picked by the algorithm.
 
 #### Floyd-Warshall's algorithm
 
@@ -338,12 +361,20 @@ The algorithm works as follows:
 
 - From $G$ we can build the **so called** residual network $\bar{G}$ = $(N, \bar{A})$ as follows:
     - if $(i, j) \in A \wedge x_{ij} < k_{ij} \implies (i, j) \in \bar{A}$ with **residual capacity** $\bar{k}_{ij} = k_{ij} - x_{ij}$;
-    - if $(j, i) \in A \wedge x_{ji} > 0 \implies (i, j) \in \bar{A}$ with **residual capacity** $\bar{k}_{ij} = x_{ij}$.
+    - if $(j, i) \in A \wedge x_{ji} > 0 \implies (i, j) \in \bar{A}$ with **residual capacity** $\bar{k}_{ij} = x_{ji}$.
 
 - If we find a path $s$, $n_1$, ..., $n_u$, $t$ in $\bar{G}$, then we can increase the flow from $s$ to $t$ either by increasing the flow in $(n_i, n_{i + 1})$ or by decreasing the flow in $(n_{i + 1}, n_i)$: we have found a so-called **augmenting path** (of course we also have to increase the flow in both $(s, n_1)$ and $(n_u, t)$). The amount by which we can increase the flow is $min_{i \in \{ 1, ..., u-1 \}}\{ \bar{k}_{s, n_1}, \bar{k}_{n_i, n_{i + 1}}, \bar{k}_{n_u, t} \}$.
 
 - We keep iterating this process until there is no path in $\bar{G}$ from $s$ to $t$: this means that there must be a cut $\delta(S)$ separating $s$ from $t$ that has every outgoing arc **saturated** and every incoming arc **empty**. Hence $\phi(S) = k(S)$, and so, by **weak duality**, the **value of $\underline{x}$** is **maximum**.
 
-The overall complexity is $O(m^2 k_{max})$ (it is exponential in the size of the instance with respect to $k_{max}$).
+The overall complexity is $O(m^2 k_{max})$ (it is exponential in the size of the instance with respect to $k_{max}$):
+
+- $\phi(\{ s \}) \leq m k_{max}$;
+
+- **At every step** the value of the **flow increases**;
+
+- If all $k_{ij}$ and $x_{ij}$ are integers, then the same is true for all the $\bar{k}_{ij}$ and so for the increase of the flow, which must be at least 1 (then the algorithm takes at most $m k_{max}$ steps);
+
+- Every step is $O(n + m) = O(m)$: we have to build $\bar{G}$ ($O(n + m)$) and find a path from $s$ to $t$ (for example with an $O(n + m)$ DFS).
 
 **Note**: there are some variations of **Ford-Fulkerson**'s algorithm that are polynomial in the size of the instance and work by looking for augmenting paths **with a minimum number of arcs** (**Edmond-and-Karp**'s $O(nm^2)$, **Dinic**'s $O(n^2m)$).
