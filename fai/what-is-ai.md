@@ -1,7 +1,10 @@
----
-title: What is Artificial Intelligence?
-author: Cristiano Migali
----
+# What is Artificial Intelligence?
+
+<div class="author">
+
+Cristiano Migali
+
+</div>
 
 The field of **Artificial Intelligence** (or **AI**) is concerned with _understanding_ and _building_ **intelligent entities**, that is machines that can **compute** how to **act effectively** and safely in a wide variety of novel situations.
 
@@ -18,15 +21,69 @@ and
 >> the first refers to considering intelligence as a property of **internal thought process**, the second focuses on the **behavior** of the intelligent entity, ignoring the reasoning behind it (which in some cases could be quite simple but achieve great performance).
 
 <style>
-.definition-of-ai-image {
-    width: 345pt;
-    margin: auto;
+.definitions-of-ai {
+    display: flex;
+    justify-content: center;
+}
+
+.diagram-column {
+    width: 7cm;
+    height: 11cm;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    text-align: center;
+}
+
+.diagram-box {
+    text-align: center;
+    margin: 0.5cm;
+    background-color: #8270813F;
+    border-radius: 0.5cm;
+    height: 4cm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-style: solid;
+    border-width: 3pt;
+    border-color: #022B3A;
+}
+
+.flipped-titles {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.row-title {
+    text-align: center;
+    height: 5cm;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
 }
 </style>
 
-<div class="definition-of-ai-image">
-![](fai/imgs/definitions-of-ai.svg)
+
+<div class="definitions-of-ai">
+    <div class="diagram-column">
+        <div class="column-title">Human performance</div>
+        <div class="diagram-box">Thinking humanly</div>
+        <div class="diagram-box">Acting humanly</div>
+    </div>
+    <div class="diagram-column">
+        <div class="column-title">Rational performance</div>
+        <div class="diagram-box">Thinking rationally</div>
+        <div class="diagram-box">Acting rationally</div>
+    </div>
+    <div class="flipped-titles">
+        <div class="row-title">Thinking</div>
+        <div class="row-title">Acting</div>
+    </div>
 </div>
+
+---
 
 ## Acting humanly
 
@@ -56,6 +113,8 @@ Once we have a sufficiently precise theory of the mind, it becomes possible to e
 ## Thinking rationally
 
 We can define **_right thinking_** as irrefutable reasoning process. The field which studies **laws of thought** which allow right thinking is known as **logic**. Logicians in the 19th century developed a precise notation for statements about objects of the world and the relations among them. By 1965, programs could, in principle. solve _any_ solvable problem described in logical notation. The so-called **logistic** tradition within artificial intelligence hopes to build on such programs to create intelligent systems.
+
+---
 
 ## Acting rationally
 

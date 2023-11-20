@@ -1,0 +1,6 @@
+author: "Cristiano Migali"
+html: true
+output: "/tmp/summaries-out.pdf"
+pdf: true
+theme: "summary-theme.css"
+watch: true

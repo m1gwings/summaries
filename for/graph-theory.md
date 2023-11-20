@@ -1,7 +1,10 @@
----
-title: Graph theory
-author: Cristiano Migali
----
+# Graph theory
+
+<div class="author">
+
+Cristiano Migali
+
+</div>
 
 ## Basic definitions
 
@@ -34,6 +37,8 @@ author: Cristiano Migali
 - An **undirected graph** is **connected** if every two nodes of the grah are connected.
 
 - A **directed graph** is **strongly connected** if $u$ and $v$ are connected by a direct path $\forall u, v \in N$.
+
+---
 
 ### Cycles and circuits
 
@@ -75,6 +80,8 @@ author: Cristiano Migali
 
 A **directed graph** has $m < n(n - 1)$ arcs ($m = |A|$), while an **undirected graph** has $m < \frac{n(n - 1)}{2}$ edges (we are removing the doubles).
 
+---
+
 ### Properties of the trees
 
 - Every **tree** with $n$ nodes has exactly $n - 1$ edges.
@@ -109,16 +116,21 @@ For doing so there exists a simple procedure:
 
 - We repeat the process finding the second node in the topological ordering and iterate until we have removed all the nodes.
 
+---
+
 We can translate this procedure in an algorithm as follows:
 
 <div class="algorithm">
+
 1. $FindNodeWithNoPredecessors(n, A)$:
 1. &emsp; **while** $Predecessors(n, A) \neq \emptyset$:
 1. &emsp; &emsp; $n \gets RandomNode(Predecessors(n, A))$
 1. &emsp; **return** $n$
+
 </div>
 
 <div class="algorithm">
+
 1. $u \gets RandomNode(N)$
 1. $i \gets 1$
 1. $R \gets \emptyset$
@@ -130,6 +142,7 @@ We can translate this procedure in an algorithm as follows:
 1. &emsp; $R \gets R \cup \{ (u, i) \}$
 1. &emsp; $i \gets i + 1$
 1. &emsp; $u \gets s$
+
 </div>
 
 At the end, the ordering can be derived from the couples in $R$. The algorithm considers every node and every arc at mosts twice (one time in the _"backward step"_ of finding a node with no predecessors and one time in the _"forward step"_ of deleting the node), then the overall complexity is $O(|N| + |A|)$.
@@ -148,6 +161,8 @@ If the graph is a **DAG** we can exploit the **topological ordering** to rewrite
 - A **feasible flow** is a vector $\underline{x}$ with a component $x_{ij}$ for every arc $(i, j) \in A$ s. t.
     - $0 \leq x_{ij} \leq k_{ij} \forall (i, j) \in A$;
     - $\sum_{(i, u) \in \delta^-(\{ u \})} x_{iu} = \sum_{(u, j) \in \delta^+(\{ u \})} x_{uj} \forall u \in N \setminus \{ s, t \}$.
+
+---
 
 - The **value of the flow** is $\phi = \sum_{(s, j) \in \delta^+(\{ s \})} x_{sj}$.
 
@@ -179,8 +194,12 @@ The algorithms that we will present are agnostic with respect to the various rep
 
 Given a node $s$ in a directed graph $G = (N, A)$, we want to find all the nodes $n \in N$ that are reachable from $s$ (connected to $s$).
 
+---
+
 We can solve this problem through the so-called **Breadth First Search (BFS)** algorithm:
+
 <div class="algorithm">
+
 1. $Q \gets \{ s \}$ // Q is a queue
 1. $M \gets \emptyset$
 1. **while** $Q \neq \{ \}$:
@@ -189,7 +208,9 @@ We can solve this problem through the so-called **Breadth First Search (BFS)** a
 1. &emsp; **for** $a = (n, v) \in \delta^+(\{ n \})$:
 1. &emsp; &emsp; **if** $v \not \in M$ **and** $v \not \in Q$:
 1. &emsp; &emsp; &emsp; $Q \gets FIFOpush(Q, v)$
+
 </div>
+
 At the end of the computation, the reachable nodes are in $M$.
 The complexity of the algorithm is $O(|N| + |A|)$ (we process every node and every arc at most once).
 
@@ -202,6 +223,7 @@ The **Prim**'s algorithm allows to find a minimum cost spanning tree, given a gr
 Let $s \in E$.
 
 <div class="algorithm">
+
 1. $S \gets \{ s \}$
 1. $T \gets \emptyset$
 1. **while** $|S| \neq |N|$:
@@ -209,11 +231,14 @@ Let $s \in E$.
 1. &emsp; $T \gets T \cup \{ e \}$
 1. &emsp; **if** $i \not \in S$: $S \gets S \cup \{  i \}$
 1. &emsp; **else**: $S \gets S \cup \{ j \}$
+
 </div>
 
 The computed spanning tree is $G' = (S, T)$.
 
 The **exactness** of Prim's algorithm comes from the **cut property**: given a partial tree $(S, F)$ contained in a minimum cost spanning tree of $G$, if we add to it the edge of minimum cost in $\delta(S)$, the new tree is again contained in a minimum cost spanning tree (which could differ from the previous). The proof follows by induction (at every step we have a partial tree contained in a minimum cost spanning tree, and at the last step the tree isn't partial anymore).
+
+---
 
 - **Idea behind the proof of the cut property**: let $e$ be the edge of minimum cost in $\delta(S)$ and $T^*$ the set of edges of the minimum cost spanning tree which contains the partial one ($F \subset T^*$). If $e \in T^*$ there is nothing to prove. Otherwise there exists (it can be proved) an edge $f \in T^*$ s. t. $f \in \delta(S)$, $f$ belongs to the unique cycle which we create when we add $e$ to $T^*$. Then it must be $c_f = c_e$ (otherwise the tree with edges $T^*$ would not be optimal). Then the tree of edges $T^{**} = T^* \setminus \{ f \} \cup \{ e \}$ is also optimal and contains $F \cup \{ e \}$.
 
@@ -222,6 +247,7 @@ Let's see how to implement the $argmin_f$ function at line 4 efficiently.
 Let $G = (N, E)$.
 
 <div class="algorithm">
+
 1. $S \gets \{ s \}$
 1. $T \gets \{ \}$
 1. **for** $j \in S^c$:
@@ -238,6 +264,7 @@ Let $G = (N, E)$.
 1. &emsp; &emsp; **if** $\{n, j\} \in E$ **and** $c(\{n, j\}) < C_j$:
 1. &emsp; &emsp; &emsp; $K_j \gets n$
 1. &emsp; &emsp; &emsp; $C_j \gets c(\{n, j\})$
+
 </div>
 
 The overall complexity is $O(n^2)$.
@@ -251,9 +278,12 @@ We want to determine a path of minimum cost (shortest) starting at node $s$ and 
 The algorithm works for graphs where $c(a) \geq 0 \forall a \in A$.
 The main idea is to consider the nodes in increasing order of length of the shortest path from $s$. If a node $u$ precedes a node $v$ in such ordering, then there must exist a shortest path from $s$ to $u$ which doesn't go through $v$ (remember the assumption above).
 
+---
+
 Let $G = (N, A)$.
 
 <div class="algorithm">
+
 1. $S \gets \{ s \}$
 1. **for** $j \in S^c$:
 1. &emsp; **if** $(s, j) \in A$:
@@ -268,6 +298,7 @@ Let $G = (N, A)$.
 1. &emsp; &emsp; **if** $(n, j) \in A$ **and** $L_n + c(n, j) < L_j$:
 1. &emsp; &emsp; &emsp; $L_j \gets L_n + c(n, j)$
 1. &emsp; &emsp; &emsp; $P_j \gets n$
+
 </div>
 
 The overall complexity is $O(n^2)$.
@@ -290,9 +321,12 @@ It is based on two data structures:
 
 It works by applying iteratively the **triangular operation**: fixed a node $u$, $\forall i, j \mid i \neq u, j \neq u$ if $D_{iu} + D_{uj} < D_{ij} \implies D_{ij} \gets D_{iu} + D_{uj}$ and $P_{ij} \gets P_{uj}$.
 
+---
+
 Let $G = (N, A)$.
 
 <div class="algorithm">
+
 1. **for** $i \in N$:
 1. &emsp; **for** $j \in N$:
 1. &emsp; &emsp; **if** $i = j$:
@@ -309,6 +343,7 @@ Let $G = (N, A)$.
 1. &emsp; &emsp; &emsp; &emsp; &emsp; **error**: Negative cost cycle!
 1. &emsp; &emsp; &emsp; &emsp; $D_{ij} \gets D_{iu} + D_{uj}$
 1. &emsp; &emsp; &emsp; &emsp; $P_{ij} \gets P_{uj}$
+
 </div>
 
 At the end we can retrieve the shortest path between any two nodes through $P_{ij}$. The overall complexity is $O(n^3)$.
@@ -326,6 +361,8 @@ In particular we can solve it easily through **dynamic programming**: $L_0 = 0$,
 A **project** consists of a set of **activities** $A, B, C, D, ...$ with a duration $d_A, d_B, d_C, d_D, ...$ and a set of **precedence constraints** between the activities: $A \propto B, B \propto D, ...$ .
 
 We can represent every project through a **directed graph** where the **activities** are the **arcs**, every **node** $n$ represent the **event**: "end of all the activities in $\delta^-(\{ n \})$" and in particular there is a node for the event "beginning of the project" and a node for the event "end of the project". There is a **precedence constraint** between activity $A$ and activity $B$ $\iff$ there exists a **directed path where $A$ precedes $B$**.
+
+---
 
 **Note**: such directed graph must be a **DAG** (otherwise there would be a logical inconsistency in the precedence constraints).
 
@@ -358,6 +395,8 @@ Given a network we want to determine a **feasible flow of maximum value**.
 The algorithm works as follows:
 
 - Let $G = (N, A)$ be a **network** and $\underline{x}$ a **feasible flow** (we can always start with $\underline{x} = \underline{0}$).
+
+---
 
 - From $G$ we can build the **so called** residual network $\bar{G}$ = $(N, \bar{A})$ as follows:
     - if $(i, j) \in A \wedge x_{ij} < k_{ij} \implies (i, j) \in \bar{A}$ with **residual capacity** $\bar{k}_{ij} = k_{ij} - x_{ij}$;
