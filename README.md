@@ -6,12 +6,8 @@ Install [Marp CLI](https://github.com/marp-team/marp-cli).
 
 ## Usage
 
-To start the Marp CLI (in watch mode), run the following:
+Start the Marp server by running (_in this directory_):
 ```bash
-marp <input_file>
+marp
 ```
-
-Then you can open the document viewer:
-```bash
-open /tmp/summaries-out.pdf
-```
+and open the browser.
