@@ -22,44 +22,36 @@ and
 
 <style>
 .definitions-of-ai {
-    display: flex;
+    display: grid;
+    grid-template-columns: 7cm 7cm 0.5cm;
+    grid-template-rows: 0.5cm 5cm 5cm;
+    gap: 0.5cm;
     justify-content: center;
+    margin-right: -0.23cm;
 }
 
-.diagram-column {
-    width: 7cm;
-    height: 11cm;
-    display: flex;
-    flex-direction: column;
-}
-
-.column-title {
-    text-align: center;
-}
-
-.diagram-box {
-    text-align: center;
-    margin: 0.5cm;
-    background-color: #8270813F;
-    border-radius: 0.5cm;
-    height: 4cm;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.definitions-of-ai-diagram-box {
+    background: var(--algorithms);
     border-style: solid;
-    border-width: 3pt;
-    border-color: #022B3A;
-}
-
-.flipped-titles {
+    border-radius: 0.5cm;
+    border-color: var(--text);
+    
     display: flex;
     flex-direction: column;
+    align-content: center;
     justify-content: center;
 }
 
-.row-title {
+.defintions-of-ai-definition {
     text-align: center;
-    height: 5cm;
+    font-size: 28pt;
+}
+
+.defintions-of-ai-title {
+    text-align: center;
+}
+
+.definitions-of-ai-flipped-title {
     writing-mode: vertical-rl;
     text-orientation: mixed;
 }
@@ -67,20 +59,15 @@ and
 
 
 <div class="definitions-of-ai">
-    <div class="diagram-column">
-        <div class="column-title">Human performance</div>
-        <div class="diagram-box">Thinking humanly</div>
-        <div class="diagram-box">Acting humanly</div>
-    </div>
-    <div class="diagram-column">
-        <div class="column-title">Rational performance</div>
-        <div class="diagram-box">Thinking rationally</div>
-        <div class="diagram-box">Acting rationally</div>
-    </div>
-    <div class="flipped-titles">
-        <div class="row-title">Thinking</div>
-        <div class="row-title">Acting</div>
-    </div>
+    <div class="defintions-of-ai-title">Human performance</div>
+    <div class="defintions-of-ai-title">Rational performance</div>
+    <div></div>
+    <div class="definitions-of-ai-diagram-box"><div class="defintions-of-ai-definition">Acting humanly</div></div>
+    <div class="definitions-of-ai-diagram-box"><div class="defintions-of-ai-definition">Acting rationally</div></div>
+    <div class="defintions-of-ai-title definitions-of-ai-flipped-title">Acting</div>
+    <div class="definitions-of-ai-diagram-box"><div class="defintions-of-ai-definition">Thinking humanly</div></div>
+    <div class="definitions-of-ai-diagram-box"><div class="defintions-of-ai-definition">Thinking rationally</div></div>
+    <div class="defintions-of-ai-title definitions-of-ai-flipped-title">Thinking</div>
 </div>
 
 ---
