@@ -254,7 +254,7 @@ Let $G = (N, E)$.
 1. &emsp; $K_j \gets s$
 1. &emsp; **if** $\{ s, j \} \in E$:
 1. &emsp; &emsp; $C_j \gets c(\{ s, j \})$ 
-1. &emsp; **else **:
+1. &emsp; **else**:
 1. &emsp; &emsp; $C_j \gets + \infty$
 1. **while** $|S| \neq |N|$:
 1. &emsp; $n \gets argmin_j\{ C_j \mid j \in S^c \}$ // $O(n)$
