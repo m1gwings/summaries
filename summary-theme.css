@@ -11,6 +11,10 @@
     --algorithms: #8270813F;
 }
 
+* {
+    color: var(--text);
+}
+
 section {
     /* A4 document size */
     width: 210mm;
@@ -37,16 +41,23 @@ h1 {
     text-align: center;
 }
 
-h1, h2 {
+h1, h1 *, h2, h2 * {
     color: var(--titles);
 }
 
-h3, h4 {
+h3, h3 *, h4, h4 * {
     color: var(--sub-titles)
 }
 
-strong {
+strong, strong * {
     color: var(--accent);
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid var(--sub-titles);
 }
 
 .algorithm {
