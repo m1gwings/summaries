@@ -53,13 +53,6 @@ strong, strong * {
     color: var(--accent);
 }
 
-table {
-    table-layout: fixed;
-    width: 100%;
-    border-collapse: collapse;
-    border: 3px solid var(--sub-titles);
-}
-
 .algorithm {
     margin-top: 0.5cm;
     margin-bottom: 0.5cm;
