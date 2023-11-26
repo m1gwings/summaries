@@ -413,6 +413,38 @@ Then we iterate the following procedure:
 
 > 5. We change the basis through pivoting (as described before) and go back to 1
 
-### Two-phase simplex method
+### Two-phase Simplex method
 
+From an LP in standard form we can derive the so-called **auxiliary LP**:
 
+<div class="centered-definition-expression">
+
+$\min z = \underline{1}_m^T \underline{y}$
+s. t. $A \underline{x} + I_{m \times m} \underline{y} = \underline{b}$ ;
+$\underline{x} \geq 0, \underline{y} \geq 0$ .
+
+</div>
+
+Without loss of generality we can assume that $\underline{b} \geq \underline{0}$ (_if it is not the case we can substitue all the $b_i < 0$ with $-b_i$ and the corresponding $\underline{a}_i^T$ with $-\underline{a}_i^T$ in the original LP_).
+
+**Observe that**:
+
+- the auxiliary LP has always a basic feasible solution with $\underline{x}_N = \underline{x}$ and $\underline{x}_B = \underline{y}$ where $\underline{y}' = \underline{b} \geq \underline{0}$ (_this implies that the auxiliary LP is always feasible_);
+
+- if the original LP is feasible there exists a solution with $\underline{y}' = \underline{0}$ which must be optimal since $z' = \underline{1}_m^T \underline{0} = 0$ and $\underline{y} \geq \underline{0}$ implies $z \geq 0$, hence, if we find an optimal solution to the auxiliary problem with $\underline{y}' \neq \underline{0}$, then the original LP is infeasible;
+
+- the converse is also true: if there exists a solution with $\underline{y}' = \underline{0}$, then the original LP is feasible.
+
+These considerations allow us to introduce the **two-phase Simplex method**:
+
+1. given an LP in standard form we build the auxiliary LP;
+
+2. we apply the Simplex method to the auxiliary LP (for which we always know an initial feasible basis);
+
+3. if the optimal solution has $\underline{y}' \neq \underline{0}$ then the original LP is infeasible;
+
+4. otherwise the original LP is feasible: if all the $y_i$ are non-basic variables then we have an initial feasible basis for the original LP; we can discard the first row (with the objective function of the auxiliary LP) and the last $m$ columns (related to the variables $\underline{y}$) from the tableau, add the row representing the original objective function on top and perform the pivoting to bring the tableau in (_a "permutation"_) of (\*) form (_we want to have $0$ for all the elements on the first row above a column $\underline{e}_i$_). It can happen that, even if $\underline{y}' = \underline{0}$, some variables $y_i$ are still in the basis, that is, we have a degenerate basic feasible solution. In this case we can bring all the $y_i$ outside of the basis by pivoting in such a way to bring a variable $x_i$ inside.
+
+---
+
+Let's visualize the process with a tableau where we assume that $y_1$ is still in the basis:
