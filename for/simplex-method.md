@@ -433,7 +433,7 @@ Without loss of generality we can assume that $\underline{b} \geq \underline{0}$
 
 - if the original LP is feasible there exists a solution with $\underline{y}' = \underline{0}$ which must be optimal since $z' = \underline{1}_m^T \underline{0} = 0$ and $\underline{y} \geq \underline{0}$ implies $z \geq 0$, hence, if we find an optimal solution to the auxiliary problem with $\underline{y}' \neq \underline{0}$, then the original LP is infeasible;
 
-- the converse is also true: if there exists a solution with $\underline{y}' = \underline{0}$, then the original LP is feasible.
+- the converse is also true: if there exists a basic feasible solution with $\underline{y}' = \underline{0}$, then the original LP is feasible.
 
 These considerations allow us to introduce the **two-phase Simplex method**:
 
@@ -443,8 +443,40 @@ These considerations allow us to introduce the **two-phase Simplex method**:
 
 3. if the optimal solution has $\underline{y}' \neq \underline{0}$ then the original LP is infeasible;
 
-4. otherwise the original LP is feasible: if all the $y_i$ are non-basic variables then we have an initial feasible basis for the original LP; we can discard the first row (with the objective function of the auxiliary LP) and the last $m$ columns (related to the variables $\underline{y}$) from the tableau, add the row representing the original objective function on top and perform the pivoting to bring the tableau in (_a "permutation"_) of (\*) form (_we want to have $0$ for all the elements on the first row above a column $\underline{e}_i$_). It can happen that, even if $\underline{y}' = \underline{0}$, some variables $y_i$ are still in the basis, that is, we have a degenerate basic feasible solution. In this case we can bring all the $y_i$ outside of the basis by pivoting in such a way to bring a variable $x_i$ inside.
+4. otherwise the original LP is feasible: if all the $y_i$ are non-basic variables then we have an initial feasible basis for the original LP; we can discard the first row (with the objective function of the auxiliary LP) and the last $m$ columns (related to the variables $\underline{y}$) from the tableau, add the row representing the original objective function on top and perform the pivoting to bring the tableau in (_a "permutation"_) of (\*) form (_we want to have $0$ for all the elements on the first row above a column $\underline{e}_i$_). It can happen that, even if $\underline{y}' = \underline{0}$, some variables $y_j$ are still in the basis, that is, we have a degenerate basic feasible solution. In this case we can bring all the $y_j$ outside of the basis by pivoting in such a way to bring a variable $x_k$ inside.
 
 ---
 
-Let's visualize the process with a tableau where we assume that $y_1$ is still in the basis:
+Let's visualize the process. Consider the tableau below (**where in the top row we put also the vector of unknows for clarity**) representing a degenerate basic feasible solution with $y_{B,j}' = 0$ (the value below $x_{B,i-1}'$ and above $x_{B,i+1}'$ in the first column) in the basis; for simplicity we will assume that the "$x$"-basic variables ($x_{B,1}, x_{B,2}, ...$) are in the vector of unknowns with the same order with which their corresponding values ($x_{B,1}', x_{B,2}', ...$) appear in the first column (_as always this doesn't compromise generality_):
+
+$$
+\left[ \begin{matrix}
+ & ... & x_{B,1} & ... & x_{B,i-1} & ... & x_k & ... & x_{B,i+1} & ... & x_{B,m} & ... & y_{B,j} & ... \: \\
+-z_0 & ... & 0 & ... & 0 & ... & \alpha_0 & ... & 0 & ... & 0 & ... & 0 & ... \: \\
+x_{B,1}' & ... & 1 & ... & 0 & ... & \alpha_1 & ... & 0 & ... & 0 & ... & 0 & ... \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+x_{B,i-1}' & ... & 0 & ... & 1 & ... & \alpha_{i-1} & ... & 0 & ... & 0 & ... & 0 & ... \: \\
+0 & ... & 0 & ... & 0 & ... & \alpha_i & ... & 0 & ... & 0 & ... & 1 & ... \: \\
+x_{B,i+1}' & ... & 0 & ... & 0 & ... & \alpha_{i+1} & ... & 1 & ... & 0 & ... & 0 & ... \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+x_{B,m}' & ... & 0 & ... & 0 & ... & \alpha_{m} & ... & 0 & ... & 1 & ... & 0 & ... \: \\
+\end{matrix} \right]
+$$
+
+In order to perform the pivoting we need to choose a variable $x_k$ whose coefficient in the row which determines the value of $y_{B,j}$ (above it is the $i+1$-th row if we don't account for the top row with the vector of unknowns) is different from zero. That is we will assume that $\alpha_i \neq 0$ (**the column relative to $x_{k}$ doesn't need to be between the columns relative to $x_{B,i-1}$ and $x_{B,i+1}$ in general**). Then it easy to see that after the pivoting we get the following tableau:
+
+$$
+\left[ \begin{matrix}
+ & ... & x_{B,1} & ... & x_{B,i-1} & ... & x_k & ... & x_{B,i+1} & ... & x_{B,m} & ... & y_{B,j} & ... \: \\
+-z_0 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_0}{\alpha_i} & ... \: \\
+x_{B,1}' & ... & 1 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_1}{\alpha_i} & ... \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+x_{B,i-1}' & ... & 0 & ... & 1 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_{i-1}}{\alpha_i} & ... \: \\
+0 & ... & 0 & ... & 0 & ... & 1 & ... & 0 & ... & 0 & ... & \frac{1}{\alpha_i} & ... \: \\
+x_{B,i+1}' & ... & 0 & ... & 0 & ... & 0 & ... & 1 & ... & 0 & ... & -\frac{\alpha_{i+1}}{\alpha_i} & ... \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+x_{B,m}' & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & 1 & ... & -\frac{\alpha_m}{\alpha_i} & ... \: \\
+\end{matrix} \right]
+$$
+
+**That is** the value of every other basic variable (different from $y_{B,j}$) isn't affected and the new value for $x_{k}$ is $0$: we still have a degenerate basic feasible solution; but $y_{B,j}$ is now outside of the basis, while $x_{k}$ (which we can rename into $x_{B,i}$) is inside.
