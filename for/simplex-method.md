@@ -69,7 +69,7 @@ $\underline{x} \geq 0$.
 
 - A **level curve** of value $z$ of a function $f$ is the set of points in $\mathbb{R}^n$ where $f$ is constant and takes value $z$.
 
-#### Planes and hyperplanes
+#### Hyperplanes and affine half-spaces
 
 - We say that $H = \{ \underline{x} \in \mathbb{R}^n \mid \underline{a}^T \underline{x} = b \}$ is a **hyperplane**, while $H^- = \{ \underline{x} \in \mathbb{R}^n \mid \underline{a}^T \underline{x} \leq b \}$ is an **affine half-space**.
 
@@ -91,7 +91,7 @@ $\underline{x} \geq 0$.
 
 ### Algebraic characterization of LP
 
-- Consider an $m \times n$ matrix $A$, a **basis** of $A$ is a subset of $m$ columns of $A$ that are linearly independent and form an $m \times m$ matrix $B$. (Sometimes we will refer to $B$ as the basis).
+- Consider an $m \times n$ matrix $A$ (_with $m \leq n$_), a **basis** of $A$ is a subset of $m$ columns of $A$ that are linearly independent and form an $m \times m$ matrix $B$. (Sometimes we will refer to $B$ as the basis).
 
 ---
 
@@ -105,7 +105,7 @@ $\underline{x} \geq 0$.
 
 - Given a basis $B$, we denote with **$z_0$** the quantity $\underline{c}_B^T B^{-1} \underline{b}$.
 
-- A **basic feasible solution** $\underline{x}'$ is **degenerate** if it contains at least one basic variable $x_{B,i}' = 0$ .
+- A **basic feasible solution** $\underline{x}'$ is **degenerate** if it contains at least one basic variable with value $x_{B,i}' = 0$ .
 
 ---
 
@@ -138,9 +138,9 @@ x_j^+, x_j^- \geq 0
 
 5. The **gradient** $\nabla f$ of a function $f$ indicates the **direction of fastest increse** of $f$.
 
-#### Planes and hyperplanes
+#### Hyperplanes and affine half-spaces
 
-6. We can write every plane as $H = \{ \underline{x}_P + \underline{y} \mid \underline{a}^T \underline{y} = 0 \}$ and every hyperplane as $H^- = \{ \underline{x}_P + \underline{y} \mid \underline{a}^T \underline{y} \leq 0 \}$ where $\underline{a}^T \underline{x}_P = b$ (_the proofs are straightforward, just apply the usual technique for showing that two sets are equal_).
+6. We can write every hyperplane as $H = \{ \underline{x}_P + \underline{y} \mid \underline{a}^T \underline{y} = 0 \}$ and every affine half-space as $H^- = \{ \underline{x}_P + \underline{y} \mid \underline{a}^T \underline{y} \leq 0 \}$ where $\underline{a}^T \underline{x}_P = b$ (_the proofs are straightforward, just apply the usual technique for showing that two sets are equal_).
 
 > **Remark**: Since $\cos(\underline{a}, \underline{y}) = \frac{\underline{a}^T \underline{y}}{\lVert a \rVert \lVert y \rVert} \leq 0$ if $\underline{a}^T \underline{y} \leq 0$, then the points of $H^-$ lie in the _"opposite half"_ w. r. t. $\underline{a}$ after we have _"split"_ $\mathbb{R}^n$ in two through $H$.
 
@@ -150,7 +150,7 @@ x_j^+, x_j^- \geq 0
 
 8. The **feasible region** of any LP is a **polyhedron** (_remember that we can express an equality constraint as $\underline{a}^T \underline{x} \leq b \wedge \underline{a}^T \underline{x} \geq b$_).
 
-9. Every **polyhedron** is a **convex** set of $\mathbb{R}^n$ (_it follows immediately by property 7 that every half-space is convex and it is trivial that the intersection of a finite number of convex sets is convex_).
+9. Every **polyhedron** is a **convex** subset of $\mathbb{R}^n$ (_it follows immediately by property 7 that every half-space is convex and it is trivial that the intersection of a finite number of convex sets is convex_).
 
 ---
 
@@ -170,7 +170,7 @@ x_j^+, x_j^- \geq 0
 > - Case 1: $P$ has an unbounded feasible direction $\underline{d}$ s. t. $\underline{c}^T \underline{d} < 0$
 >>> Let $\underline{x}_P \in P$, then $\underline{x}_0 + \lambda \underline{d} \in P$ for every $\lambda \geq 0$. Hence the set of values of the objective function on $P$ is a super set of $\{ \underline{c}^T \underline{x}_P + \lambda \underline{c}^T \underline{d} \mid \lambda \geq 0 \}$ which is **unbounded below** by hypothesis.
 > - Case 2: $P$ has no unbounded feasible direction $\underline{d}$ s. t. $\underline{c}^T \underline{d} < 0$
->>> Then for every unbounded feasible direction $\underline{d}$, $\underline{c}^T \underline{d} \geq 0$. Since we can write every point $\underline{x} \in P$ as $\underline{x} = \alpha_1 \underline{x}_1 + ... + \alpha_k \underline{x}_k + \underline{d}$ where $\alpha_i \geq 0$, $\alpha_1 + ... + \alpha_k = 1$ and $\underline{d}$ can be $\underline{0}$ (_by theorem 12_), $\underline{c}^T \underline{x} = \alpha_1 \underline{c}^T + ... + \alpha_k \underline{c}^T \underline{x_k} + \underline{c}^T \underline{d}$
+>>> Then for every unbounded feasible direction $\underline{d}$, $\underline{c}^T \underline{d} \geq 0$. Since we can write every point $\underline{x} \in P$ as $\underline{x} = \alpha_1 \underline{x}_1 + ... + \alpha_k \underline{x}_k + \underline{d}$ where $\alpha_i \geq 0$, $\alpha_1 + ... + \alpha_k = 1$ and $\underline{d}$ can be $\underline{0}$ (_by theorem 12_), $\underline{c}^T \underline{x} = \alpha_1 \underline{c}^T \underline{x}_1 + ... + \alpha_k \underline{c}^T \underline{x_k} + \underline{c}^T \underline{d}$
 $\geq \alpha_1 \underline{c}^T + ... + \alpha_k \underline{c}^T \underline{x_k}$ (_by hypothesis_)
 $\geq \min_{i \in \{1, ..., k\}} \underline{c}^T \underline{x}_i$ (_we are exploiting the fact that $\underline{c}^T \underline{x}_i \geq \min \underline{c}^T \underline{x}_j$ , $\alpha_i \geq 0$ preserves the inequality direction, $\alpha_1 + ... + \alpha_k = 1$_). Then, said $\overline{i} = arg\,min_{i \in {1, ..., k}} \underline{c}^T \underline{x}_i$, $x_{\overline{i}}$ is an **optimal vertex**.
 
@@ -241,7 +241,7 @@ These matrices are both invertible, hence (as we know from basic linear algebra)
 
 ---
 
-Applying the pivoting to the _"last"_ $m$ columns of the tableau in order to bring $B$ into $I$ is equivalent to the following premultiplication:
+Applying the pivoting to the _"last"_ $m$ rows of the tableau in order to bring $B$ into $I$ is equivalent to the following premultiplication:
 
 $$\left[ \begin{matrix}
 1 & \underline{0}_m^T \\
@@ -358,7 +358,7 @@ $$
 
 **Remarks**:
 
-- The new tableau **still** represents a **basic solution** (_remember that the pivoting preserves the underlying system of equations_) where the basic variables are $x_{B,1}, ..., x_{B,i-1}, x_{B,i+1}, ..., x_{B,m}, x_{N,j}$ and the non-basic variables are $x_{N,1}, ..., x_{N,j-1}, x_{N,j+1}, ..., x_{N,n-m}, x_{B,i}$ (_if we swap the $m+j+1$-th column with the $i+1$-th we get a tableau exactly in (*) form_);
+- The new tableau **still** represents a **basic solution** (_remember that the pivoting preserves the underlying system of equations_) where the basic variables are $x_{B,1}, ..., x_{B,i-1}, x_{B,i+1}, ..., x_{B,m}, x_{N,j}$ and the non-basic variables are $x_{N,1}, ..., x_{N,j-1}, x_{N,j+1}, ..., x_{N,n-m}, x_{B,i}$ (_if we swap the $(m+j+1)$-th column with the $(i+1)$-th we get a tableau exactly in (*) form_);
 
 - The solution is **also feasible**: $\theta_i \geq 0$ (_by assumptions 2 and 4_), for every $k$ s. t. $a_{k,m+j} \leq 0$ , $x_{B,k}' - a_{k,m+j} \theta_i \geq x_{B,k}' \geq 0$ (_by assumption 2 and since $\theta_i \geq 0$_), for every $k$ s. t. $a_{k,m+j} > 0$, $x_{B,k}' - a_{k,m+j} \theta_i = a_{k,m+j}(\theta_k - \theta_i) \geq 0$ (_by assumptions 4 and 5_);
 
@@ -443,7 +443,7 @@ These considerations allow us to introduce the **two-phase Simplex method**:
 
 3. if the optimal solution has $\underline{y}' \neq \underline{0}$ then the original LP is infeasible;
 
-4. otherwise the original LP is feasible: if all the $y_i$ are non-basic variables then we have an initial feasible basis for the original LP; we can discard the first row (with the objective function of the auxiliary LP) and the last $m$ columns (related to the variables $\underline{y}$) from the tableau, add the row representing the original objective function on top and perform the pivoting to bring the tableau in (_a "permutation"_) of (\*) form (_we want to have $0$ for all the elements on the first row above a column $\underline{e}_i$_). It can happen that, even if $\underline{y}' = \underline{0}$, some variables $y_j$ are still in the basis, that is, we have a degenerate basic feasible solution. In this case we can bring all the $y_j$ outside of the basis by pivoting in such a way to bring a variable $x_k$ inside.
+4. otherwise the original LP is feasible: if all the $y_i$ are non-basic variables then we have an initial feasible basis for the original LP; we can discard the first row (with the objective function of the auxiliary LP) and the last $m$ columns (related to the variables $\underline{y}$) from the tableau, add the row representing the original objective function on top and perform the pivoting to bring the tableau in (_a "permutation"_) of (\*) form (_we want to have $0$ for all the elements on the first row above a column $\underline{e}_i$_). It can happen that, even if $\underline{y}' = \underline{0}$, some variables $y_j$ are still in the basis, that is, we have a degenerate basic feasible solution. In this case we can bring all the $y_j$ outside of the basis by pivoting in such a way to bring a variable $x_k$ inside (_see how in the page that follows_).
 
 ---
 
@@ -454,27 +454,27 @@ $$
  & ... & x_{B,1} & ... & x_{B,i-1} & ... & x_k & ... & x_{B,i+1} & ... & x_{B,m} & ... & y_{B,j} & ... \: \\
 -z_0 & ... & 0 & ... & 0 & ... & \alpha_0 & ... & 0 & ... & 0 & ... & 0 & ... \: \\
 x_{B,1}' & ... & 1 & ... & 0 & ... & \alpha_1 & ... & 0 & ... & 0 & ... & 0 & ... \: \\
-... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... \: \\
 x_{B,i-1}' & ... & 0 & ... & 1 & ... & \alpha_{i-1} & ... & 0 & ... & 0 & ... & 0 & ... \: \\
 0 & ... & 0 & ... & 0 & ... & \alpha_i & ... & 0 & ... & 0 & ... & 1 & ... \: \\
 x_{B,i+1}' & ... & 0 & ... & 0 & ... & \alpha_{i+1} & ... & 1 & ... & 0 & ... & 0 & ... \: \\
-... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... \: \\
 x_{B,m}' & ... & 0 & ... & 0 & ... & \alpha_{m} & ... & 0 & ... & 1 & ... & 0 & ... \: \\
 \end{matrix} \right]
 $$
 
-In order to perform the pivoting we need to choose a variable $x_k$ whose coefficient in the row which determines the value of $y_{B,j}$ (above it is the $i+1$-th row if we don't account for the top row with the vector of unknowns) is different from zero. That is we will assume that $\alpha_i \neq 0$ (**the column relative to $x_{k}$ doesn't need to be between the columns relative to $x_{B,i-1}$ and $x_{B,i+1}$ in general**). Then it easy to see that after the pivoting we get the following tableau:
+In order to perform the pivoting we need to choose a variable $x_k$ whose coefficient in the row which determines the value of $y_{B,j}$ (above it is the $(i+1)$-th row if we don't account for the top row with the vector of unknowns) is different from zero. That is we will assume that $\alpha_i \neq 0$ (**the column relative to $x_{k}$ doesn't need to be between the columns relative to $x_{B,i-1}$ and $x_{B,i+1}$ in general**). Then it easy to see that after the pivoting we get the following tableau:
 
 $$
 \left[ \begin{matrix}
  & ... & x_{B,1} & ... & x_{B,i-1} & ... & x_k & ... & x_{B,i+1} & ... & x_{B,m} & ... & y_{B,j} & ... \: \\
 -z_0 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_0}{\alpha_i} & ... \: \\
 x_{B,1}' & ... & 1 & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_1}{\alpha_i} & ... \: \\
-... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... \: \\
 x_{B,i-1}' & ... & 0 & ... & 1 & ... & 0 & ... & 0 & ... & 0 & ... & -\frac{\alpha_{i-1}}{\alpha_i} & ... \: \\
 0 & ... & 0 & ... & 0 & ... & 1 & ... & 0 & ... & 0 & ... & \frac{1}{\alpha_i} & ... \: \\
 x_{B,i+1}' & ... & 0 & ... & 0 & ... & 0 & ... & 1 & ... & 0 & ... & -\frac{\alpha_{i+1}}{\alpha_i} & ... \: \\
-... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & \: \\
+... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... & ... \: \\
 x_{B,m}' & ... & 0 & ... & 0 & ... & 0 & ... & 0 & ... & 1 & ... & -\frac{\alpha_m}{\alpha_i} & ... \: \\
 \end{matrix} \right]
 $$
