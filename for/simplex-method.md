@@ -1,3 +1,6 @@
+---
+theme: summary
+---
 # The Simplex method
 
 <div class="author">

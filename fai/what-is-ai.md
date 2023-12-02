@@ -1,3 +1,6 @@
+---
+theme: summary
+---
 # What is Artificial Intelligence?
 
 <div class="author">

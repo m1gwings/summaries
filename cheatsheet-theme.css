@@ -1,0 +1,48 @@
+/*! @theme cheatsheet */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@300&family=Noto+Sans:ital,wght@0,400;0,700;1,400&display=swap');
+
+section {
+    /* A4 document size */
+    width: 297mm;
+    height: 210mm;
+
+    padding: 1cm;
+
+    font-family: 'Noto Sans', sans-serif;
+    
+    background: white;
+}
+
+* {
+    color: black;
+}
+
+pre {
+    font-family: 'Noto Sans Mono', monospace;
+    border: 2px solid black;
+    border-radius: 0.5cm;
+    padding: 0.3cm;
+}
+
+/* If you'd need to change math font size:
+.MathJax {
+    font-size: ...;
+}
+*/
+
+.multiple-columns {
+    display: flex;
+    flex-direction: row;
+}
+
+.column {
+    flex: 1;
+    border-right: 1px solid black;
+    padding-left: 0.2cm;
+    padding-right: 0.2cm;
+}
+
+.column:last-child {
+    border-right: transparent;
+}

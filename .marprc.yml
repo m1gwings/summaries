@@ -2,5 +2,7 @@ author: "Cristiano Migali"
 inputDir: "./"
 html: true
 pdf: true
-theme: "summary-theme.css"
+theme-set:
+  - "summary-theme.css"
+  - "cheatsheet-theme.css"
 server: true

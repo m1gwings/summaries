@@ -1,3 +1,6 @@
+---
+theme: summary
+---
 # Graph theory
 
 <div class="author">
