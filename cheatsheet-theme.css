@@ -15,6 +15,11 @@ section {
     background: white;
 }
 
+section::after {
+    content: attr(data-marpit-pagination) '/' attr(data-marpit-pagination-total);
+    padding: 0.3cm;
+}
+
 * {
     color: black;
 }

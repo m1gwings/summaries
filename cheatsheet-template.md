@@ -1,5 +1,6 @@
 ---
 theme: cheatsheet
+paginate: true
 ---
 # My cheatsheet
 
@@ -47,6 +48,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel nunc commod
 <div class="column">
 
 Third column
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel nunc commodo, accumsan ligula at, convallis urna. Duis aliquam neque eu elit varius pharetra id vel elit. Maecenas tempus semper nisl quis dapibus. Maecenas dignissim consequat nisi, sit amet euismod lorem rutrum vel. Sed tristique purus tellus, sed egestas mi lacinia quis. Suspendisse nec luctus urna. Duis iaculis turpis quis auctor consequat. Phasellus porttitor, neque ut pretium maximus, nulla nulla rhoncus risus, id dignissim velit risus a nisl. Nam in lectus sit amet dolor fermentum semper. Nam aliquet est est, et suscipit nibh rutrum quis. Suspendisse ut diam id mi lobortis pulvinar sed nec sem.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel nunc commodo, accumsan ligula at, convallis urna. Duis aliquam neque eu elit varius pharetra id vel elit. Maecenas tempus semper nisl quis dapibus. Maecenas dignissim consequat nisi, sit amet euismod lorem rutrum vel. Sed tristique purus tellus, sed egestas mi lacinia quis. Suspendisse nec luctus urna. Duis iaculis turpis quis auctor consequat. Phasellus porttitor, neque ut pretium maximus, nulla nulla rhoncus risus, id dignissim velit risus a nisl. Nam in lectus sit amet dolor fermentum semper. Nam aliquet est est, et suscipit nibh rutrum quis. Suspendisse ut diam id mi lobortis pulvinar sed nec sem.
 
