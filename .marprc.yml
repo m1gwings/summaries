@@ -3,6 +3,6 @@ inputDir: "./"
 html: true
 pdf: true
 theme-set:
-  - "summary-theme.css"
-  - "cheatsheet-theme.css"
+  - "themes/summary-theme.css"
+  - "themes/cheatsheet-theme.css"
 server: true
