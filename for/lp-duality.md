@@ -356,3 +356,75 @@ $$
 - **Corollary**: if $\underline{x}$ is a feasible solution of (P), $\underline{y}$ is a feasible solution of (D), and $\underline{c}^T \underline{x} = \underline{b}^T \underline{y}$ , then $\underline{x}$ is optimal for (P) and $\underline{y}$ is optimal for (D).
 
 - **Strong duality theorem**: (_we will adopt the notation used in the statement of the Weak duality theorem_) if $\{ \underline{c}^T \underline{x} \mid \underline{x} \in X \}$ admits minimum, then there exist $\underline{x}^* \in X$ and $\underline{y}^* \in Y$ s. t. **$\underline{c}^T \underline{x}^* = \underline{b}^T \underline{y}$** .
+
+> **Proof**: First of all remember that we can always write (P) in standard form:
+
+$$
+\begin{matrix}
+\min z = \underline{c}^T \underline{x} \\
+\text{s. t. } A \underline{x} \geq \underline{b} \\
+\underline{x} \geq \underline{0}_n
+\end{matrix}
+
+\: \equiv \:\:
+
+\begin{matrix}
+\min z = \underline{c}^T \underline{x} + \underline{0}_m^T \underline{s} \\
+\text{s. t. } A \underline{x} - I_m \underline{s} = \underline{b} \\
+\underline{x} \geq \underline{0}_n, \underline{s} \geq \underline{0}_m
+\end{matrix} \text{ .}
+$$
+
+> By assumption (P) admits an optimal solution, hence, (as we know) the Simplex method with Bland's rule can provide one after a finite number of iterations. Furthermore, due to the termination condition of the Simplex method, the vector of reduced costs associated with such solution must be non-negative. Let's write everything in formulas: the Simplex method provides
+
+$$
+\underline{x}^* = \left[ \begin{matrix} \underline{x}_{B_A}^* & \underline{x}_{N_A}^* & \underline{x}_{B_{-I_m}}^* & \underline{x}_{N_{-I_m}}^* \end{matrix} \right]^T
+\text{ where } \underline{x}_B^* = \left[ \begin{matrix} \underline{x}_{B_A}^* \\ \underline{x}_{B_{-I_m}}^* \end{matrix} \right], \underline{x}_N^* = \left[ \begin{matrix} \underline{x}_{N_A}^* \\ \underline{x}_{N_{-I_m}}^* \end{matrix} \right]
+$$
+
+$$
+\underline{c}_B = \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{B_{-I_m}} \end{matrix} \right],
+\underline{c}_N = \left[ \begin{matrix} \underline{c}_{N_A} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right],
+B = \left[ \begin{matrix} B_A & B_{-I_m} \end{matrix} \right], N = \left[ \begin{matrix} N_A & N_{-I_m} \end{matrix} \right],
+$$
+
+$$
+\text{with } \underline{x}_B^* = B^{-1} \underline{b}, \underline{x}_N^* = \underline{0}_n,
+\left[ \begin{matrix} B_A & N_A & B_{-I_m} & N_{-I_m} \end{matrix} \right] = \left[ \begin{matrix} A & -perm(I_m) \end{matrix} \right],
+$$
+
+> (_$perm(I_m)$ is a matrix with the columns of $I_m$, potentially in a different order_) such that
+
+$$
+\underline{\overline{c}}_N^T = \underline{c}_N^T - (\underline{c}_B^T B^{-1}) N \geq \underline{0} \text{ .}
+$$
+
+> **Remark**: as we know a basic feasible solution provided by the simplex method is determined by a basis, that is, a set of linearly independent columns of $\left[ \begin{matrix} A & -I_m \end{matrix} \right]$ (_in this case_). The linearly independent columns can be either columns of $A$ or $-I_m$, then, without loss of generality (_by renaming variables_) we can assume that the basis is composed by the first $k$ columns of $A$ and the first $l$ columns of $-perm(I)_m$, with $k + l = m$.
+
+---
+
+> Now let $\underline{\overline{y}} = (B^{-1})^T \underline{c}_B \in \mathbb{R}^m$ (_since $B \in \mathbb{R}^{m \times m}$_). First of all we will prove that $\underline{\overline{y}}$ is a feasible solution of (D):
+
+$$
+\underline{0} \leq \underline{\overline{c}}_N^T = \underline{c}_N^T - \underline{\overline{y}}^T N \iff N^T \underline{\overline{y}} \leq \underline{c}_N \text{ ;}
+$$
+
+> furthermore
+
+$$
+\underline{0} = \underline{\overline{c}}_B^T = \underline{c}_B^T - \underline{\overline{y}}^T B \iff B^T \underline{\overline{y}} = \underline{c}_B \text{ .}
+$$
+
+> Then
+
+$$
+\left[ \begin{matrix} A^T \\ -perm(I_m) \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \\ N_A^T \\ B_{-I_m}^T \\ N_{-I_m}^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \underline{\overline{y}} \\ N_A^T \underline{\overline{y}} \\ B_{-I_m}^T \underline{\overline{y}} \\ N_{-I_m}^T \underline{\overline{y}} \end{matrix} \right] \leq \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] \text{ .}
+$$
+
+> Now observe that, by how we have defined the variables $\underline{x}_{B_A}, \underline{x}_{N_A}, \underline{x}_{B_{-I_m}}, \underline{x}_{N_{-I_m}}$ it follows that $\left[ \begin{matrix} \underline{c}_{B_A} & \underline{c}_{N_A} \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}} & \underline{c}_{N_{-I_m}} \end{matrix}\right]^T = \underline{0}_n^T$, then, the inequality above is equivalent to:
+
+$$
+A^T \underline{\overline{y}} \leq \underline{c} \: \land \: \underline{\overline{y}} \geq \underline{0} 
+$$
+
+> (_the second inequality follows from $-perm(I_m) \underline{\overline{y}} \leq \underline{0}$_). That is, $\underline{\overline{y}}$ is a feasible solution of (D) (as we wanted to prove).
