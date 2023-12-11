@@ -391,18 +391,20 @@ $$
 
 $$
 \text{with } \underline{x}_B^* = B^{-1} \underline{b}, \underline{x}_N^* = \underline{0}_n,
-\left[ \begin{matrix} B_A & N_A & B_{-I_m} & N_{-I_m} \end{matrix} \right] = \left[ \begin{matrix} A & -perm(I_m) \end{matrix} \right],
+\left[ \begin{matrix} B_A & N_A & B_{-I_m} & N_{-I_m} \end{matrix} \right] = \left[ \begin{matrix} A & -I_m \end{matrix} \right] \text{ (see remark below)},
 $$
 
-> (_$perm(I_m)$ is a matrix with the columns of $I_m$, potentially in a different order_) such that
+> such that
 
 $$
 \underline{\overline{c}}_N^T = \underline{c}_N^T - (\underline{c}_B^T B^{-1}) N \geq \underline{0} \text{ .}
 $$
 
-> **Remark**: as we know a basic feasible solution provided by the simplex method is determined by a basis, that is, a set of linearly independent columns of $\left[ \begin{matrix} A & -I_m \end{matrix} \right]$ (_in this case_). The linearly independent columns can be either columns of $A$ or $-I_m$, then, without loss of generality (_by renaming variables_) we can assume that the basis is composed by the first $k$ columns of $A$ and the first $l$ columns of $-perm(I)_m$, with $k + l = m$.
+> **Remark**: as we know a basic feasible solution provided by the simplex method is determined by a basis, that is, a set of linearly independent columns of $\left[ \begin{matrix} A & -I_m \end{matrix} \right]$ (_in this case_). We can modify the initial constraints matrix $A$, keeping the LP equivalent (_by swapping rows and columns_), in such a way that the basis $B$ is composed by the first $k$ columns of $A$ and the first $l$ columns of $-I_m$, with $k + l = m$ . In particular we can rename the $\underline{x}$ variables, which is equivalent to swapping the columns of $A$ , to ensure that the linear independent columns in $B$ which belong to $A$, are at the beginning of $A$, and (_cont'd_)
 
 ---
+
+> (_cont'd_) we can change the order of the constraints, which is equivalent to swapping the rows of $A$, to ensure that the constraints which are associated to **non-basic** slack variables (those satisfied with equality) are "_at the bottom_" which implies that the linear independent columns in $B$ which belong to $-I_m$ are at the beginning of $-I_m$.
 
 > Now let $\underline{\overline{y}} = (B^{-1})^T \underline{c}_B \in \mathbb{R}^m$ (_since $B \in \mathbb{R}^{m \times m}$_). First of all we will prove that $\underline{\overline{y}}$ is a feasible solution of (D):
 
@@ -419,16 +421,17 @@ $$
 > Then
 
 $$
-\left[ \begin{matrix} A^T \\ -perm(I_m)^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \\ N_A^T \\ B_{-I_m}^T \\ N_{-I_m}^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \underline{\overline{y}} \\ N_A^T \underline{\overline{y}} \\ B_{-I_m}^T \underline{\overline{y}} \\ N_{-I_m}^T \underline{\overline{y}} \end{matrix} \right] \leq \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] \text{ .}
+\left[ \begin{matrix} A^T \underline{\overline{y}} \\ -\underline{\overline{y}} \end{matrix} \right] =
+\left[ \begin{matrix} A^T \\ -I_m \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \\ N_A^T \\ B_{-I_m}^T \\ N_{-I_m}^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \underline{\overline{y}} \\ N_A^T \underline{\overline{y}} \\ B_{-I_m}^T \underline{\overline{y}} \\ N_{-I_m}^T \underline{\overline{y}} \end{matrix} \right] \leq \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] \text{ .}
 $$
 
-> Now observe that, by how we have defined the variables $\underline{x}_{B_A}, \underline{x}_{N_A}, \underline{x}_{B_{-I_m}}, \underline{x}_{N_{-I_m}}$ it follows that $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$, then, the inequality above is equivalent to:
+> Now observe that, by how we have partitioned $\left[ \begin{matrix} A & -I_m \end{matrix} \right]$ , it follows that $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$, then, the inequality above is equivalent to:
 
 $$
-A^T \underline{\overline{y}} \leq \underline{c} \: \land \: \underline{\overline{y}} \geq \underline{0} 
+A^T \underline{\overline{y}} \leq \underline{c} \: \land \: \underline{\overline{y}} \geq \underline{0} \text{ .}
 $$
 
-> (_the second inequality follows from $-perm(I_m)^T \underline{\overline{y}} \leq \underline{0}$_). That is, $\underline{\overline{y}}$ is a feasible solution of (D) (as we wanted to prove).
+> That is, $\underline{\overline{y}}$ is a feasible solution of (D) (as we wanted to prove).
 
 > Now let's prove that $\underline{\overline{y}}$ is optimal:
 
@@ -437,7 +440,10 @@ $$
 $$
 
 $$
-= \left[ \begin{matrix} (\underline{x}_{B_A}^*)^T & \underline{0}^T & (\underline{x}_{B_{-I_m}}^*)^T & \underline{0}^T \end{matrix} \right] \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] = (\underline{x}^*)^T \underline{c}
+= \left[ \begin{matrix} (\underline{x}_{B_A}^*)^T & \underline{0}_{n-k}^T & (\underline{x}_{B_{-I_m}}^*)^T & \underline{0}_{m-l}^T \end{matrix} \right] \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] = (\underline{x}^*)^T \underline{c}
 $$
 
 > since $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$ (as we remarked before).
+
+---
+
