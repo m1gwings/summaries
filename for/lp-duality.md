@@ -27,7 +27,7 @@ $\sum_{j=1}^n a_{1j} x_j \leq b_1$ ,
 ...,
 $\sum_{j=1}^n a_{mj} x_j \leq b_m$ ,
 
-$x_j \geq 0 \forall j \in \{ 1, ..., n \}$
+$x_j \geq 0 \forall j \in \{ 1, ..., n \}$ .
 
 </div>
 
@@ -155,8 +155,7 @@ $$
 
 \begin{matrix}
 - \min \underline{b}^T \underline{y}_1 - \underline{b}^T \underline{y}_2 \\
-\text{s. t. } A^T \underline{y}_1 \geq - \underline{c} \\
--A^T \underline{y}_2 \geq -\underline{c} \\
+\text{s. t. } A^T \underline{y}_1 -A^T \underline{y}_2 \geq - \underline{c} \\
 \underline{y}_1, \underline{y}_2 \geq \underline{0}
 \end{matrix}
 
@@ -246,6 +245,8 @@ Rule                                                                    |Primal 
 **constraint  with equality $\implies$ variable $\in \mathbb{R}$**      | $\sum_{j=1}^n a_{ij} x_j = b_i$                           | $y_i \in \mathbb{R}$ (unrestricted in sign)
 **constraint in natural direction $\implies$ variable $\geq 0$**        | $\sum_{j=1}^n a_{ij} x_j \leq b_i$ (if **(P)** is $\max$) | $y_i \geq 0$
 **constraint not in natural direction $\implies$ variable $\leq 0$**    | $\sum_{j=1}^n a_{ij} x_j \geq b_i$ (if **(P)** is $\max$) | $y_i \leq 0$
+**variable $\in \mathbb{R} \implies$ constraint with equality**         | $x_j \in \mathbb{R}$ (unrestricted in sign)               | $\sum_{i=1}^m a_{ij} y_i = c_j$
+
 </div>
 </div>
 
@@ -256,9 +257,9 @@ Rule                                                                    |Primal 
 
 Rule                                                                    |Primal LP **(P)**                                          | Dual LP **(D)**
 ------------------------------------------------------------------------|-----------------------------------------------------------|-----------------------------------------------
-**variable $\in \mathbb{R} \implies$ constraint with equality**         | $x_j \in \mathbb{R}$ (unrestricted in sign)               | $\sum_{i=1}^m a_{ij} y_i = c_j$
 **variable $\geq 0 \implies$ constraint in natural direction**          | $x_j \geq 0$                                              | $\sum_{i=1}^m a_{ij} y_i \geq c_j$ (if **(P)** is $\max$)
-**variable $\leq 0 \implies$ constraint not in natual direction**        | $x_j \leq 0$                                              | $\sum_{i=1}^m a_{ij} y_i \leq c_j$ (if **(P)** is $\max$)
+**variable $\leq 0 \implies$ constraint not in natual direction**       | $x_j \leq 0$                                              | $\sum_{i=1}^m a_{ij} y_i \leq c_j$ (if **(P)** is $\max$)
+
 </div>
 </div>
 
@@ -378,7 +379,7 @@ $$
 > By assumption (P) admits an optimal solution, hence, (as we know) the Simplex method with Bland's rule can provide one after a finite number of iterations. Furthermore, due to the termination condition of the Simplex method, the vector of reduced costs associated with such solution must be non-negative. Let's write everything in formulas: the Simplex method provides
 
 $$
-\underline{x}^* = \left[ \begin{matrix} \underline{x}_{B_A}^* & \underline{x}_{N_A}^* & \underline{x}_{B_{-I_m}}^* & \underline{x}_{N_{-I_m}}^* \end{matrix} \right]^T
+\underline{x}^* = \left[ \begin{matrix} (\underline{x}_{B_A}^*)^T & (\underline{x}_{N_A}^*)^T & (\underline{x}_{B_{-I_m}}^*)^T & (\underline{x}_{N_{-I_m}}^*)^T \end{matrix} \right]^T
 \text{ where } \underline{x}_B^* = \left[ \begin{matrix} \underline{x}_{B_A}^* \\ \underline{x}_{B_{-I_m}}^* \end{matrix} \right], \underline{x}_N^* = \left[ \begin{matrix} \underline{x}_{N_A}^* \\ \underline{x}_{N_{-I_m}}^* \end{matrix} \right]
 $$
 
@@ -418,13 +419,25 @@ $$
 > Then
 
 $$
-\left[ \begin{matrix} A^T \\ -perm(I_m) \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \\ N_A^T \\ B_{-I_m}^T \\ N_{-I_m}^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \underline{\overline{y}} \\ N_A^T \underline{\overline{y}} \\ B_{-I_m}^T \underline{\overline{y}} \\ N_{-I_m}^T \underline{\overline{y}} \end{matrix} \right] \leq \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] \text{ .}
+\left[ \begin{matrix} A^T \\ -perm(I_m)^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \\ N_A^T \\ B_{-I_m}^T \\ N_{-I_m}^T \end{matrix} \right] \underline{\overline{y}} = \left[ \begin{matrix} B_A^T \underline{\overline{y}} \\ N_A^T \underline{\overline{y}} \\ B_{-I_m}^T \underline{\overline{y}} \\ N_{-I_m}^T \underline{\overline{y}} \end{matrix} \right] \leq \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] \text{ .}
 $$
 
-> Now observe that, by how we have defined the variables $\underline{x}_{B_A}, \underline{x}_{N_A}, \underline{x}_{B_{-I_m}}, \underline{x}_{N_{-I_m}}$ it follows that $\left[ \begin{matrix} \underline{c}_{B_A} & \underline{c}_{N_A} \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}} & \underline{c}_{N_{-I_m}} \end{matrix}\right]^T = \underline{0}_n^T$, then, the inequality above is equivalent to:
+> Now observe that, by how we have defined the variables $\underline{x}_{B_A}, \underline{x}_{N_A}, \underline{x}_{B_{-I_m}}, \underline{x}_{N_{-I_m}}$ it follows that $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$, then, the inequality above is equivalent to:
 
 $$
 A^T \underline{\overline{y}} \leq \underline{c} \: \land \: \underline{\overline{y}} \geq \underline{0} 
 $$
 
-> (_the second inequality follows from $-perm(I_m) \underline{\overline{y}} \leq \underline{0}$_). That is, $\underline{\overline{y}}$ is a feasible solution of (D) (as we wanted to prove).
+> (_the second inequality follows from $-perm(I_m)^T \underline{\overline{y}} \leq \underline{0}$_). That is, $\underline{\overline{y}}$ is a feasible solution of (D) (as we wanted to prove).
+
+> Now let's prove that $\underline{\overline{y}}$ is optimal:
+
+$$
+\underline{b}^T \underline{\overline{y}} = \underline{b}^T (B^{-1})^T \underline{c}_B = (B^{-1} \underline{b})^T \underline{c}_B = (\underline{x}_B^*)^T \underline{c}_B = 
+$$
+
+$$
+= \left[ \begin{matrix} (\underline{x}_{B_A}^*)^T & \underline{0}^T & (\underline{x}_{B_{-I_m}}^*)^T & \underline{0}^T \end{matrix} \right] \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] = (\underline{x}^*)^T \underline{c}
+$$
+
+> since $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$ (as we remarked before).
