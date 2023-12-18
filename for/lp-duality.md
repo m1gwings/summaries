@@ -447,3 +447,19 @@ $$
 
 ---
 
+- **Corollaries of duality theorems**: let (P) denote the primal problem and (D) denote its dual, then:
+    
+    - by **strong duality**: if (P) admits **optimal solution**, then (D) admits **optimal solution**;
+    - by **weak duality**: if (P) is **unbounded**, then (D) is **infeasible**.
+
+> **Remark**: the results above hold even if we swap (P) and (D) since the dual of the dual is the primal. Note that the first result implies (through its contrapositive after having swapped (P) and (D)) that if (P) is **infeasible** then (D) **doesn't admit an optimal solution**.
+
+> **Remark**: it can be the case that **both** (P) and (D) are **infeasible** (_there is an example on the slides_).
+
+- **Complementary slackness conditions**: let $\underline{x}^* \in X$ (_that is $\underline{x}^*$ is a feasible solution of (P)_) and $\underline{y}^* \in Y$; then $\underline{x}^*$ and $\underline{y}^*$ are optimal solutions for (P) and (D) respectively **iff**
+
+$$
+(\underline{y}^*)^T (A \underline{x}^* - \underline{b}) = \underline{0} \: \land \: (\underline{c}^T - (\underline{y}^*)^T A) \underline{x}^* = \underline{0} \text{ .}
+$$
+
+> **Proof**: By the **duality theorems** we know that $\underline{x}^*$ and $\underline{y}^*$ are optimal **iff** $(\underline{y}^*)^T \underline{b} = \underline{c}^T \underline{x}^*$. Since they are feasible by hypothesis: $(\underline{y}^*)^T \underline{b} \leq (\underline{y}^*)^T A \underline{x}^* \leq$ $\leq \underline{c} \underline{x}^*$. Then $(\underline{y}^*)^T \underline{b} = \underline{c}^T \underline{x}^*$ **iff** $(\underline{y}^*)^T \underline{b} = (\underline{y}^*)^T A \underline{x}^*$ and $(\underline{y}^*)^T A \underline{x}^* = \underline{c}^T \underline{x}^*$. By reordering the last two equalities and applying the distributive property, we get the desired result.
