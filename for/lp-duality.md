@@ -356,7 +356,7 @@ $$
 
 - **Corollary**: if $\underline{x}$ is a feasible solution of (P), $\underline{y}$ is a feasible solution of (D), and $\underline{c}^T \underline{x} = \underline{b}^T \underline{y}$ , then $\underline{x}$ is optimal for (P) and $\underline{y}$ is optimal for (D).
 
-- **Strong duality theorem**: (_we will adopt the notation used in the statement of the Weak duality theorem_) if $\{ \underline{c}^T \underline{x} \mid \underline{x} \in X \}$ admits minimum, then there exist $\underline{x}^* \in X$ and $\underline{y}^* \in Y$ s. t. **$\underline{c}^T \underline{x}^* = \underline{b}^T \underline{y}$** .
+- **Strong duality theorem**: (_we will adopt the notation used in the statement of the Weak duality theorem_) if $\{ \underline{c}^T \underline{x} \mid \underline{x} \in X \}$ admits minimum, then there exist $\underline{x}^* \in X$ and $\underline{y}^* \in Y$ s. t. **$\underline{c}^T \underline{x}^* = \underline{b}^T \underline{y}^*$** .
 
 > **Proof**: First of all remember that we can always write (P) in standard form:
 
@@ -443,7 +443,7 @@ $$
 = \left[ \begin{matrix} (\underline{x}_{B_A}^*)^T & \underline{0}_{n-k}^T & (\underline{x}_{B_{-I_m}}^*)^T & \underline{0}_{m-l}^T \end{matrix} \right] \left[ \begin{matrix} \underline{c}_{B_A} \\ \underline{c}_{N_A} \\ \underline{c}_{B_{-I_m}} \\ \underline{c}_{N_{-I_m}} \end{matrix} \right] = (\underline{x}^*)^T \underline{c}
 $$
 
-> since $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$ (as we remarked before).
+> since $\left[ \begin{matrix} \underline{c}_{B_A}^T & \underline{c}_{N_A}^T \end{matrix}\right]^T = \underline{c}^T$ and $\left[ \begin{matrix} \underline{c}_{B_{-I_m}}^T & \underline{c}_{N_{-I_m}}^T \end{matrix}\right]^T = \underline{0}_n^T$ (as we remarked before). This completes the proof.
 
 ---
 
