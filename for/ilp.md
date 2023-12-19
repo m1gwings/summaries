@@ -11,7 +11,7 @@ Cristiano Migali
 
 ## Basic definitions
 
-- An **Integer Linear Programming problem** (**ILP**) is an optimizaztion problem of the form:
+- An **Integer Linear Programming** (**ILP**) **problem** is an optimizaztion problem of the form:
 
 $$
 \begin{matrix}
@@ -22,8 +22,8 @@ $$
 $$
 
 > Furthermore:
-> - if we have the additional constrain that $x_j \in \{ 0, 1 \}$ for all $j$, then we say that the **LP** is **binary**;
-> - if not all $x_j$ are constrained to be integer, we say that the LP is a **mixed integer LP**.
+> - if we have the additional constraint that $x_j \in \{ 0, 1 \}$ for all $j$, then we say that the **LP** is **binary**;
+> - if not all $x_j$s are constrained to be integer, we say that the LP is a **mixed integer LP**.
 
 - The feasible region of an ILP is a **lattice**.
 
@@ -53,7 +53,7 @@ $$
 
 ## Basic properties
 
-1. The integrality condition $\underline{x} \in \mathbb{Z}^n$ can't be expressed as $g(\underline{x}) \: r \: 0$ with $r \in \{ =, \leq, \geq \}$. That is an **ILP** is not an **LP**. (_This follows easily by applying the linearity of $g$ for every kind of $r$_).
+1. The integrality condition $\underline{x} \in \mathbb{Z}^n$ can't be expressed as $g(\underline{x}) \: r \: 0$ with $r \in \{ =, \leq, \geq \}$ and $g$ linear. That is an **ILP** is not an **LP**. (_This follows easily by applying the linearity of $g$ for every kind of $r$_).
 
 2. For any ILP with $\max$, we have **$z_{ILP}^* \leq z_{LP}^*$** , that is, $z_{LP}^*$ is an **upper bound** on the optimal value of (ILP). (_This follows trivially from the fact that the feasible region of the linear relaxation contains the feasible region of the original ILP_). 
 An analogous result holds of course for ILPs with $\min$.
@@ -62,7 +62,7 @@ An analogous result holds of course for ILPs with $\min$.
 
 ## Well-known problems formulable as ILPs
 
-- The **binary knapsack problem** is defined as follows: we have $n$ objects, each object has a value $v_j$ and a weight $w_j$, we have a knapsack with capacity $b$; we want to determine a **subset of objects** that maximizes the total value, while respecting the knapsack capacity. (_The formulation as ILP is trivial_).
+- The **binary knapsack problem** is defined as follows: we have $n$ objects, each object has a value $v_j$ and a weight $w_j$, we have a knapsack with capacity $b$ ; we want to determine a **subset of objects** that maximizes the total value, while respecting the knapsack capacity. (_The formulation as ILP is trivial_).
 
 > **Remark**: the binary knapsack problem is NP-hard.
 
@@ -81,11 +81,11 @@ x_{ij} \in \{ 0, 1 \} \forall i \in \{1,...,m\}, j \in \{1,...,n\} \text{ .}
 \end{matrix}
 $$
 
-- The **transportation problem** is defined as follows: given $m$ production plants, $n$ clients; $c_{ij}$ is the transportation cost of one unit of product from plant $i$ to client $j$, $p_i$ is the production capacity of plant $i$, $d_j$ is the demand of client $j$ and $q_{ij}$ is the maximum amount that can be transported from plant $i$ to client $j$. We want to determine a **transportation plan** that minimizes total costs while satisfying plant capacity and client demands. (_The formulation as ILP is straight forward_).
+- The **transportation problem** is defined as follows: given $m$ production plants and $n$ clients; $c_{ij}$ is the transportation cost of one unit of product from plant $i$ to client $j$, $p_i$ is the production capacity of plant $i$, $d_j$ is the demand of client $j$ and $q_{ij}$ is the maximum amount that can be transported from plant $i$ to client $j$. We want to determine a **transportation plan** that minimizes total costs while satisfying plant capacity and client demands. (_The formulation as ILP is straight forward_).
 
 ---
 
-> **Remark**: comparing the ILP formulations of both, it is easy to see that the **assignment problem is a special kind of transportation problem**.
+> **Remark**: by comparing the ILP formulations of both, it is easy to see that the **assignment problem is a special kind of transportation problem**.
 
 - The **scheduling problem** is defined as follows: given $m$ machines, $n$ jobs each with a deadline $d_j$; $p_{jk} \geq 0$ is the processing time of job $j$ on machine $k$. We assume that each job must be processed once on each machine following the order of the machine indices: $1, 2, ..., m$. We want to determine an **optimal sequence** in which to process the jobs so as to minimize the total completion time while satisfying the deadlines.
 
@@ -104,8 +104,8 @@ $$
 \text{s. t. } t_{jm} + p_{jm} \leq t \forall j \in \{ 1, ..., n \} \text{ (} t \text{ is an upperbound to the total completion time)} \\
 t_{jm} + p_{jm} \leq d_j \forall j \in \{ 1, ..., n \} \text{ (the deadlines are satisfied)} \\
 t_{jk} + p_{jk} \leq t_{j(k+1)} \forall j \in \{ 1, ..., n \}, \forall k \in \{ 1, ..., m - 1 \} \text{ (order of processing)} \\
-t_{ik} + p_{ik} \leq t_{jk} + (1 - y_{ijk}) M \text{ (where)} M = \max_j d_j \text{ and} \\
-t_{jk} + p_{jk} \leq t_{ik} + y_{ijk} M \:  \forall k \in \{ 1, ..., m \}, i, j \in {1, ..., n}, i < j \text{ (no overlapping executions)} \\
+t_{ik} + p_{ik} \leq t_{jk} + (1 - y_{ijk}) M \text{ where } M = \max_j d_j \text{ and} \\
+t_{jk} + p_{jk} \leq t_{ik} + y_{ijk} M \:  \forall k \in \{ 1, ..., m \}, i, j \in \{1, ..., n\}, i < j \text{ (no overlapping executions)} \\
 t_{jk} \geq 0 \forall j \in \{ 1, ..., n \}, k \in \{ 1, ..., m \}, t \geq 0, y_{ijk} \in \{0, 1\} \forall k \in \{ 1, ..., m \}, i, j \in \{ 1, ..., n \}, i < j \text{.}
 \end{matrix}
 $$
@@ -118,7 +118,7 @@ $$
 
 > **Idea of the proof**: This depends on the fact that the $(mn + n + m) \times mn$ constraint matrix (_in canonical form_) $A$ has a special structure: its elements are $a_{ij} \in \{ -1, 0, 1 \}$ with exactly $3$ non-zero coefficients per column. Then, it can be proved that $A$ is **totally unimodular**, that is $|Q| \in \{ -1, 0, 1 \}$, for any square sub-matrix $Q$ of $A$.
 
-> By the laplace expansion of the determinant it is clear that this property holds even when we standardize the problem, adding the slack variables and transforming $A$ into $A'$ (we are just adding columns of the identity matrix).
+> By the laplace expansion of the determinant it is clear that this property holds even when we put the problem in standard form, adding the slack variables and transforming $A$ into $A'$ (we are just adding columns of the identity matrix).
 
 > Then the optimal basic feasible solution to the linear relaxation is:
 
@@ -134,7 +134,7 @@ B^{-1} = \frac{1}{|B|} \left[\begin{matrix}
 \end{matrix}\right]
 $$
 
-> and $\alpha_{ij} = (-1)^{i+j} |M_{ij}|$ with $M_{ij}$ being the square sub-matrix obtained from $B$ by removing row $i$ and column $j$. Now observe that, since $B$ is integer, all $\alpha_{ij}$ are integers (_by the laplace expansion of the determinant_). Furthermore, for what we discussed above $|B| \in \{ -1, 1 \}$ (_it can't be $|B| = 0$ since it is non-singular_) and so it must be that $\underline{x}^*$ is integer since $\underline{b}$ is also integer.
+> and $\alpha_{ij} = (-1)^{i+j} |M_{ij}|$ with $M_{ij}$ being the square sub-matrix obtained from $B$ by removing row $i$ and column $j$. Now observe that, since $B$ is integer, all $\alpha_{ij}$ are integers (_by the laplace expansion of the determinant_). Furthermore, for what we discussed above $|B| \in \{ -1, 1 \}$ (_it can't be $|B| = 0$ since $B$ is non-singular_) and so it must be that $\underline{x}^*$ is integer since $\underline{b}$ is also integer.
 
 - The **optimal solution** of the **linear relaxation** of the **knapsack problem** can be computed by a **linear time** (in the number of objects) **algorithm** where we sort the objects based on their _value over weight_ ratio and fill the knapsack starting with the best object and taking for each as much as we can (remember that, since it is the continuos relaxation, we can also take fractions of objects).
 
@@ -197,11 +197,11 @@ In particular, for each subproblem $z_i = min\{ c(\underline{x}) \mid \underline
 
 - if the bound doesn't allow us to discard the problem, we keep branching.
 
-**Remark**: when applying the branch-and-bound on paper we can use a tree representation where each node corresponds to a feasible region $X_i$ with its associated bound (_provided by the bounding criterion_) and possibly the value of $z_i$ (if we've already computed it). The children of a given node are the regions obtained by branching. In this setting, a node of the tree with no children is said **fathomed** (or **pruned**).
+**Remark**: the execution of the branch-and-bound method is subject to a tree representation where each node corresponds to a feasible region $X_i$ with its associated bound (_provided by the bounding criterion_) and possibly the value of $z_i$ (if we've already computed it). The children of a given node are the regions obtained by branching. In this setting, a node of the tree with no children is said **fathomed** (or **pruned**).
 
 #### Branch-and-bound for ILP
 
-Consdier the general ILP (_in canonical form_) $\min \{ \underline{c}^T \underline{x} \mid A \underline{x} = \underline{b}, \underline{x} \geq \underline{0}, \underline{x} \in \mathbb{Z}^n \}$.
+Consider the general ILP (_in canonical form_) $\min \{ \underline{c}^T \underline{x} \mid A \underline{x} = \underline{b}, \underline{x} \geq \underline{0}, \underline{x} \in \mathbb{Z}^n \}$.
 
 - Let $\underline{\overline{x}}$ denote an optimal solution for the **linear relaxation** of the ILP: $\min \{ \underline{c}^T \underline{x} \mid A \underline{x} = \underline{b}, \underline{x} \geq \underline{0} \}$ and $z_{LP}^* = \underline{c}^T \underline{\overline{x}}$ denote the corresponding optimal value.
 
@@ -228,6 +228,6 @@ For the **choice of the "branching variable"**:
 
 ---
 
-- we can apply **strong branching**: we compute the optimal value for the linear relaxation of each possible subproblem that we could obtain by branching "through" a certain varibale (_which, as we remarked before, we can compute efficiently_) and choose the one that leads to the **best imporvement in the objective function**.
+- we can apply **strong branching**: we compute the optimal objective function value for the linear relaxation of each possible subproblem that we could obtain by branching "through" a certain varibale (_which, as we remarked before, we can compute efficiently_) and choose the one that leads to the **best imporvement in the objective function**.
 
 **Remark**: branch-and-bound is also applicable to mixed ILPs: when branching just consider the fractional variables that must be integer.
