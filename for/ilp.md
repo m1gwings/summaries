@@ -231,3 +231,69 @@ For the **choice of the "branching variable"**:
 - we can apply **strong branching**: we compute the optimal objective function value for the linear relaxation of each possible subproblem that we could obtain by branching "through" a certain varibale (_which, as we remarked before, we can compute efficiently_) and choose the one that leads to the **best imporvement in the objective function**.
 
 **Remark**: branch-and-bound is also applicable to mixed ILPs: when branching just consider the fractional variables that must be integer.
+
+### Cutting plane methods
+
+Consider the feasible region of a generic ILP problem (_in canonical form_): $X = \{ \underline{x} \in \mathbb{Z}^n \mid A \underline{x} \geq \underline{b}, \underline{x} \geq \underline{0} \}$. It can be described by different (infinitely many) sets of constrains (that is, we can change $A$ and $\underline{b}$ without modifying $X$) that may be weaker/tighter. We will see in a moment that some formulations are more convenient than others.
+
+- The **ideal formulation** is that describing the **convex hull of $X$, $conv(X)$**, where $conv(X)$ is the smallest convex subset containing $X$.
+
+It is easy to see that $conv(X)$ is the set of the "convex combinations" of the points in $X$. The vertices of $conv(X)$ (_by the definition of vertex_) can't be expressed as a convex combination of other points in $conv(X)$, then, since $X \subset conv(X)$ they can't be expressed neither as a convex combination of other points of $X$; so it must be that the vertices of $conv(X)$ belong to $X$ (otherwise they would not be in $conv(X)$ neither since there would not be points in $X$ such that their convex combination is equal to one of them).
+
+It follows that the **ideal formulation is very convenient**: if we apply the Simplex method to the linear relaxation of an ILP expressed with the ideal formulation, we would get as a result an optimal vertex which must be integer (_by what we observed above_) and so (_as we remarked previously_) it would also be an optimal solution for the original ILP.
+
+It is possible to prove that **for any feasible region $X$** of an ILP (bounded or unbounded), there exists an **ideal formulation** (a description of $conv(X)$ involving a finite number of linear constraints). Unfourtanately the number of constraints can be very large (exponential) with respect to the size of the original formulation. Furthermore, the ideal formulation is often very difficult to determine.
+
+The idea behind **cutting plane methods** is that a full description of $conv(X)$ is not required, we just need a good description in the neighborhood of the optimal solution (making sure that the optimal solution of the ILP is a vertex of the feasible region of its linear relaxation). So we have to improve the description "locally" by means of the so-called **cutting planes**.
+
+- A **cutting plane** is an inequality $\underline{a}^T \underline{x} \leq b$ that is not satisfied by $\underline{x}_{LP}^*$ but is satisfied by all the feasible solutions of the ILP.
+
+---
+
+Given an initial formulation we will iteratively add cutting planes until the linear relaxation does not provide an optimal integer solution.
+
+One kind of **cutting planes** are **Gomory fractional cuts** defined as follows.
+Let $\underline{x}_{LP}^*$ be an optimal solution of the linear relaxation of the current formulation $\min \{ \underline{c}^T \underline{x} \mid A \underline{x} = \underline{b}, \underline{x} \geq \underline{0} \}$ and $x_{b_r}$ be a basic variable associated with the $(r+1)$-th row of the tableau, **with fractional value $x_{b_r}^* = \overline{b}_r$** (_it is clear by looking at the tableau equation below and putting the non-basic variables to 0_).
+The $(r+1)$-th row of the optimal tableau can be translated into the equation:
+$$
+\text{(**) } x_{b_r} + \sum_{j \in N} \overline{a}_{rj} x_j = \overline{b}_r
+$$
+where $N$ is the set of indices of the non-basic variables.
+
+- The **Gomory cut** w. r. t. the fractional basic variable $x_{b_r}$ is:
+$$
+\sum_{j \in N} (\overline{a}_{rj} - \lfloor \overline{a}_{rj} \rfloor) x_j \geq \overline{b}_r - \lfloor \overline{b}_r \rfloor
+$$
+
+Let's verify that a **Gomory cut is a cutting plane**.
+
+1. **It is violated by the optimal fractional solution $\underline{x}_{LP}^*$ of the linear relaxation**: indeed $\overline{b}_r - \lfloor \overline{b}_r \rfloor > 0$ since $\overline{b}_r$ is fractional, while $x_j^* = 0 \forall j \in N$.
+
+2. **It is satisfied by all integer feasible solutions**: since the tableau is an equivalent representation of the original constraints, all the points in $X$ must satisfy $\text{(**)}$. Furthermore, since for every point in $X$, $x_j \geq 0$ and it is clear that $\overline{a}_{rj} \geq \lfloor \overline{a}_{rj} \rfloor$, then
+$$
+x_{b_r} + \sum_{j \in N} \lfloor \overline{a}_{rj} \rfloor x_j \leq x_{b_r} + \sum_{j \in N} \overline{a}_{rj} x_j = \overline{b}_r \text{ .}
+$$
+> Finally, for every point of $X$, $x_{b_r} + \sum_{j \in N} \lfloor \overline{a}_{rj} \rfloor x_j$ is an integer, hence it must be:
+$$
+\text{(***) } x_{b_r} + \sum_{j \in N} \lfloor \overline{a}_{rj} \rfloor x_j \leq \lfloor \overline{b}_r \rfloor \text{.}
+$$
+
+> $\text{(***)}$ is known as the **integer form** of the gomory cut, by subtracting $\text{(***)}$ from $\text{(**)}$ we get the form in the definition, which is known as **fractional form**. The two are equivalent (assuming that $\text{(**)}$ holds).
+
+**Remark**: before adding the **Gomory cut** to the tableau, we must put it in standard form, that is, we need to add a new slack variable.
+
+**Important remark**: after having added the **Gomory cut** to the tableau, we can compute the optimal solution of the new linear relaxation by just one iteration of the **dual Simplex method**.
+
+---
+
+- It is possible to prove that **if we keep adding Gomory cuts iteratively**, eventually **we will find an integer optimal solution**.
+
+### Branch-and-cut method
+
+The "combined" **branch-and-cut** approach aims at overcoming the disadvantages of pure branch-and-bound (B&B) and pure cutting plane methods.
+
+For each subproblem (node) of B&B, **several cutting planes** are generated to **improve the bound** and try to find an **optimal integer solution**.
+
+Whenever the cutting planes become less effective, cut generation is stopped and branching operation is performed.
+
+**Remark**: the cuts tend to strengthen the formulation (linear relaxation) of the various subproblems. Long series of cuts without sensible improvement are interrupted by branching operations.
