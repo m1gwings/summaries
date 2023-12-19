@@ -52,3 +52,7 @@ pre {
 .column:last-child {
     border-right: transparent;
 }
+
+ul {
+    padding-left: 0.5cm;
+}
