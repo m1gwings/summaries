@@ -6,7 +6,7 @@ paginate: true
 
 ## Introduction
 
-<div class="multiple-columns">
+<div class="multiple-columns with-title">
 <div class="column">
 
 **Software engineering** is a field of computer science dealing with software systems: large and complex, built by teams, that exist in many versions, that last many years, and undergo changes.
@@ -79,6 +79,63 @@ We distinguish 4 types of maintenance:
 
 The latter 3 types are regarded as **evolutionary maintenance**.
 The distinction between corrective and evolutionary maintenance can unclear, because specifications are often incomplete and ambiguous.
+
+</div>
+</div>
+
+---
+
+## Requirements Engineering (RE)
+
+<div class="multiple-columns">
+<div class="column">
+
+Software systems **RE** is the process of **discovering** the **purpose of the software system-to-be**, by identifying stakeholdes and their needs, and documenting these in a form that is amenable to analysis, communication, and subsequent implementation.
+
+We distinguish between:
+- **functional** requirements: which describe the **interactions** (independent from implementation) between the **system** and the **environment**;
+- **non-functional** requirements: which are constraints on **how functionality must be provided** to the end user;
+- **constraints** (or **technical** requirements): which are imposed by the customer or by the environment in which the system operates (e. g. the implementation language must be Java).
+
+Requirements **should**:
+- have a **single concern**;
+- **not** be **ambiguous**;
+- **be varifiable** and **testable**;
+- **be achievable** by the sosftware system (that is, the software system can enforce them).
+
+### The World and the Machine
+
+The **World and the Machine** is a **framework** adopted in RE to identify the requirements of the system-to-be.
+The two main elements are:
+- the **machine**: the portion of the system to be developed (typically, software-to-be + hardware);
+- the **world**: the portion of the real-world (environment) affected by the machine.
+
+The **purpose** of the machine is **always in the world**.
+
+</div>
+<div class="column">
+
+From this perspective, we can characterize the phenomena of interest for the system-to-be as:
+- **world phenomena**: phenomena occurring in the world which the machine **cannot directly observe**;
+- **machine phenomena**: phenomena occurring inside the machine (which aren't directly visible in the world);
+- **shared phenomena**: phenomena which "_involve_" both the machine and actors in the world; they can be:
+    - **machine controlled** (if the machine controls the interaction), or
+    - **world controlled** (viceversa).
+
+Then we can express the properties of the system-to-be through predicates regarding these phenomena.
+
+In particular we can state:
+- **goals**: which are **prescriptive** assertions formulated in terms of world phenomena (not necessarily shared) and allow us to declare the purpose of the system-to-be;
+- **domain assumptions**: which are **descriptive** assertions **assumed to hold** in the world;
+- **requirements**: which are **prescriptive** assertions formulated in terms of **shared** phenomena.
+
+Given the set of requirements $R$, goals $G$ and domain assumptions $D$, we say that $R$ is **complete** iff
+- $R$ ensures the satisfaction of $G$ in the context of domain assumptions $D$: $R \land D \models G$;
+- $G$ captures the stakeholders' needs;
+- $D$ represents valid properties/assumptions about the world.
+
+</div>
+<div class="column">
 
 </div>
 </div>
