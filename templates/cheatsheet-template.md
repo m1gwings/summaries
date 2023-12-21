@@ -4,7 +4,9 @@ paginate: true
 ---
 # My cheatsheet
 
-<div class="multiple-columns">
+## Subtitle
+
+<div class="multiple-columns with-title">
 <div class="column">
 
 **First column**
@@ -57,6 +59,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vel nunc commod
 </div>
 
 ---
+
+## Subtitle
 
 <div class="multiple-columns">
 <div class="column">

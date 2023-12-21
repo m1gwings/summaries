@@ -40,6 +40,11 @@ pre {
 .multiple-columns {
     display: flex;
     flex-direction: row;
+    height: 190mm;
+}
+
+.with-title {
+    height: 180.5mm;
 }
 
 .column {
