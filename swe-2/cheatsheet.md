@@ -23,11 +23,62 @@ According to **ISO/IEC 25010**, the software product qualities are:
 - maintainability (modularity, reusability, analysability, modificability, testability),
 - portability (adaptability, installability, replaceability).
 
-</div>
-<div class="column">
+In order to standardize the way in which we develop software, several **software lifecycles** have been proposed over the years. The traditional one is the **waterfall model** which treats software development as manufacturing.
+Due to its lack of flexibility it is not the best choice nowadays, but it is still relevant since it identifies the main phases of the software development process.
 
 </div>
 <div class="column">
+
+We distinguish between:
+- **high phases**:
+    - feasbility study;
+    - requirement analysis & specification;
+    - design;
+- and **low phases**:
+    - coding & unit test;
+    - integration & system test;
+    - deployment;
+    - maintenance.
+
+### Feasibility study
+
+In this phase we perform the **cost/benefit** analysis. The objective is to determine whether the project should be started, which are the needed resources, evaluating possible alternatives.
+
+The **outcome** is the **Feasibility Study Document**.
+
+### Requirement analysis and specification
+
+In this phase we analyze the domain in which the application takes place, identify the requirements and derive specifications for the software.
+
+The **outcome** is the **Requirement Analysis and Specification Document (RASD)**.
+
+### Design
+
+During this phase we design the **software architecture** in terms of components, and relations and interactions among them.
+
+The **outcome** is the **Design Document (DD)**.
+
+</div>
+<div class="column">
+
+### Coding & unit test
+
+During this phase each module is implemented and tested in isolation.
+
+### Integration & system test
+
+In this phase modules are integrated into (sub)systems which are then tested.
+
+### Maintenance
+
+We distinguish 4 types of maintenance:
+- **corrective**: deals with the repair of faults or defects found;
+- **adaptive**: consists of adapting software to changes in the environment;
+- **prefective**: deals with accomodating to new changed user requirements;
+- **preventive**: concerns activities aimed at increasing the system's maintainability.
+
+The latter 3 types are regarded as **evolutionary maintenance**.
+The distinction between corrective and evolutionary maintenance can unclear, because specifications are often incomplete and ambiguous.
 
 </div>
 </div>

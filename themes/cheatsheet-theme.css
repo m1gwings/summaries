@@ -7,7 +7,7 @@ section {
     width: 297mm;
     height: 210mm;
 
-    padding: 1cm;
+    padding: 0.5cm;
 
     font-family: 'Noto Sans', sans-serif;
     font-size: small;
@@ -55,4 +55,9 @@ pre {
 
 ul {
     padding-left: 0.5cm;
+    padding-right: 0cm;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0cm;
 }
