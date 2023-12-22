@@ -74,3 +74,16 @@ Second column
 
 </div>
 </div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+This page has no title, but the vertical bar ends (at the bottom) in the same point of previous pages.
+
+</div>
+<div class="column">
+
+</div>
+</div>

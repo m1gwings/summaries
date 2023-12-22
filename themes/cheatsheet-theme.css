@@ -47,6 +47,10 @@ pre {
     height: 180.5mm;
 }
 
+.without-title {
+    height: 197mm;
+}
+
 .column {
     flex: 1;
     border-right: 1px solid black;
