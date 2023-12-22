@@ -137,5 +137,206 @@ Given the set of requirements $R$, goals $G$ and domain assumptions $D$, we say 
 </div>
 <div class="column">
 
+### Requirements elicitation
+
+**Requirements elicitation** is the activity which allows to discover the requirements of the system-to-be.
+
+The **first step** in requirements elicitation is to identify **scenarios**: that are a narrative description of what people do and experience as they try to make use of computer systems and applications. They must be **concrete**, **focused**, and **informal**.
+
+#### Heuristics for finding scenarios
+
+Ask yourself:
+- Which user groups are supported by the system to perform their work?
+- What are the primary tasks that the system needs to perform?
+- What data will the actor create, store, change, remove or add in the system?
+- What external changes does the system need to know about?
+- What changes or events will the actor of the system need to be informed about?
+
+#### Use cases
+
+**After the scenarios** are formulate, we need to generalize them into **use cases**.
+
+A use case is **defined by** specifying:
+- a **name** (usually a verb);
+- **partecipating actors** (the system is never specified explicitly as an actor);
+- the **entry condition**: what is assumed to be true **before** the _flow of events_ (_see below_) has happened;
+- the **flow of events**: the sequence of interactions between the actors (and the system) assuming no exceptional behaviors (_see exceptions_);
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- the **exit condition**: what is assumed to be true **after** the _flow of events_ has happened;
+- **exceptions**: the sequence of interactions between the actors (and the system) in case something exceptional happens, they are usually expressed as a list of "if <_something unexpected_> then <_sequence of interactions_>";
+- **special requirements**: constrains, non-functional requirements.
+
+Each use case may lead to one or more requirements; in turn, from the requirements, new, more detailed use cases could be derived describing how the requirements are fulfilled.
+
+### Modeling for RE
+
+After having identified the phenomena of interest for the system-to-be, the use cases, and the requirements; we need to produce artifacts that represent them and their interaction: that is we need to build models.
+
+Which **tools** can we use **for modeling**?
+- **natural language**: it is simple to use, but has a high level of ambiguity, and it is easy to forget to include relevant information;
+- a **formal language**: it allows to use some tool to support analysis and validation and forces the specification of all relevant details, but it requires an expert in the use of the language;
+- a **semi-formal language**: that is a language with a precise syntax but with no defined semantics (like UML) which is simpler than a formal language, imposes some kind of structure in the models, but is not amenable for automated analysis and has some level of ambiguity;
+- finally we can also adopt a **mixed approach**.
+
+#### UML for RE
+
+As anticipated, we can use **UML** to model many elements of interest in RE.
+
+</div>
+<div class="column">
+
+In particular UML allows to carry out:
+- **dynamic modeling**: where we model interactions between actors and evolution over time of a system, through:
+    - **sequence diagrams**;
+    - **collaboration diagrams**;
+    - **state machine diagrams**;
+    - **activity diagrams**;
+- **static modeling**: where we model objects of interest and their relationships, through:
+    - **use case diagrams**;
+    - **class diagrams**;
+    - object diagrams;
+    - component diagrams;
+    - deployment diagrams.
+
+##### UML Use Case diagram
+
+It allows to represent the set of **all use cases** and, for each one, the **actors involved**; specifying the complete functionality of the system.
+
+- We can represent **use cases** through **ellipses** with inside the use case name:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/use-case.svg" width="150mm" />
+</p>
+
+- We can represent **actors** through _stick figures_ with the actor name below:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/actor.svg"
+    width="100mm" />
+</p>
+
+Once we have drawn all the use cases and actors, we can link them in several ways.
+
+</div>
+<div class="column">
+
+The most important **types of associations between use cases** are:
+- **include**: a use case uses another use case:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/include.svg"
+    width="300mm" />
+</p>
+
+- **extend**: a use case extends another use case:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/extend.svg"
+    width="300mm" />
+</p>
+
+- **generalize**: an abstract use case has several different specializations:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/generalization.svg"
+    width="300mm" />
+</p>
+
+The **types of associations between an actor and a use case** are:
+- **initiate**: the use case is initiated by the actor:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/initiate.svg"
+    width="300mm" />
+</p>
+
+- **partecipate**: the actor partecipates to the use case:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/partecipate.svg"
+    width="300mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+##### Requirements-level class diagrams
+
+These **class diagrams** have a different semantics w.r.t. those used in OO software design models. In particular, in RE we use class diagrams as **conceptual models for the application domain** which may include entities that will not be represented in the software-to-be.
+
+Each **class represents an entity**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/entity.svg"
+    width="250mm" />
+</p>
+
+Usually entities have **no operations** (methods), an **exception** to this rule are **entities** which are **part of the system** or the system itself.
+
+We can **link entities** through:
+- **association** (_undirected_ or _directed_): it represents a relationship between the two entities:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/association.svg"
+    width="300mm" />
+</p>
+
+- **generalization**: it indicates that one entity is considered to be a specialized form of the other:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/generalization.svg"
+    width="250mm" />
+</p>
+
+- **aggregation**: it indicates that one entity "_has_" the other:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/aggregation.svg"
+    width="250mm" />
+</p>
+
+</div>
+<div class="column">
+
+- **composition**: it is a stronger form of aggregation where the aggregate controls the lifecycle of the elements it aggregates:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/composition.svg"
+    width="250mm" />
+</p>
+
+(_It is possible to specify the cardinalities also for aggregation and composition relationships_).
+
+- Sometime we can use _stick figures_ to represent some actors, like users:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/user.svg"
+    width="200mm" />
+</p>
+
+How to **derive a class diagram for a domain**? Usually:
+- **nouns** represent domain entities (classes), specializations (subclasses), and fields (attributes);
+- **verbs** represent operations and relationships between classes.
+
+##### Sequence diagrams
+
+
+
+</div>
+<div class="column">
+
 </div>
 </div>
