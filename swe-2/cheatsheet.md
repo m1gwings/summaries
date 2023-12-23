@@ -154,7 +154,7 @@ Ask yourself:
 
 #### Use cases
 
-**After the scenarios** are formulate, we need to generalize them into **use cases**.
+**After the scenarios** are formulated, we need to generalize them into **use cases**.
 
 A use case is **defined by** specifying:
 - a **name** (usually a verb);
@@ -172,7 +172,7 @@ A use case is **defined by** specifying:
 
 - the **exit condition**: what is assumed to be true **after** the _flow of events_ has happened;
 - **exceptions**: the sequence of interactions between the actors (and the system) in case something exceptional happens, they are usually expressed as a list of "if <_something unexpected_> then <_sequence of interactions_>";
-- **special requirements**: constrains, non-functional requirements.
+- **special requirements**: constraints, non-functional requirements.
 
 Each use case may lead to one or more requirements; in turn, from the requirements, new, more detailed use cases could be derived describing how the requirements are fulfilled.
 
@@ -311,7 +311,7 @@ We can **link entities** through:
 </div>
 <div class="column">
 
-- **composition**: it is a stronger form of aggregation where the aggregate controls the lifecycle of the elements it aggregates:
+- **composition**: it is a stronger form of aggregation where the aggregated elements exist only as a part of the aggregate:
 
 <p align="center">
     <img src="http://localhost:8080/swe-2/static/class-diagrams/composition.svg"
@@ -333,10 +333,104 @@ How to **derive a class diagram for a domain**? Usually:
 
 ##### Sequence diagrams
 
+**Sequence diagrams** are graphical description of objects partecipating in a use case or scenario using a DAG notation.
 
+How can we represent the **flow of events of a use case as a sequence diagram**?
+
+- Every event has a **sender** and a **receiver** which are actors of the use case, we can represent them through life lines:
 
 </div>
 <div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/lifeline.svg"
+    width="200mm" />
+</p>
+
+(_It is common to use stick figures to represent human actors_).
+
+- An event is represented as a **message** from the sender to the receiver; the **occurrence** of the event is represented as a rectangle on the lifelines of both actors involved, a **synchronous message arrow** starts from the occurrence of the event in the lifeline of the sender and reaches the occurrence of the envet in the lifeline of the receiver; the converse happens for the **return message arrow**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/sync-message.svg"
+    width="200mm" />
+</p>
+
+- Messages can also be asynchronous when the **sender doesn't wait for a response**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/async-message.svg"
+    width="150mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+Furthermore, sequence diagrams provide various constructs to modify the flow of the interactions:
+
+- **alt** allows alternative behaviors based on the value of a condition:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/alt.png"
+    width="150mm" />
+</p>
+
+- **opt** allows to specify optional interactions which happen only when a condition is satisfied:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/opt.png"
+    width="150mm" />
+</p>
+
+- **loop** allows to interate a sequence of interactions while a condition is satisfied:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/loop.png"
+    width="150mm" />
+</p>
+
+- **break** allows to break out of a loop if a condition is satisfied:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/break.png"
+    width="100mm" />
+</p>
+
+</div>
+<div class="column">
+
+##### State machine diagrams
+
+**State machine** diagrams capture the behavior of objects that are instances of a certain class.
+
+The example below showcases part of the syntax, we won't delve deeper:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/state-machine-diagram.png"
+    width="300mm" />
+</p>
+
+##### Activity diagrams
+
+The examples below showcase part of the syntax, we won't delve deeper:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/activity-diagrams/diagram-1.svg"
+    width="150mm" />
+</p>
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/activity-diagrams/diagram-2.svg"
+    width="300mm" />
+</p>
 
 </div>
 </div>
