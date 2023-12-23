@@ -432,5 +432,83 @@ The examples below showcase part of the syntax, we won't delve deeper:
     width="300mm" />
 </p>
 
+### RASD
+
+The **Requirements Analysis and Specification Document** (RASD) has several **purposes**:
+- it explains both the application domain and the system to be developed;
+- it may have contractual value and be legally binding;
+- it is the baseline for other activities such as project planning, software V&V, ... .
+
+The **audience** of a RASD are:
+- customers and users;
+- systems analysts, requirements analysts;
+- developers, programmers;
+- quality assurance teams;
+- project managers.
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+The **IEEE standard** for RASD provides a possible structure:
+
+1. **Introuction**
+
+> 1.1 Purpose $\leftarrow$ _**reasons** motivating the existence of the product_
+> 1.2 Scope $\leftarrow$ _indentifies the **product** and application **domain**_
+> 1.3 Product overview
+
+>> 1.3.1 Product perspective $\leftarrow$ _defines system's relationship to other products; describes **external interfaces**: system, user, hardware, software_
+>> 1.3.2 Product functions $\leftarrow$ _summary of **major functions**_
+>> 1.3.3 User characteristics $\leftarrow$ _general **characteristics** of the intended **groups of users**, including those that may influence usability (e. g., disabilities, experties))_
+>> 1.3.4 Limitations $\leftarrow$ _**anything that will limit the developer's options** (e. g. regulations, reliability, criticality, hardware limitations, interfaces, etc.)_
+
+> 1.4 Definitions
+
+2. **References**
+
+3. **Requirements** $\leftarrow$ _**all the requirements** go here; the standard provides different strategies for the organization_
+
+> 3.1 Functions
+> 3.2 Performance requirements
+> 3.3 Usability requirements
+> 3.4 Interface requriements
+> 3.5 Logical database requirements
+> 3.6 Design constraints
+> 3.7 Software system attirbutes
+> 3.8 Supporting information
+
+4. **Verification** $\leftarrow$ _**verification methods** planned to qualify the software_
+
+> (parallel to subsections in Section 3)
+
+5. **Appendices**
+
+> 5.1 Assumptions and dependencies $\leftarrow$ _**factors** not under the control of the software that may affect requirements_
+> 5.2 Acronyms and abbreviations
+
+</div>
+<div class="column">
+
+Let's analyze some sections more in depth:
+- **3.1 Functions**: comprises the functional requirements of the system to be. Functional requirements can be organized by mode, user class, feature, ... . Furthermore, functional requirements can be hierarchically partitioned into sub-requirements.
+- **3.2 Performance requirements**, **3.3 Usability requirements**, **...**: comprise all the non-functional requirements we consider high priority for our system, grouped by type.
+- **3.6 Design constraints**: comprises contraints on design decisions imposed by domain-specific standards, regulatory documents or other project limitations.
+- **3.7 Software system attributes**: includes the required quality attributes of the product: reliability, availability, ... .
+- **3.9 Supporting information**: comprises additional supporting information to be considered, as, for example, sample input/output formats, background information that can help the readers, description of the problem(s) to be sovled.
+
+We want a RASD to have the following **target qualities**:
+- **completeness** w.r.t. goals (that is $R \land D \models G$ (_see before_)), w.r.t. inputs (that is, the requied behavior is specified for all posible types of inputs), w.r.t. strucutre (that is, the document does not contains To Be Defined (TBD) sections);
+- **precision**: requirements should have a level of detail sufficient for software design, developement, and verification of the software release;
+- **pertinence**: each requirements or domain assumption is needed for the satisfaction of some goal, each goal is truly neeeded by stakeholders;
+- **consistency**: no contradiction in formulation of goals, requirements, and assumptions;
+- **unambiguity**: unambiguous vocabulary, assertions, and responsibility;
+- **feasibility**: the goals and the requirements must be technicaclly realizable within the assigned budget and schedules;
+- **comprehensibility**: must be comprehensible by all in the target audience;
+- **good structuring**;
+- **modifiability**: must be easy to adapt, extend or contract through local modifications;
+- **traceability**: must link requirements and assumptions to underlying foals, facilitates referencing of requirements in future documentation.
+
 </div>
 </div>
