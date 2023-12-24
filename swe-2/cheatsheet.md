@@ -512,3 +512,93 @@ We want a RASD to have the following **target qualities**:
 
 </div>
 </div>
+
+---
+
+## Alloy
+
+<div class="multiple-columns">
+<div class="column">
+
+**Alloy** is a **formal notation** for specifying models of systems and software; it comes with a supporting tool to **simulate** specifications and perform **formal verification** of properties (through _bounded model checking_).
+
+Alloy is used for abstractions and conceptual modeling in a **declarative manner**.
+
+In **RE** Alloy can be used to **formally describe the domain and its properties**, or the **operations** that the machine must provide. In **software design** it allows to formally model **components and their interactions**.
+
+
+### Language
+
+What follows has been inspired and (_partially_) adapted from `https://alloy.readthedocs.io/en/latest/index.html`.
+
+As we've already seen (_for example when discussing about class diagrams for RE_) in order to model a domain we must define some **entities**, the **relationships among them**, and finally some **properties** (regarding the entities and their relationships) which are assumed to hold.
+
+In Alloy **the type of an entity** is represented by a **signature**. To define a signature we can use the following syntax:
+```
+sig A { }
+```
+As anticipated, Alloy is not only a formal language, but also allows, through the supporting tool, to generate instances for the models that we've described. We will deal with the main commands for interacting with the tool later, for now we are going to introduce just the `run` command without delving too much into the syntax: it tells the tool to generate an **instance** for the model _with certain properties_.
+
+</div>
+<div class="column">
+
+Providing an instance for a model requires to assign to every signature (which represents a set of entities of the same "_type_") a set of _so-called_ **atoms** (the individual entities of the type specified by the signature).
+
+In particular, by executing:
+```
+run { } for exactly 3 A
+```
+for the simple model defined before, the tool provides the following instance:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/alloy/single-signature.png"
+    width="150mm" />
+</p>
+
+Indeed we asked for an instance with exactly three atoms for the signature `A`, then the tool assigned to it the set `A = { A0, A1, A2 }`.
+
+Now that we know how to define entities, we want a way to link them; that is, we want to define relationships between entites. For a given instance of an Alloy model, the relationships between its atoms are represented by **mathematical relations**, which are also sets. As it will be even more clear later, instances of Alloy models are just "_a bunch of sets_": some represent the set of atoms for a signature, others are relations between these atoms. For this reason it makes sense to list (_some of_) the **operations on sets** supported by the language before anything else.
+
+#### Operations on sets
+
+When writing Alloy expressions, signatures are treated as sets, indeed, as we've discussed before, for a given instance of a model, a set is assigned to each signature, and so we can easily evaluate expressions of this type.
+
+</div>
+<div class="column">
+
+Consider the model:
+```
+sig A { }
+sig B { }
+```
+
+In the following we will treat `A` and `B` as finite sets `A = { A1, ..., AN }`, `B = { B1, ..., BM }`.
+
+Then we can perform the following operations:
+- **union**: `A + B`;
+- **difference**: `A - B`;
+- **intersection**: `A & B`;
+- **cartesian product**: `A -> B`.
+
+Finally:
+- `#A` returns `N`, that is, the **number of elements in `A`**.
+
+#### Signatures
+
+Now that we know how to perform basic manipulations on sets, we can deal with the general syntax for the definition of a **signature** (_filling the curly braces_):
+```
+sig A {
+    field1: Set1,
+    ...,
+    fieldN: SetN
+}
+```
+where `SetI` is either another signature or an expression that, for a given instance, evaluates to a set; that is, we can combine signatures through all the operators of the previous paragraph except for `#` since it doesn't evaluate to a set.
+An instance for the model above requires not only to assign a set of atoms to the signature `A`, but also a relation (in the mathematical sense) for every `fieldI`.
+
+</div>
+</div>
+
+---
+
+<div class="">
