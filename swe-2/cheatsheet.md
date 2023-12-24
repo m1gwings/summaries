@@ -690,3 +690,75 @@ one sig Elem1, Elem2, Elem3 extends A
 
 ---
 
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### Operations on relations
+
+In this paragraph we will introduce some operators that are useful if we want to manipulate relations.
+
+##### The `.` operator
+
+Let `rel1 = A1 -> A2 -> ... -> A(N-1) -> C` and `rel2 = C -> B2 -> ... -> BM` then `rel1.rel2` is the set of all tuples `(a_1, ..., a_(n-1), b_2, ..., b_m)` such that, for some `c` in `C`, `(a_1, ..., a_(n-1), c)` belongs to `rel1` and `(c, b_2, ..., b_m)` belongs to `rel2`.
+
+**Remark**: the behavior of the operator is well defined even if `rel1`, `rel2` or both are "_simple_" sets, that is relations of arity 1.
+
+##### `iden`
+
+`iden` is the relation which maps every atom in an instance of a model to itself.
+
+##### Operations on binary relations
+
+The following operators are defined only for binary relations:
+- `~rel` returns the **converse** of `rel`;
+- `^rel` returns the **transitive closure** of `rel`;
+- `*rel` returns `^rel + iden`;
+
+##### Advanced operations
+
+- `<:` is **domain restriction**: `Set <: rel` is all of the elements in `rel` that **start** with an element in `Set`;
+- `:>` is **range restriction**: `rel :> Set` is all the elements of `rel` that **end** with an element in `Set`;
+- `rel1 ++ rel2` is the **union of the two relations**, with **one exception**: if there is an element `(k, a_1, ..., a_(n-1))` in `rel1` and an element `(k, b_1, ..., b_(m-1))` in `rel2` for some `k`, then `(k, a_1, ..., a_(n-1))` won't be added to `rel1 ++ rel2`.
+
+</div>
+<div class="column">
+
+#### Constraints
+
+Now that we know how to define entities and their relationships it's time to state some properties for our model that constrain the possible instances.
+We can do so through operators that are applied to sets and return boolean values:
+- `A = B` has the usual semantics;
+- `A in B` is true iff `A` is a **subset** of `B`;
+- `no A` is true iff `A` is **empty**;
+- `some A` is true iff `A` has **at least one element**;
+- `one A` is true iff `A` has **exactly one element**;
+- `lone A` is true iff `A` is **either empty or has exactly one element**;
+- `disj[A, B]` is true iff `A` and `B` are **disjoint**.
+
+Furthermore (_as anticipated_), Alloy supports **first order logic quantifiers**:
+- `some x: A | expr` is true iff `expr` is true for **at least one element** of `A`;
+- `all x: A | expr` is true iff `expr` is true for **every element** of `A`;
+- `no x: A | expr` is true iff `expr` is false for **every element** of `A`;
+- `one x: A | expr` is true iff `expr` is true for **exactly one element** of `A`;
+- `lone x: A | expr` is true iff `expr` is true for **zero or one elements** of `A`.
+
+It is also possible to quantify over multiple elements, for example with: `some x, y, ...: A | expr` or `some x: A, y: B, ... | expr`.
+
+
+#### Boolean expressions
+
+Once we have expressions which evaluate to boolean values, we can combine them to build complex constraints through the following operators:
+- `expr1 and expr2` (_or equivalently `expr1 && expr2`_) is true iff both `expr1` and `expr2` are true;
+
+</div>
+<div class="column">
+
+- `expr1 or expr2` (_or equivalently `expr1 || expr2`_) is true iff at least one between `expr1` and `expr2` is true;
+- `not expr1` (_or equivalently `!expr1`) is true iff `expr1` is false;
+- `expr1 implies expr2` (_or equivalently `expr1 => expr2`_) is true iff `expr1` is false or both `expr1` and `expr2` are true;
+- `expr1 iff expr2` (_or equivalently `expr1 <==> expr2`_) is true iff `expr1` and `expr2` are both false or `expr1` and `expr2` are both true.
+
+Furthermore Alloy provides some **syntactic sugar** like:
+
+</div>
+</div>
