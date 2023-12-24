@@ -593,7 +593,7 @@ sig A {
     fieldN: SetN
 }
 ```
-where `SetI` is either another signature or an expression that, for a given instance, evaluates to a set; that is, we can combine signatures through all the operators of the previous paragraph except for `#` since it doesn't evaluate to a set.
+where `SetI` is either a signature or an expression that, for a given instance, evaluates to a set; that is, we can combine signatures through all the operators of the previous paragraph except for `#` (since it doesn't evaluate to a set).
 An instance for the model above requires not only to assign a set of atoms to the signature `A`, but also a relation (in the mathematical sense) for every `fieldI`.
 
 </div>
@@ -601,4 +601,92 @@ An instance for the model above requires not only to assign a set of atoms to th
 
 ---
 
-<div class="">
+<div class="multiple-columns without-title">
+<div class="column">
+
+**These relations are those which allow to express relationships between entities**.
+In particular the relation assigned to `fieldI` will be a subset of the cartesian product between the set assigned to `A` and the set to which `SetI` evaluates (remember that in general `SetI` is an expression). But that's not all: in Alloy every relation has a **multiplicity** which implicitly is assumed to be `one`, that is, in `fieldI`, to every element of `A` corresponds exactly one element of `SetI` (_clearly different elements of `A` could be in relation with the same element of `SetI`_).
+
+In order to specify **different multiplicities** we can use the following syntax:
+
+- `fieldI: lone SetI`: to one element of `A` correspond 0 or 1 elements of `SetI`;
+- `fieldI: set SetI`: there is no restriction on the number of elements of `SetI` which correspond to an element of `A`, that is, it is a standard mathematical relation;
+- `fieldI: some SetI`: to one element of `A` correspond 1 or more elements of `SetI`;
+- `fieldI: one SetI`: it is the default case described before.
+
+##### Multirelations
+
+Signatures **can have multirelations** as fields, for example:
+```
+sig Door { }
+sig Card { }
+
+sig Person {
+    access: Card -> Door
+}
+```
+For a given instance of this model, `access` is a ternary relation subset of the cartesian product between (_the sets assigned to_) `Person`, `Card` and `Door`.
+
+</div>
+<div class="column">
+
+**Multirelations have a special kind of multiplicity**: `r: Set1I m -> n Set2I`.
+This says that (_fixed an element of the signature in which the field `r` is defined_) each member of `Set1I` is mapped to `n` elements of `Set2I`, and `m` elements of `Set1I` map to each element of `Set2I`. **If not specified, the multiplicites are assubed to be `set`**.
+
+##### Signature multiplicity
+
+In addition to having multiplicity in relations, we can put multiplicities on the signatures themselves:
+```
+one sig Foo { }
+some sig Bar { }
+```
+
+By default signatures have multiplicity `set`, that is, for a given instance of the model, the set associated to the signature has no restrictions. By making the signature `one`, in every instance such set will contain exactly one atom. We get analogous behavior with `some` and `lone`.
+
+##### Subtypes
+
+- **`extends`**
+
+Writing `sig Child extends Parent { ... }` creates a **subtype**, that is, for a given instance, the set assigned to `Child` is a subset of the set assigned to `Parent` (so every atom of `Child` is an atom of `Parent`), furthermore, if more extensions are defied as in:
+```
+sig Parent { }
+
+sig Child1 extends Parent
+sig Child2 extends Parent
+```
+then, for a given instance, any atom of parent can only match **up to one** extension, that is, the intersection between the set assigned to `Child1` and the one assigned to `Child2` is empty.
+
+</div>
+<div class="column">
+
+- **`abstract`**
+
+If you make a signature `abstract`, then all atoms of the signature will belong to extensions: there will be no atoms that are just the supertype and not any of the subtypes. That is, for a given isntance, the union of the set assigned to the children is equal to the set assigned to the parent (the set assigned to the children form a partition of the set assigned to the parent).
+
+**Remark**: we can add fields to subtypes:
+```
+sig Child extends Parent {
+    field: Set
+}
+```
+The semantics is straightforward: the relation assigned to `field` will associate atoms of `Child` to elements of `Set`; the atoms of `Parent` which aren't atoms of `Child` won't appear in `field`.
+
+##### Enums
+
+Enums are special signatures which are assigned the same set in every instance. 
+We can define enums with the following syntax:
+```
+enum A { Elem1, Elem2, Elem3 }
+```
+In this case `A` will have 3 atoms in every instance. When we use them in expression, we can interpret `Elem1`, `Elem2`, and `Elem3` as **singletons** containing only the corresponding atom; in this way we can apply all the usual operators which are defined for sets.
+We can also define enums without the special syntax above through:
+```
+abstract sig A { }
+one sig Elem1, Elem2, Elem3 extends A
+```
+
+</div>
+</div>
+
+---
+
