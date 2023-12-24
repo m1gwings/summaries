@@ -349,7 +349,7 @@ How can we represent the **flow of events of a use case as a sequence diagram**?
 
 (_It is common to use stick figures to represent human actors_).
 
-- An event is represented as a **message** from the sender to the receiver; the **occurrence** of the event is represented as a rectangle on the lifelines of both actors involved, a **synchronous message arrow** starts from the occurrence of the event in the lifeline of the sender and reaches the occurrence of the envet in the lifeline of the receiver; the converse happens for the **return message arrow**:
+- An event is represented as a **message** from the sender to the receiver; the **occurrence** of the event is represented as a rectangle on the lifelines of both actors involved, a **synchronous message arrow** starts from the occurrence of the event in the lifeline of the sender and reaches the occurrence of the event in the lifeline of the receiver; the converse happens for the **return message arrow**:
 
 <p align="center">
     <img src="http://localhost:8080/swe-2/static/sequence-diagrams/sync-message.svg"
@@ -451,7 +451,7 @@ The **audience** of a RASD are:
 <div class="multiple-columns without-title">
 <div class="column">
 
-The **IEEE standard** for RASD provides a possible structure:
+The **IEEE standard** for RASDs provides a possible structure:
 
 1. **Introuction**
 
