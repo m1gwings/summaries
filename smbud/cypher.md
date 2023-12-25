@@ -84,7 +84,7 @@ The predicate `n: Label` is true iff `n` has the label `Label`.
 #### Filtering on properties
 
 We can access the properties of nodes and relationships through the ususal dot notation: `n.property1`.
-Then we can compare them with the usual operators: `=`, `<>`, `<`, `>`, `<=`, `>=`, `IS NULL`, `IS NOT NULL`. Furthermore, **we can apply the available functions to properties' values**.
+Then we can compare them with the usual operators: `=`, `<>`, `<`, `>`, `<=`, `>=`, `IS NULL`, `IS NOT NULL`, **`IN`** (**to check if a value is in a list**). Furthermore, **we can apply the available functions to properties' values**.
 
 #### Filtering on patterns
 
@@ -264,3 +264,38 @@ Aggregating functions can be used inside `RETURN` or `WITH` clauses.
 The most important aggregating functions are: `avg(expression)`, `count(expression)`, `sum(expression)`, `max(expression)`, `min(expression)`, `collect(expression)`.
 The `collect` function returns a list with all the "aggregated" values.
 Some syntactic sugar is available, for example: `count(*)`, `count(DISTINCT *)`.
+
+### Predicate functions
+
+The function `all` returns `true` if the predicate holds for all elements in the given list.
+The syntax is `all(variable IN list WHERE predicate)`.
+Analogously the functions `any`, `none`, and `single` are defined.
+
+`exists` returns `true` if a match for the given pattern exists in the graph. The syntax is `exists(pattern)`. It can be useful, for example, in a `RETURN` or `WITH` clause.
+
+### Nodes and paths functions
+
+- `labels` returns a `LIST<STRING>` containing the string representations for all the labels of a `NODE`.
+- `nodes` returns a `LIST<NODE>` containing all the `NODE` values in a `PATH`. (_Remember that we can bind path pattern to variables in the `MATCH` clause_).
+- `relationships` returns a `LIST<RELATIONSHIP>` containing all the `RELATIONSHIP` values in a `PATH`.
+- `length` returns the length **of a `PATH`**.
+
+### List functions
+
+- **Pattern comprehension** is a synctactic construct available in Cypher for creating a list based on matchings of a pattern. A pattern comprehension matches the specified pattern like a normal `MATCH` caluse, with predicates like a normal `WHERE` clause, but yields a custom projection as specified.
+
+---
+
+> For example:
+```
+MATCH (keanu:Person {name: 'Keanu Reeves'})
+RETURN [(keanu)-->(b:Movie) WHERE b.title CONTAINS 'Matrix' | b.released] AS years
+```
+
+- **List comprehension** is a syntactic construct available in Cypher for creating a list based on existing lists. For example:
+```
+MATCH (keanu:Person {name:'Keanu Reeves'})
+RETURN [x IN keanu.resume WHERE x contains 'The Matrix'] AS matrixList
+```
+
+- `size` returns the length of a list (or a string).
