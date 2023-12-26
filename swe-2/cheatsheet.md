@@ -754,11 +754,176 @@ Once we have expressions which evaluate to boolean values, we can combine them t
 <div class="column">
 
 - `expr1 or expr2` (_or equivalently `expr1 || expr2`_) is true iff at least one between `expr1` and `expr2` is true;
-- `not expr1` (_or equivalently `!expr1`) is true iff `expr1` is false;
+- `not expr1` (_or equivalently `!expr1`_) is true iff `expr1` is false;
 - `expr1 implies expr2` (_or equivalently `expr1 => expr2`_) is true iff `expr1` is false or both `expr1` and `expr2` are true;
 - `expr1 iff expr2` (_or equivalently `expr1 <==> expr2`_) is true iff `expr1` and `expr2` are both false or `expr1` and `expr2` are both true.
 
 Furthermore Alloy provides some **syntactic sugar** like:
+- **`let`**: `let` defines a local value for the purposes of the subexpression. For example:
+```
+let x = A + B, y = C + D | x + y
+```
+> `let` is mostly used to simplify complex expressions and give meaningful names to intermediate computations. **If writing a boolean expression, you may use `{ ... }` instead of `|`**.
+
+- **`implies`-`else`**: when used in conjuction with `else`, `implies` acts as a conditional. `p implies A else B` returns `A` if `p` is `true` and `B` if `p` is `false`. `p` must be a boolean expression. (**`A` and `B` can also be non-boolean expressions**).
+
+- **paragraph expressions**: if multiple constraints are surrounded with braces, they are all `and`-ed together. The following two are equivalent:
+```
+expr1 or {
+    expr2
+    expr3
+    ...
+}
+
+expr1 or (expr2 and expr3 and ...)
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### Predicates and functions
+
+**Predicates** and **functions** allow to reuse (_usually complex_) expressions in several parts of the model. In particular **predicates** return **boolean values**, while **functions** return **sets**.
+
+##### Predicates
+
+Predicates take the form:
+```
+pred name {
+    constraint
+}
+```
+where constraint is built through the operators discussed before.
+Once defined, predicates can be used as part of boolean expressions, The following is a valid spec:
+```
+sig A {}
+
+pread at_least_one_a {
+    some A
+}
+
+pred more_than_one_a {
+    at_least_one_a and not one A
+}
+```
+Predicates can also take arguments:
+```
+pred foo[a: Set1, b: Set2, ...] {
+    expr
+}
+```
+The predicate **is called with `foo[x, y]`, using brackets, not parens**. In the body of the predicate, `a` and `b` would have the corresponding values. `a` must be an atom of `Set1`, while `b` must be an atom of `Set2`, or, more precisely,
+
+</div>
+<div class="column">
+
+singleton sets containing that atom (_as we remarked before, in Alloy, the operators are defined only for sets_).
+
+##### Functions
+
+Alloy functions have the same structure as predicates but also return a value:
+```
+fun name[a: Set1, b: Set2]: output_type {
+    expression
+}
+```
+
+**Important remark**: as usual we can specify **multiplicities** also for **predicates and functions** arguments, as in:
+```
+fun name[a: some Set1, b: some Set2]: some output_type {
+    expression
+}
+```
+The **default** is **`one`** (_that's why we said before that the arguments of a predicate must be atoms of the corresponding set specified in the definition_).
+
+#### Facts
+
+Now that we know how to write complex constraint it's time to understand how to enforce them: we can use **facts**.
+The syntax is the following:
+```
+fact name {
+    constraint
+}
+```
+When facts are added to a model, in order to provide a **valid** instance, we not only need to assign a set to every signature and a relation to every field; these sets and relations must also satisfy all the constraints imposed by the facts.
+
+</div>
+<div class="column">
+
+##### Implicit facts
+
+You can write a fact as part of a signature. The implicit fact goes after the signature definition and relations. Inside of an implicit fact, you can get the current atom with `this`. **Fields are automatically expanded in the implicit fact to `this.field`**. For example:
+```
+sig Node {
+    edge: set Node
+} {
+    this not in edge
+}
+```
+(_The syntax `this not in edge` is a syntactic sugar for `not (this in edge)`_).
+
+#### Commands
+
+A **command** is what actually runs the analyzer. It can either find instances for the model that you have specified, or counterexamples to given properties.
+
+##### `run`
+
+- **`run`** tells the analyzer to find an instance for the model;
+- **`run pred`** tells the analyzer to find an instance for the model where `pred` is `true`;
+- **`run { constraint }`** tells the analyzer to find an instance for the model which satisfies `constraint`.
+
+##### `check`
+
+**`check`** tells the Analyzer to find a _counterexample_ to a given constraint. **Unlike with `run` command, `check` uses assertions**:
+```
+assert no_self_loops {
+    no n: Node | self_loop[n]
+}
+check no_self_loops
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+**Assertions may be used in `check` commands but not `run` commands. Assertions may not be called by other predicates or assertions**.
+
+You can call `check` also with an ad-hoc constraint:
+```
+check { constraint }
+```
+
+##### Scopes
+
+**All alloy models are bounded: they must have a maximum possible size**. If not specified, the analyzer will assume that there may be up to three of each top-level signature and any number of relations. This is called the **scope**, and can be changed for each command.
+
+Given the following model:
+```
+sig A { }
+sig B { }
+```
+we can write the following scopes:
+- `run {} for 5`: the analyzer will look for models with up to five instances of each `A` and `B`;
+- `run {} for 5 but 2 A`: the analyzer will look for models with up to two instances of `A`;
+- `run {} for 5 but exactly 2 A`: the analyzer will only look for models with _exactly two_ `A`, the exact scope _may_ be higher than the general scope;
+- `run {} for 5 but 2 A, 3 B`: places scopes on `A` and `B`.
+
+(_The last command can be written as `run {} for 2 A, 3 B`_).
+
+</div>
+<div class="column">
+
+</div>
+<div class="column">
 
 </div>
 </div>
