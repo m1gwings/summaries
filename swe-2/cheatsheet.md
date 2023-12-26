@@ -919,11 +919,57 @@ we can write the following scopes:
 
 (_The last command can be written as `run {} for 2 A, 3 B`_).
 
-</div>
-<div class="column">
+#### Time
+
+Alloy 6 added **temporal operators** to Alloy, making it easier to model dynamic systems.
+
+Now **signatures** or **fields** can be declared **mutable**.
 
 </div>
 <div class="column">
+
+This is done through the `var` keyword:
+```
+sig A { }
+var sig B { }
+sig C {
+    var field: lone B
+}
+```
+
+This forces us to redefine **what an instance for a model is**:
+- every instance has a certain number of **steps** which we can interpret as discrete time instants;
+- **for every step**, we need to assign **a set to every signature** and a **relation to every field** accordingly (that is, for a given step, the relation must be a subset of the cartesian product of the sets assigned to the corresponding signatures **in that step**);
+- **if signatures and fields are defined as usual**, then these sets and relations will stay the same in every step (and so we can adopt the usual interpretation);
+- **otherwise if we use the `var` keyword as shown before**, these sets and relations could change at every step.
+
+Clearly we need some operators to specify how the sets and relations can mutate from a step to the next.
+
+**Important remark**: when dealing with mutable signatures and fields, **the evaluation of an expression happens for a given step which by default is the first one** (_of course we can have different values if we evaluate the same expression at different steps_).
+**In particular, if we don't use temporal operators, all predicates and facts only hold for the _initial_ step**.
+
+From now on assume that we're evaluating the expressions at the generic step `s`; we will see in a moment that, through some operators, `s` won't always be the _initial_ step. Furthermore, for a predicate `P`, we will use `P(s)` to highlight that `P` is evaluated at step `s` and `s+1`
+
+</div>
+<div class="column">
+
+for the step that follows `s`; **this is not valid syntax**.
+
+Alloy operators include both _future_ and _past_ operators. Let `P` be a predicate, the **future operators** are:
+- **`always`**: `always P` is equivalent to `P(s) and P(s + 1) and ...` (_it is true if `P` is always true from `s` onwards_);
+- **`eventually`**: `eventually P` is equivalent to `P(s) or P(s + 1) or ...` (_it is true if `P` is currently true or will be true for some step_);
+- **`after`**: `after P` is equivalent to `P(s + 1)`;
+- **`;`**: `P ; Q` is a **shortand for `P and after Q`**;
+- **`releases`**: `Q releases P` is `true` iff `P` is `true` until `Q` is `true`, then `P` _may_ become `false`;
+- **`until`**: `P until Q` is equivalent to `(Q releases P) and eventually Q`.
+
+##### The ' operator
+
+The **`'`** operator is the correct syntax for what we have written as `P(s + 1)`; **it not only works with predicates, but also with expressions of any kind**. in general `expr'` is simply **the value of `expr` in the next step**.
+
+For every future operator there is an **equivalent past operator**: `historically` is equivalent to `always`; `once` is equivalent to `eventually` (_the predicate after `once` doesn't need to have been true exactly once, but at least once_); `before` is equivalent ot `after`; `triggered` is equivalent to `releases`; `since` is equivalent to `until`.
+
+**We can set the scope also for the steps of an instance**: the number of steps is specified as `for m..n steps`, where `m` is the minimum number of steps and `n` is the maximum. Writing `for n steps` is equivalent to `for 1..n steps`. If no steps count is given, the number defaults to 10.
 
 </div>
 </div>
