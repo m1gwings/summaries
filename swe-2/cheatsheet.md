@@ -542,7 +542,7 @@ As anticipated, Alloy is not only a formal language, but also allows, through th
 </div>
 <div class="column">
 
-Providing an instance for a model requires to assign to every signature (which represents a set of entities of the same "_type_") a set of _so-called_ **atoms** (the individual entities of the type specified by the signature).
+**Providing an instance for a model** requires to assign to every signature (which represents a set of entities of the same "_type_") a set of _so-called_ **atoms** (the individual entities of the type specified by the signature).
 
 In particular, by executing:
 ```
@@ -561,7 +561,7 @@ Now that we know how to define entities, we want a way to link them; that is, we
 
 #### Operations on sets
 
-When writing Alloy expressions, signatures are treated as sets, indeed, as we've discussed before, for a given instance of a model, a set is assigned to each signature, and so we can easily evaluate expressions of this type.
+**When writing Alloy expressions, signatures are treated as sets**, indeed, as we've discussed before, for a given instance of a model, a set is assigned to each signature, and so we can easily evaluate expressions of this type.
 
 </div>
 <div class="column">
@@ -572,7 +572,7 @@ sig A { }
 sig B { }
 ```
 
-In the following we will treat `A` and `B` as finite sets `A = { A1, ..., AN }`, `B = { B1, ..., BM }`.
+In the following we will treat `A` and `B` as finite sets: `A = { A1, ..., AN }`, `B = { B1, ..., BM }`.
 
 Then we can perform the following operations:
 - **union**: `A + B`;
@@ -581,7 +581,7 @@ Then we can perform the following operations:
 - **cartesian product**: `A -> B`.
 
 Finally:
-- `#A` returns `N`, that is, the **number of elements in `A`**.
+- **`#A`** returns `N`, that is, the **number of elements in `A`**.
 
 #### Signatures
 
@@ -594,7 +594,7 @@ sig A {
 }
 ```
 where `SetI` is either a signature or an expression that, for a given instance, evaluates to a set; that is, we can combine signatures through all the operators of the previous paragraph except for `#` (since it doesn't evaluate to a set).
-An instance for the model above requires not only to assign a set of atoms to the signature `A`, but also a relation (in the mathematical sense) for every `fieldI`.
+**An instance for the model above requires** not only to assign a set of atoms to the signature `A`, but **also a relation** (in the mathematical sense) **for every `fieldI`**.
 
 </div>
 </div>
@@ -647,21 +647,21 @@ By default signatures have multiplicity `set`, that is, for a given instance of 
 
 - **`extends`**
 
-Writing `sig Child extends Parent { ... }` creates a **subtype**, that is, for a given instance, the set assigned to `Child` is a subset of the set assigned to `Parent` (so every atom of `Child` is an atom of `Parent`), furthermore, if more extensions are defied as in:
+Writing `sig Child extends Parent { ... }` creates a **subtype**, that is, for a given instance, **the set assigned to `Child` is a subset of the set assigned to `Parent`** (so every atom of `Child` is an atom of `Parent`), furthermore, if more extensions are defied as in:
 ```
 sig Parent { }
 
 sig Child1 extends Parent
 sig Child2 extends Parent
 ```
-then, for a given instance, any atom of parent can only match **up to one** extension, that is, the intersection between the set assigned to `Child1` and the one assigned to `Child2` is empty.
+then, for a given instance, any atom of parent can only match **up to one** extension, that is, **the intersection between the set assigned to `Child1` and the one assigned to `Child2` is empty**.
 
 </div>
 <div class="column">
 
 - **`abstract`**
 
-If you make a signature `abstract`, then all atoms of the signature will belong to extensions: there will be no atoms that are just the supertype and not any of the subtypes. That is, for a given isntance, the union of the set assigned to the children is equal to the set assigned to the parent (the set assigned to the children form a partition of the set assigned to the parent).
+If you make a signature `abstract`, then all atoms of the signature will belong to extensions: there will be no atoms that are just the supertype and not any of the subtypes. That is, for a given isntance, **the union of the sets assigned to the children is equal to the set assigned to the parent** (the sets assigned to the children form a partition of the set assigned to the parent).
 
 **Remark**: we can add fields to subtypes:
 ```
@@ -669,7 +669,7 @@ sig Child extends Parent {
     field: Set
 }
 ```
-The semantics is straightforward: the relation assigned to `field` will associate atoms of `Child` to elements of `Set`; the atoms of `Parent` which aren't atoms of `Child` won't appear in `field`.
+The semantics is straightforward: the relation assigned to `field` will associate atoms of `Child` to elements of `Set`; the atoms of `Parent` which aren't atoms of `Child` won't appear in (_the relation asssigned to_) `field`.
 
 ##### Enums
 
@@ -678,7 +678,7 @@ We can define enums with the following syntax:
 ```
 enum A { Elem1, Elem2, Elem3 }
 ```
-In this case `A` will have 3 atoms in every instance. When we use them in expression, we can interpret `Elem1`, `Elem2`, and `Elem3` as **singletons** containing only the corresponding atom; in this way we can apply all the usual operators which are defined for sets.
+In this case `A` will have 3 atoms in every instance. When we use them in expressions, we can interpret `Elem1`, `Elem2`, and `Elem3` as **singletons** containing only the corresponding atom; in this way we can apply all the usual operators which are defined for sets.
 We can also define enums without the special syntax above through:
 ```
 abstract sig A { }
@@ -701,7 +701,7 @@ In this paragraph we will introduce some operators that are useful if we want to
 
 Let `rel1 = A1 -> A2 -> ... -> A(N-1) -> C` and `rel2 = C -> B2 -> ... -> BM` then `rel1.rel2` is the set of all tuples `(a_1, ..., a_(n-1), b_2, ..., b_m)` such that, for some `c` in `C`, `(a_1, ..., a_(n-1), c)` belongs to `rel1` and `(c, b_2, ..., b_m)` belongs to `rel2`.
 
-**Remark**: the behavior of the operator is well defined even if `rel1`, `rel2` or both are "_simple_" sets, that is relations of arity 1.
+**Remark**: the behavior of the operator can be naturally extended to tha case in which either `rel1` or `rel2` is a "_simple_" set, that is, a relation of arity 1.
 
 ##### `iden`
 
