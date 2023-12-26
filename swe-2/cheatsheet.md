@@ -650,11 +650,10 @@ By default signatures have multiplicity `set`, that is, for a given instance of 
 Writing `sig Child extends Parent { ... }` creates a **subtype**, that is, for a given instance, **the set assigned to `Child` is a subset of the set assigned to `Parent`** (so every atom of `Child` is an atom of `Parent`), furthermore, if more extensions are defied as in:
 ```
 sig Parent { }
-
 sig Child1 extends Parent
 sig Child2 extends Parent
 ```
-then, for a given instance, any atom of parent can only match **up to one** extension, that is, **the intersection between the set assigned to `Child1` and the one assigned to `Child2` is empty**.
+then, for a given instance, any atom of parent can only match **up to one** extension, that is, **the intersection between the set assigned to `Child1` and the one assigned to `Child2` is empty**. **If we don't want this constraint, we can use `in` instead of `extends`**.
 
 </div>
 <div class="column">
@@ -665,9 +664,7 @@ If you make a signature `abstract`, then all atoms of the signature will belong 
 
 **Remark**: we can add fields to subtypes:
 ```
-sig Child extends Parent {
-    field: Set
-}
+sig Child extends Parent { field: Set }
 ```
 The semantics is straightforward: the relation assigned to `field` will associate atoms of `Child` to elements of `Set`; the atoms of `Parent` which aren't atoms of `Child` won't appear in (_the relation asssigned to_) `field`.
 
