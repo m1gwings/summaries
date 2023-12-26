@@ -240,16 +240,16 @@ The syntax right after `MERGE` is analogous to `CREATE`; `ON CREATE` and `ON MAT
 `LOAD CSV` is used to import data from CSV files.
 
 We can:
-- **load a local CSV file**: `LOAD CSV FROM file:///path/to/file AS row`, then we can access the fields with `row[i]`;
-- **load a local CSV file with headers**: `LOAD CSV WITH HEADERS FROM file:///path/to/file AS row`, then we can access the fields by their name with `row.field`;
-- **load a local CSV file with a custom field delimiter**: `LOAD CSV FROM file:///path/to/file AS row FIELDTERMINATOR ';'`;
-- **local a remote CSV file**: `LOAD CSV FROM https://... AS row`.
-
----
+- **load a local CSV file**: `LOAD CSV FROM "file:///path/to/file" AS row`, then we can access the fields with `row[i]`;
+- **load a local CSV file with headers**: `LOAD CSV WITH HEADERS FROM "file:///path/to/file" AS row`, then we can access the fields by their name with `row.field`;
+- **load a local CSV file with a custom field delimiter**: `LOAD CSV FROM "file:///path/to/file" AS row FIELDTERMINATOR ';'`;
+- **local a remote CSV file**: `LOAD CSV FROM "https://..." AS row`.
 
 ## Functions
 
 Cypher supports several functions which allow for example to do math or manipulate strings.
+
+---
 
 ### Mathematical functions
 
@@ -284,13 +284,13 @@ Analogously the functions `any`, `none`, and `single` are defined.
 
 - **Pattern comprehension** is a synctactic construct available in Cypher for creating a list based on matchings of a pattern. A pattern comprehension matches the specified pattern like a normal `MATCH` caluse, with predicates like a normal `WHERE` clause, but yields a custom projection as specified.
 
----
-
 > For example:
 ```
 MATCH (keanu:Person {name: 'Keanu Reeves'})
 RETURN [(keanu)-->(b:Movie) WHERE b.title CONTAINS 'Matrix' | b.released] AS years
 ```
+
+---
 
 - **List comprehension** is a syntactic construct available in Cypher for creating a list based on existing lists. For example:
 ```
