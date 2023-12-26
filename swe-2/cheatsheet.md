@@ -563,10 +563,11 @@ Now that we know how to define entities, we want a way to link them; that is, we
 
 **When writing Alloy expressions, signatures are treated as sets**, indeed, as we've discussed before, for a given instance of a model, a set is assigned to each signature, and so we can easily evaluate expressions of this type.
 
+Consider the model:
+
 </div>
 <div class="column">
 
-Consider the model:
 ```
 sig A { }
 sig B { }
@@ -581,7 +582,8 @@ Then we can perform the following operations:
 - **cartesian product**: `A -> B`.
 
 Finally:
-- **`#A`** returns `N`, that is, the **number of elements in `A`**.
+- **`#A`** returns `N`, that is, the **number of elements in `A`**;
+- **`none`** is the **empty set**.
 
 #### Signatures
 
@@ -838,14 +840,14 @@ fun name[a: some Set1, b: some Set2]: some output_type {
 ```
 The **default** is **`one`** (_that's why we said before that the arguments of a predicate must be atoms of the corresponding set specified in the definition_).
 
+When defining functions that return sets, it may be useful the **set comprehension** syntax: `{x: Set1, y: Set2, ... | expr}`.
+
 #### Facts
 
 Now that we know how to write complex constraint it's time to understand how to enforce them: we can use **facts**.
 The syntax is the following:
 ```
-fact name {
-    constraint
-}
+fact name { constraint }
 ```
 When facts are added to a model, in order to provide a **valid** instance, we not only need to assign a set to every signature and a relation to every field; these sets and relations must also satisfy all the constraints imposed by the facts.
 
