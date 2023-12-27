@@ -529,7 +529,7 @@ In **RE** Alloy can be used to **formally describe the domain and its properties
 
 ### Language
 
-What follows has been inspired and (_partially_) adapted from `https://alloy.readthedocs.io/en/latest/index.html`.
+What follows has been inspired and adapted from `https://alloy.readthedocs.io/en/`.
 
 As we've already seen (_for example when discussing about class diagrams for RE_) in order to model a domain we must define some **entities**, the **relationships among them**, and finally some **properties** (regarding the entities and their relationships) which are assumed to hold.
 
@@ -662,7 +662,7 @@ then, for a given instance, any atom of parent can only match **up to one** exte
 
 - **`abstract`**
 
-If you make a signature `abstract`, then all atoms of the signature will belong to extensions: there will be no atoms that are just the supertype and not any of the subtypes. That is, for a given isntance, **the union of the sets assigned to the children is equal to the set assigned to the parent** (the sets assigned to the children form a partition of the set assigned to the parent).
+If you make a signature `abstract`, then all atoms of the signature will belong to extensions: there will be no atoms that are just the supertype and not any of the subtypes. That is, for a given instance, **the union of the sets assigned to the children is equal to the set assigned to the parent** (the sets assigned to the children form a partition of the set assigned to the parent).
 
 **Remark**: we can add fields to subtypes:
 ```
@@ -834,8 +834,8 @@ fun name[a: Set1, b: Set2]: output_type {
 
 **Important remark**: as usual we can specify **multiplicities** also for **predicates and functions** arguments, as in:
 ```
-fun name[a: some Set1, b: some Set2]: some output_type {
-    expression
+fun name[a: some Set1, b: some Set2]:
+    some output_type { expression
 }
 ```
 The **default** is **`one`** (_that's why we said before that the arguments of a predicate must be atoms of the corresponding set specified in the definition_).
@@ -849,18 +849,18 @@ The syntax is the following:
 ```
 fact name { constraint }
 ```
-When facts are added to a model, in order to provide a **valid** instance, we not only need to assign a set to every signature and a relation to every field; these sets and relations must also satisfy all the constraints imposed by the facts.
+When facts are added to a model, in order to provide a **valid** instance, we not only need to assign a set to every signature and a relation to every field;
 
 </div>
 <div class="column">
+
+these sets and relations must also satisfy all the constraints imposed by the facts.
 
 ##### Implicit facts
 
 You can write a fact as part of a signature. The implicit fact goes after the signature definition and relations. Inside of an implicit fact, you can get the current atom with `this`. **Fields are automatically expanded in the implicit fact to `this.field`**. For example:
 ```
-sig Node {
-    edge: set Node
-} {
+sig Node { edge: set Node } {
     this not in edge
 }
 ```
@@ -878,13 +878,7 @@ A **command** is what actually runs the analyzer. It can either find instances f
 
 ##### `check`
 
-**`check`** tells the Analyzer to find a _counterexample_ to a given constraint. **Unlike with `run` command, `check` uses assertions**:
-```
-assert no_self_loops {
-    no n: Node | self_loop[n]
-}
-check no_self_loops
-```
+**`check`** tells the Analyzer to find a _counterexample_ to a given constraint.
 
 </div>
 </div>
@@ -893,6 +887,13 @@ check no_self_loops
 
 <div class="multiple-columns without-title">
 <div class="column">
+
+**Unlike with `run` command, `check` uses assertions**:
+```
+assert no_self_loops {
+    no n: Node | self_loop[n] }
+check no_self_loops
+```
 
 **Assertions may be used in `check` commands but not `run` commands. Assertions may not be called by other predicates or assertions**.
 
@@ -918,14 +919,14 @@ we can write the following scopes:
 
 (_The last command can be written as `run {} for 2 A, 3 B`_).
 
+</div>
+<div class="column">
+
 #### Time
 
 Alloy 6 added **temporal operators** to Alloy, making it easier to model dynamic systems.
 
 Now **signatures** or **fields** can be declared **mutable**.
-
-</div>
-<div class="column">
 
 This is done through the `var` keyword:
 ```
@@ -947,12 +948,10 @@ Clearly we need some operators to specify how the sets and relations can mutate 
 **Important remark**: when dealing with mutable signatures and fields, **the evaluation of an expression happens for a given step which by default is the first one** (_of course we can have different values if we evaluate the same expression at different steps_).
 **In particular, if we don't use temporal operators, all predicates and facts only hold for the _initial_ step**.
 
-From now on assume that we're evaluating the expressions at the generic step `s`; we will see in a moment that, through some operators, `s` won't always be the _initial_ step. Furthermore, for a predicate `P`, we will use `P(s)` to highlight that `P` is evaluated at step `s` and `s+1`
-
 </div>
 <div class="column">
 
-for the step that follows `s`; **this is not valid syntax**.
+From now on assume that we're evaluating the expressions at the generic step `s`; we will see in a moment that, through some operators, `s` won't always be the _initial_ step. Furthermore, for a predicate `P`, we will use `P(s)` to highlight that `P` is evaluated at step `s` and `s+1` for the step that follows `s`; **this is not valid syntax**.
 
 Alloy operators include both _future_ and _past_ operators. Let `P` be a predicate, the **future operators** are:
 - **`always`**: `always P` is equivalent to `P(s) and P(s + 1) and ...` (_it is true if `P` is always true from `s` onwards_);
