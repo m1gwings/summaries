@@ -971,3 +971,191 @@ For every future operator there is an **equivalent past operator**: `historicall
 
 </div>
 </div>
+
+---
+
+## Software Architecture
+
+<div class="multiple-columns">
+<div class="column">
+
+The **Software Architecture** (SA) of a system is the **set of structures** needed to reason about the system. These structures comprise **software elements**, the **relations among them**, and **properties** of both.
+In particular the **set of structures relevant to software** are:
+- **component-and-connector** structures;
+- **module** structures;
+- **allocation** structures.
+
+### Component-and-connector structures
+
+**Component-and-connector** structures describe how the system is structured as a **set of elements** that have **runtime behavior** (**components**) and **interactions** (**connectors**).
+
+Component-and-connector structures allow us to answer questions such as:
+- What are the major executing components and how do they interact at runtime?
+- What are the major shared data stores?
+- Which parts of the system are replicated?
+- How does data progress through the system?
+- Which parts of the system can run in parallel?
+- How does the system's structure evolve during execution?
+
+Furthermore, they allow us to study runtime properties such as availability and performance.
+
+#### Representing component-and-connector structures in UML
+
+We can represent a **simple component** as follows:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/component.svg"
+    width="150mm" />
+</p>
+
+</div>
+<div class="column">
+
+Each component can **provide and require interfaces**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/interfaces.svg"
+    width="250mm" />
+</p>
+
+(_We can also write the name of the provided interface next to the ball_).
+
+We can build **connectors** by "_matching_" a provided interface with a required interface:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/connector.svg"
+    width="150mm" />
+</p>
+
+We can **connect several components** into a **subsystem**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/subsystem.svg"
+    width="250mm" />
+</p>
+
+</div>
+<div class="column">
+
+Finally, we can **connet subsystems' interfaces** through **dependency arrows**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/connecting-subsystems.svg"
+    width="250mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+We can represent the **interaction between components and other components** or **human actors and components** through sequence diagrams, using the following representation:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/sequence-diagram.svg"
+    width="190mm" />
+</p>
+
+### Module structures
+
+**Module structures** show how a system is structured as **a set of code or data units** that have to be procured or constructed, **together with their relations**.
+Examples of modules are: packages, classes, functions, libraries, layers, database tables.
+
+Modules **consitute implementation units** that can be used as the basis for work splitting. Typical **relationships among modules are**: uses, is-a (generalization), is-part-of.
+
+An example of modular structure is the **layered architecture** where:
+- layers are organized according to use relationships;
+- a layer can use the layer below and can be used by the layer above.
+
+A layered architecture has been used for example in the "Reference IoT Layered architecture" (RILA).
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/module-structures-diagrams/RILA.webp"
+    width="230mm" />
+</p>
+
+</div>
+<div class="column">
+
+#### Representing modular structures in UML
+
+We can use:
+- **composite structure diagrams**
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/composite-structure-diagram.png"
+    width="500mm" />
+</p>
+
+- **class diagrams**
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/class-diagrams/modular-structures.png"
+    width="270mm" />
+</p>
+
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **package diagrams**
+
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/package-diagram.png"
+    width="500mm" />
+</p>
+
+Module structures allow us to answer questions such as:
+- What is the primary functional responsibility assigned to each module?
+- What other software elements is a module allowed to use?
+- What other software does it actually use and depend on?
+- What modules are related to other modules by generalization or specialization (that is, inheritance) relationships?
+
+### Allocation structures
+
+**Allocation structures define how the elements** from component-and-connector or module structures **map onto things that are not software**.
+Examples of such things are:
+- hardware (possibly virtualized);
+- file systems;
+- teams.
+
+Typical allocation structures are:
+- **deployment structures**;
+
+</div>
+<div class="column">
+
+- implementation structures;
+- work assignment structures.
+
+#### Representing deployment structures in UML
+
+- An example can be:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/deployment-diagrams/diagram-1.png"
+    width="500mm" />
+</p>
+
+- or:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/deployment-diagrams/diagram-2.png"
+    width="500mm" />
+</p>
+
+**Deployment structures** captures the topology of a system's hardware. It is built as part of architectural specification. The purpose is: specify the distribution of components, and identify performance bottlenecks.
+Deployment structures are developed by architects, networking engineers, and system engineers.
+
+</div>
+</div>
+
+---
+
