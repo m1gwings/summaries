@@ -1159,3 +1159,312 @@ Deployment structures are developed by architects, networking engineers, and sys
 
 ---
 
+<div class="multiple-columns without-title">
+<div class="column">
+
+### Software Design Description (SDD)
+
+A **software design description** specifies the manner in which architectural descriptions of systems are organized and expressed.
+
+The required contents of an SDD according to the IEEE standard are:
+- identification of the SDD (date, authors, organization);
+- description of design stakeholders;
+- selected design viewpoints;
+- design views;
+- design overlays;
+- design rationale.
+
+### Design principles
+
+The main design principles for software architectures are:
+- **divide and conquer**;
+
+- **keep the level of abstraction as high as possible**: abstractions allow you to understand the essence of a subsystem without having to know unnecessary details;
+
+- **increase cohesion where possible**;
+
+- **reduce coupling where possible**;
+
+- **design for reusability**: design the various aspects of your system so that they can be used again in other contexts (generalize your design as much as possible, simplify your design as much as possible, follow the preceding all other design principles, design your system to be extensible);
+
+- **reuse existing designs and code**: design with reuse is complementary to design for reusability (take advantage of the investment you or others have made in reusable components);
+
+</div>
+<div class="column">
+
+- **design for flexibility**: actively anticipate changes that a design may have to undergo in the future, and prepare for them (reduce coupling and increase cohesion, create abstractions, use reusable code and make code reusable, do not hard-code anything);
+
+- **anticipate obsolescence**: plan for changes in the technology or environment so the software will continue to run or can be easily changed;
+
+- **design for portability**: have the software run on as many platforms as possible;
+
+- **design for testability**: take steps to make testing easier, for example design a program to automatically test the software, ensure that all the functionalities of the code can be driven by an external program, bypassing a graphical user interface;
+
+- **design defensively**: be careful when you trust how others will try to use a component you are designing (handle all cases where other code might attempt to use your component inappropriately, check that all of the inputs to your component are valid, that is, satisfy the preconditions).
+
+### Interface design
+
+An **interface** is a **boundary** across which components interact. The **proper definition** of interfaces is an acrchitectural concern: it impacts maintainability, usability, testability, performance, and integrability. There are two important **guiding principles** to apply when defining interfaces: **information hiding** and **low coupling**.
+
+The following aspect have to be considered during interface design:
+- **contract principle**: any resource added to an interface implies a commitment to maintaining it;
+
+</div>
+<div class="column">
+
+- **least surprise principle**: interfaces should behave consistently with expectations;
+- **small interfaces principle**: interfaces should limit the exposed resources to the minimum.
+
+Important **elements to be defined** are:
+- the **interaction style** (for example: sockets, RPC, REST (_see later_));
+- the **representation and structure** of exchanged data;
+- **error handling**.
+
+#### Interaction style
+
+- **Sockets**: after connection establishment, communication is bidirectional. Both parties must agree on the same protocol;
+
+- **RPC/RMI**: resembles procedure/method call in a centralized setting; stubs and skeletons are needed to transform procedure/method calls in messages and vice versa;
+
+- **REpresentational State Transfer** (**REST**): it is a specific standardized architectual style for Application Programming Interfaces (APIs), it realizes clear separation between distributed, heterogeneous systems/components.
+
+##### REST APIs
+
+REST APIs are simple and **standardized**, developers do not have to worry about:
+- the **communication protocol** (which is **HTTP**);
+- how to **format the data** (in **JSON**);
+
+Furthermore, they are **stateless**: they do not keep track of states across server and all clients; this approach is **scalable** and supports **caching**.
+
+REST APIs are employed when we have to manage a set of resources (of whatever nature).
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+Indeed, the set of supported operations is abbreviated with **CRUD**, which stands for:
+- **Create**: creation of a new resource through **POST** HTTP method;
+- **Read**: retrieval of an existing resource through **GET** HTTP method;
+- **Update**: update of an existing resource thorugh **PUT** HTTP method;
+- **Delete**: deletion of an existing resource through **DELETE** HTTP method.
+
+**REST APIs requests** are standard HTTP requests, made of 4 fields:
+- an **header**;
+- a **method** (among the ones that we've just discussed);
+- an **endpoint**;
+- **parameters/body**.
+
+The same is true for **REST APIs responses** which are standard HTTP responses, made of 2 fields:
+- a **status code**, that can be:
+    - **2xx** for successful operations (for example 200 = Ok);
+    - **4xx** for client errors (for example 400 = Bad request);
+    - **5xx** for server errors (for example 500 = Internal server error, 503 = Service unabailable);
+- **serialized data** which constitutes the body of the response and is usually in **JSON**.
+
+One **utility** which allows to perform REST APIs request is **curl**, for example:
+```
+curl -X "GET" \
+"https://petstore.swagger.io/v2
+/pet/findByStatus?status='available'"
+-H "accept:application/json"
+```
+
+</div>
+<div class="column">
+
+or
+```
+curl -X "POST"
+"https://petstore.swagger.io/v2/pet" \
+-H "accept:application/json" \
+-H "Content-Type: application/json" \
+-d "{ "id": 12300, ... }"
+```
+
+#### Representation and structure of exchange data
+
+The **most used serialization formats** for interfaces are:
+- **JSON**
+```
+{
+    "guests": [
+        { "firstName": "John", "lastName": "Doe" },
+        ...
+    ]
+}
+```
+- **XML**
+```
+<guests>
+    <guest>
+        <firstName>John</firstName>
+        <lastName>Doe</lastName>
+    </guest>
+    ...
+</guests>
+```
+- and **Protobuffer**
+```
+message Guest {
+    string firstName = 1;
+    string lastName = 2;
+}
+message Guests { repeated Guest guests = 3; }
+```
+
+</div>
+<div class="column">
+
+#### Error handling
+
+**Example of issues** that could arise when using an interface are:
+- an operation is called with invalid parameters;
+- the call does not return anything (for example because the component cannot handle the request in the current state; hardware/software errors prevent successful execution; misconfiguration issues).
+
+**Possible reactions** are:
+- raising an exception;
+- returning an error code;
+- log the problem.
+
+#### Multiple interfaces and separation of concerns
+
+A server can offer multiple interfaces at the same time. This enables: separation of concers; different levels of access rights; support to **interface evolution** (_see next_).
+
+#### Interface evolution
+
+Interfaces constitute the contract between servers and clients. Sometimes interfaces need to evolve (e. g., to support new requirements). The **strategies** to support continuity are: **deprecation** (declare well in advance that an interface version will be eliminated by a certain data); **versioning** (maintain multiple active versions of the interface); **extension** (a new version extends the previous one).
+
+#### Documenting interfaces
+
+Interface **documentation** explains how to use the interface, but should not include information about the internals of the component which provides such interface.
+
+The **audience of an interface documentation** are: **developers offering the interface**, **developers using the interface**, **QA teams**, and **software architects**.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+##### OpenAPI specification
+
+**OpenAPI specification defines** how to describe a REST API interface through an **OpenAPI definition**.
+An **OpenAPI definition** is a (JSON or YAML) file which describes what a service offers through its interface.
+Using OpenAPI specification has several benefits: it is a format standardized, public, and well-known; it is readable by humans (to understand and use the REST API), and machins (to automate tasks like testing or code generation).
+**OpenAPI definition describes**: endpoints, resources, operations, parameters (including data types), authentication/authorization mechanism.
+Furthermore it offers some **supporting tool** like: an **API validator** which checks the conformance to the standard; a **documentation** generator which produces clear and human readable description; a **SDK** generation which creates automatically client libraries in a programming language of choice.
+
+### Architectural style
+
+An **architectural style** determines the **vocabulary** of **components** and **connectors** that can be used in instances of that style, together with a set of **constraints** on how they can be combined. These can include topological constraints on architectural descriptions (for example, no cycles). Other constraints (for example having to do with execution semantics) might also be part of the style definition.
+
+#### Client-server
+
+In a **client-server** architectural style there are two **component roles**: a **client that issues requests**, and a **server that provides responses**.
+It is common to use it when: **multiple users** need to access a single **resource**, there is a preexisting software we must **access remotely**, it is convenient to organize the system around a **shared piece of functionality** used by multiple components.
+
+</div>
+<div class="column">
+
+We can distribute parts of the software system (**GUI**, **application**, and **data**) onto a client-server architecture in different ways:
+- **thin client**:
+    - **distributed presentation**: the client handles part of the GUI, the server handles the other part of the GUI, the application, and the data;
+    - **remote presentation**: the client handles the GUI, the server handles the application and the data;
+- **fat client**:
+    - **distributed logic**: the client handles the GUI and part of the application, the server handles the other part of the application and the data;
+    - **remote data access**: the client handles the GUI and the application, the server handles the data;
+    - **distributed storage**: the client handles the GUI, the application and part of the data, the server handles the other part of the data.
+
+The main technical issues of the client-server architectural style are:
+- **design** and **document** proper interfaces for our server;
+- ensure the server is able to **handle multiple simultaneous requests**: the alternatives are forking vs thread pooling.
+
+##### Forking
+
+**Forking** is the simple approach used by **Apache Web Server** for **handling multiple simultaneous requests**: **one process** was created **per request** or **per client**.
+
+It is a simple architecture which is also simple to program and gurantess isolation and protection given by the "one-connection-per-process" model, but has **scalability issues**.
+
+</div>
+<div class="column">
+
+##### Thread pooling
+
+Worker (or thread) pooling is an alternative approach adopted by **NGINX Web Server** designed for high concurrency which deals with the scalability issues.
+NGINX dealt with these issues by introducing a new **architectural tactic**, that is, **a design decision that influences the control of one or more quality attributes**. It works as follows:
+- the number of workers is fixed (so that we can't saturate the available resources);
+- each worker has a queue;
+- when queues are full the dispatcher drops the incoming requests to keep high performance;
+- dispatcher balances the workload among available workers according to specific policies.
+
+**Remark** architectural tactics introduce **quality attribute trade-offs**, in this case NGINX decided to **optimize scalability** and **performance** by **sacrificing availability (in some cases)**.
+
+#### N-tiers architectures
+
+In a **3-tiers architecture** we distribute the logical layers which constitute the software system (usually GUI, application, and data) over **3 physical tiers**.
+**The most straightfoward way is to map each layer with a tier**.
+
+This architecture can be generalized in the so-called **N-tiers** where the number of physical tiers isn't 3 anymore, but N in general.
+
+#### Event-driven architecture
+
+In an **event-driven** architecture, components can **register to**/**send events**. Events are **sent to all registered components**. There is **no explicit naming of target components**.
+This architecture is often called **publish-subscribe** where **publish** refers to event generation, while **subscribe** refers to the declaration of interest.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+This approach is **very common in modern development practices**, it makes the **addition/deletion of components easy** (publishers/subscribers are decoupled), but it has **potential scalability problems** (the event dispatcher may become the bottleneck), and there is **no guaranteed ordering of events**.
+
+Messages/events are **asynchronous**, the computation is **reactive**, the **destination** of messages is **determined by receiver**, not by the sender. Furthermore, event-driven architecturs make communication flexible: they allow one-to-many, many-to-one, and many-to-many forms of communication.
+
+Relevant technologies to build event-driven architectures are: **Apache Kafka** and **RabbitMQ**.
+
+##### Apache Kafka
+
+**Kafka** is a **framework for the event-driven paradigm**: it includes primitives to create **event producers** and **consumers** and a runtime infrastructure to handle **event transfer** from producers to consumers, it **stores events durably and reliably**, and it allows consumers to **process events as they occur or retrospectively**.
+
+There are 4 components' roles in Kafka's architecture: **producers**, **consumers**, **brokers**, and **ZooKeeper**.
+Each **broekr handles** a set of **topics** and **topic partitions** which include sets of messages on the topic. Partitions are independent from each other and can be **replicated** on multiple brokers for fault tolerance. There is **one leading broker per partition**. The other brokers containing the same partition are **followers**. **Producers** know the available leading brokers and send messages to them. Messages in the same topic are organized in **batches** at the producers' side and sent to the broker when the batch size overcomes a certain threshold. Consumers adopt a **pull approach**. They receive in a single batch all messages belonging to a certain partition starting from a specified **offset**.
+
+</div>
+<div class="column">
+
+Messages remain available at the brokers' side for a specified period and can be **read multiple times** in this perios. The leader keeps track of the **in-synch followers**. **ZooKeeper** is used to oversee the correct operation of the cluster. ALl brokers send heartbeat to ZooKeeper. ZooKeeper will replaace a failing broker by electing a new leader for all the partitions the failing broker was leading. It may also start/restart brokers.
+
+**Message delivery** works as follows:
+- the **producer** sends the message that it wants to publish to the corresponding leading broker;
+- the **leading broker** commits messages by storing them in the corresponding partition, then it adds the message to **followers replicas** if available;
+- finally the **leading broker** sends back a response to the **producer**, acknowledging that the message has been committed.
+
+In case of failure the producer may not get the response. In this case the producer has to resend the message, kafka brokers can identify and eliminate duplicates.
+
+An analogous failure can happen when performing synchronization with replicas: after sending the new message, the leading broker does not receive any acknowledging response from the follower. We can adopt:
+- **exactly-once semantics** (the message will be commited exactly once on the replica): it is possible but has a long waiting time;
+- **at-least-once semantics** (the message will be committed at least once on the replica): can be chosen by disabling duplicates' management on replicas;
+- **at-most-once** (the message will be committed at most once on the replica): can be achieved simply by making the leading broker not to wait for a response from the follower (that is, by publishing the message asynchronously).
+
+</div>
+<div class="column">
+
+When retrieving messages, each **consumer** can rely on a **persistent log** to keep track of the **offset** so that it is not lost in case of failure.
+Even in this case, we can have:
+- **at-lest-once semantics**: if the consumer fails after having elabolerated messages and before storing the new offset in the log, the same messages will be retreived again;
+- **at-most-once semantics**: it is achieved by storing the new offset before the elaboration;
+- **exactly-once semantics**: it can be achieved through transactional management.
+
+**Kafka architectural tactics** are **scalability** (through multiple partitions and multiple brokers) and **fault tolerance** (through persistent storage, replication, and cluster management).
+
+</div>
+</div>
