@@ -1292,7 +1292,7 @@ The **most used serialization formats** for interfaces are:
 ```
 {
     "guests": [
-        { "firstName": "John", "lastName": "Doe" },
+        { "firstName": "John", ... },
         ...
     ]
 }
@@ -1341,8 +1341,7 @@ Interfaces constitute the contract between servers and clients. Sometimes interf
 #### Documenting interfaces
 
 Interface **documentation** explains how to use the interface, but should not include information about the internals of the component which provides such interface.
-
-The **audience of an interface documentation** are: **developers offering the interface**, **developers using the interface**, **QA teams**, and **software architects**.
+The **audience of an interface documentation** are: **developers offering the interface**, **developers using the interface**, **QA teams**,
 
 </div>
 </div>
@@ -1351,6 +1350,8 @@ The **audience of an interface documentation** are: **developers offering the in
 
 <div class="multiple-columns without-title">
 <div class="column">
+
+and **software architects**.
 
 ##### OpenAPI specification
 
@@ -1367,10 +1368,12 @@ An **architectural style** determines the **vocabulary** of **components** and *
 #### Client-server
 
 In a **client-server** architectural style there are two **component roles**: a **client that issues requests**, and a **server that provides responses**.
-It is common to use it when: **multiple users** need to access a single **resource**, there is a preexisting software we must **access remotely**, it is convenient to organize the system around a **shared piece of functionality** used by multiple components.
+It is common to use it when: **multiple users** need to access a single **resource**, there is a preexisting software we must **access remotely**,
 
 </div>
 <div class="column">
+
+it is convenient to organize the system around a **shared piece of functionality** used by multiple components.
 
 We can distribute parts of the software system (**GUI**, **application**, and **data**) onto a client-server architecture in different ways:
 - **thin client**:
@@ -1465,6 +1468,514 @@ Even in this case, we can have:
 - **exactly-once semantics**: it can be achieved through transactional management.
 
 **Kafka architectural tactics** are **scalability** (through multiple partitions and multiple brokers) and **fault tolerance** (through persistent storage, replication, and cluster management).
+
+#### Microservices
+
+The **microservice architectural style** is an approach to developing a single application as a suite of **small services**, each running in its own process and communicating with **lightweight mechanisms**, often an HTTP resrouce API.
+When adopting a microservice architectural style, (preexisting) monolithic systems are decomposed into small specialized services and deal with a single **bounded context** in the target domain.
+
+Microservices have **several advantages**:
+- they enable **fine-grained scaling** strategies (in monolithic systems, selective replication is not possible, the entire system must be replicated as a whole, microservices enable flexible deployment and selective replication);
+- they **reduce** the scale of **localized issues**, **improving resilience** (a single microservice can fail without making the whole system fail);
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- they allow **better reuse** and **composability** (the functionality offered by a microservice can be used and reused in multiple contexts);
+- they **reduce teams synchronization overhead** (each team has its own code artifact instead of having multiple teams working on the same);
+- they allow organizations to have **small development teams** with well-defined areas of responsibility;
+- the **technical implementation of each service is irrelevant** because the applications always communicate through **technology-neutral protocols** (like REST APIs);
+- finally, **smaller codebases** are easier to debug, and cheaper to maintain.
+
+##### Anatomy of a microservice
+
+A **microservice is composed of 3 main elements**:
+- the interface (usually a **REST API**): which exposes core operations of the service;
+- the **application (or business) logic**: which implements the core operations executed upon requests;
+- the **data storage**: each microservice typically has its own local data.
+
+##### Routing patterns
+
+When dealing with microservices, the **execution environment** has shared and not pre-allocated resources. It follows that the physical location of running services is potentially unkwnown: services need to be discovered.
+**Service discovery** must be: **highly available** (we want to avoid single point of failure, this is usually achieved through replication), **load balanced** (service invocations are spread across all the service instances), **resilient** (if service discovery becomes temporarily unavailable, applications should still function and locate the services), **fault-tolerant** (it should monitor the health status of services and take action without human intervention).
+
+</div>
+<div class="column">
+
+**Service discovery architecture** works as follows:
+- when a service instance comes online, it **registers** its location (IP/port) to one discovery service instance. Instances of the same service are registered under the same service ID;
+- a service location can be **looked up** by a logical name from the discovery nodes;
+- service discovery nodes **share information** (location/health) among each other (propagation can use static lists, or P2P "gossip" protocols);
+- service instances send periodic **heartbeat** to service discovery. If an instance dies, the discovery layer removes its location.
+
+Finally, when a microservice client needs to locate another service:
+- it **checks its local cache** for the location of service instances;
+- it **sends direct requests** to service instances (clients decide how to spread requests to instances);
+- the cached data is **periodically refreshed** by contacting the discovery engine (client cache is eventually consistent).
+
+##### Resiliency patterns
+
+Resiliency patterns answer the question "How do I make sure when there is a **problem** with a service, clients can avoid it before **recovery**?".
+Service discovery provides some degree of resilience in the simple case in which a service instance dies (no heartbeat), but there are other subtle issues, for instance, remote resources could: throw errors (for example, temporary bursts of exceptions) or perform poorly.
+The goal is to allow clients to "fail fast", avoiding useless resource consumption and ripple effects.
+
+**Important remark**: the **ripple effect** is what happens when a service $A$, used by other services $B_i$,
+
+</div>
+<div class="column">
+
+slows down: other services keep sending requests to $A$ making it harder for it to recover, furthermore, the number of open connections in services $B_i$ keep increasing, so they also slow down. This effect propagates and could make the whole system performing poorly.
+
+In this setting we want a component that drops the requests from services $B_i$ to service $A$ until the latter has recovered, thus stopping the ripple effect. This component is known as **circuit breaker** (**CB**): it acts as a **proxy** for a remote service. When the remote service is called, the CB monitors the call. If CB detects too many failures, it inhibits future calls. Calls that take too long or return 5xx errors are treated as failures.
+
+##### Security patterns
+
+A **security pattern** which is often applied in practive is the usage of an **API gateway**: it acts a mediator, sitting between a service client and the service being invoked. Service clients talk only to the gateway. It is a gatekeeper for all traffic to microservices and allow to easily implement authentication/authorization mechanisms. It can be a single point of failur, but this is usually solved through replication.
+
+##### Communication patterns
+
+There are two possible **communication patterns**:
+- **synchronous communication**: requires the two communicating parties to be ready to communicate at the same time;
+- **asynchronous communication**: allows each counterpart to enter in the communication at its own pace.
+
+We can implement **asynchronous communication** using an **event-driven framework**. TìIt can support **multiple communication styles**, like:
+- **notification** (a service sends notifications to the other),
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **request/response**,
+- **publish/subscribe**.
+
+An asynchronous communication pattern has several advantages, like **loose coupling**, **higher flexibility**, **scalability**, and **availability**, but it is more complex to develop.
+
+##### Spring
+
+The **de-facto standard framework** for developing microservices in Java is **Spring**.
+Spring offers explicit support for several key functionalities, like: **building RESTful APIs**, handling communication between microservices, user authentication, building an API gateway.
+
+Let's see a **simple example** of service built with Spring: you are taasked with developing a service that will handle HTTP GET requests on `http://localhost:8080/greeting`. The service will provide a JSON representation of a greeting response: `{"id": 1, "content": "Hello, World!"}`.
+You have the option to personalize the greeting by including an optional name parameter in the query string: `http://localhost:8080/greeting?name=User`. In this case the JSON will contain the following content: `{"id": 1, "content": "Hello, User!"}`. `id` is an integer number that keeps track of the number of times that we greeted a user.
+
+The OpenAPI specification is:
+```
+openapi: "3.0.2"
+info:
+    title: A (very simple) RESTful web service
+    description: RESTful web service.
+    version: "1.0"
+servers:
+    - url: http://localhost:8080
+components:
+    schemas:
+        Greeting:
+            properties:
+                id:
+                    type: integer
+                content:
+                    type: string
+                    pattern: "Hello, ^{.*?}!$"
+```
+
+</div>
+<div class="column">
+
+```
+paths:
+    /greeting/:
+        summary: Greeting and increment counter
+        parameters:
+            - name: name
+                in: query
+                description: Name of who should be greeted
+                required: false
+                schema:
+                    type: string
+                    default: World
+        get:
+            operationId: greetNewUser
+            responses:
+                "200":
+                    description: Successful greeting
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Greeting"
+```
+
+First, let us create a very simple model that represents a new "Greeting". We use the Java "record" keyword: records are designed for scenarios in which a class is generated solely to function as a straightforward data transporter.
+```
+package com.example.restservice;
+
+public record Greeting(long id, String content) { }
+```
+Now let's define the controller:
+```
+package com.example.restservice;
+
+import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+@RestController
+public class GreetingController {
+    private static final String template = "Hello, %s";
+    private final AtomicLong counter = new AtomicLong();
+
+    @GetMapping("/greeting")
+    public Greeting greeting(@RequestParam(value = "name",
+    defaultValue = "World") String name) {
+        return new Greeting(counter.incrementAndGet(),
+        String.format(tempalte, name));
+    }
+}
+```
+
+- **`@RestController`** handles HTTP requests;
+- **`@GetMapping(/greeting)`** handles HTTP GET requests for /greeting;
+- The method `greeting` returns a new instance of the `Greeting` class.
+- **`@RequestParam(value = "name", defaultValue = "World")`** `String name` specifies the input to the greeting method: `name` is a `String`, the value of this parameter is taken from `GET` request parameter `name`, we specify "World" as default value.
+- The RESTful service populates a `Greeting` object, that will be directly written to the HTTP response as JSON.
+
+Let's move to a **more intricated** example: we are going to build a RESTful service to manage the employees of a company. We model employees with the following data:
+- **ID**: identifier of the employee. It should be unique for each employee;
+- **Name**: the name of the employee;
+- **Role**: a string describing the role of the employee within a company.
+
+Our APIs should expose the following functionalities:
+- **`getAllEmployees`**: retrieve the list of all the employees of the company;
+- **`newEmployee`**: insert a new employee. The new employee is returned to the user of the API;
+- **`findEmployeeById`**: retrieve data of a certain employee given the ID. In the case in which no employee is found, a 404 not found error is returned;
+- **`replaceEmployee`**: given an employee ID and a new employee, replace the (eventual) existing employee with the new one. The new employee is returned to the user of the API;
+
+</div>
+<div class="column">
+
+- **`deleteEmployee`**: delete an employee given the ID. In the case in which no employee is found, no error is returned to the user of the API.
+
+The OpenAPI specification follows:
+```
+openapi: "3.0.2"
+info:
+    title: A (short) tutorial on RESTful web services
+    description: RESTful web service.
+    version: "1.0"
+servers:
+    - url: http://localhost:8080
+components:
+    schemas:
+        Employee:
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+paths:
+    /employees/:
+        get:
+            summary: Retrieve all Employees
+            operationId: getAllEmployees
+            responses:
+                "200":
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                $ref: "#components/schemas/Employee"
+        posts:
+            summary: Add an Employee to the payroll application
+            operationId: newEmployee
+            requestBody:
+                description: ...
+                content:
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Employee"
+                required: true
+            responses:
+                "200":
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Employee"
+    /employees/{id}/:
+        post:
+            summary: Find Employee by ID
+            operationId: getEmployeeById
+            parameters:
+                - name: id
+                    in: path
+                    description: ID of Employee to return
+                    required: true
+                    schema:
+                        type: integer
+            responses:
+                "200":
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Employee"
+                "404":
+                    description: Employee not found
+        put:
+            summary: Replace Employee with a new one
+            description: ...
+            operationId: replaceEmployee
+            parameters:
+                - name: id
+                    in: path
+```
+
+</div>
+<div class="column">
+
+```
+                    description: ...
+                    required: true
+                    schema:
+                        type: integer
+            requestBody:
+                description: ...
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Employee"
+            responses:
+                "200":
+                    description: Successful operation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Employee"
+        delete:
+            summary: Delete an Employee by id
+            operationId: deleteEmployee
+            parameters:
+                - name: id
+                    in; path
+                    description: Employee ID to be remove
+                    required: true
+                    schema:
+                        type: integer
+            responses:
+                "200":
+                    description: Succesful operation
+```
+
+The mapping between the REST API and the methods is:
+- **`getAllEmployees`** $\leftrightarrow$ `GET` method at `/employees/`,
+- **`newEmployee`** $\leftrightarrow$ `POST` method at `/employees/`,
+- **`findEmployeeByID`** $\leftrightarrow$ `GET` method at `/employees/{id}`,
+- **`replaceEmployee`** $\leftrightarrow$ `PUT` method at `/employees/{id}`,
+- **`deleteEmployee`** $\leftrightarrow$ `DELETE` method at `/employees/{id}`.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+We start by modeling employees (_we use JPA (Java Persistent API) annotations to make the object ready for storage_):
+
+```
+class Employee {
+    private @Id @GeneratedValue long id;
+    private String name;
+    prviate String role;
+
+    Employee() { }
+
+    Employee(String name, String role) {
+        this.name = name;
+        this.role = role;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+    public String getName() {
+        return this.name
+    }
+    public String getRole() {
+        return this.role;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setRole(String role) {
+        this.role = role;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == 0) return true;
+        if (!(o instanceof Employee)) returnf alse;
+        Employee employee = (Employee) o;
+        return Objects.equals(this.id, employee.id) &&
+            Objects.equals(this.name, employee.name) &&
+```
+
+</div>
+<div class="column">
+
+```
+            Objects.equals(this.role, employee.role);
+    }
+    @Override
+    public int hashCode() {
+        return Object.hash(this.id, this.name, this.role);
+    }
+    @Override
+    public String toString() {
+        return "Employee{" + "id=" + this.id + ", name='" +
+            this.name + '\'' + ", role='" + this.role + "'}";
+    }
+}
+```
+Spring Data **JPA repositories** are interfaces with methods supporting creating, reading, updating, and deleting records against a backend data store. We can declare the repository as follows:
+```
+import org.springframework.data.jpa.repository.JpaRepository;
+
+interface EmployeeRepository extends JpaRepository<Employee,
+    Long> { }
+```
+Let's define the **entry point** for the application:
+```
+@SpringBootApplication
+public class PayrollApplication {
+    public static void main(String.. args) {
+        SpringApplication.run(PayrollApplication.class, args);
+    }
+}
+```
+Furthermore, we're going to implement a simple in-memory databse in which we preload some data:
+```
+@Configuration
+class LoadDatabase {
+```
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+    private static final Logger log =
+        LoggerFactory.getLogger(LoadDatabase.class);
+    @Bean
+    CommandLineRunner initDatabase(EmployeeRepository repository) {
+        return args -> {
+            log.info(...);
+        };
+    }
+}
+```
+
+**Remark**: Spring Boot runs all **`CommandLineRunner`**s tagged with **`@Bean`** once the application starts. This runner needs a **copy** of the EntityRepository we created.
+
+It is time to implement the **controller**.
+```
+@RestController
+class EmployeeController {
+    private final EmployeeRepository repository;
+    EmployeeController(EmployeeRepository repository) {
+        this.repository = repository;
+    }
+    @GetMapping("/employees")
+    List<Employee> all() {
+        return repository.findAll();
+    }
+    @PostMapping("/employees")
+    Employee newEmployee(@RequestBody Employee newEmployee) {
+        return repository.save(newEmployee);
+    }
+    @GetMapping("/employees/{id}")
+    Employee one(@PathVariable Long id) {
+        return repository.findById()
+            .orElseThrow(() ->
+            EmployeeNotFoundException());
+    }
+    @PutMapping("/employees/{id}")
+    Employee replaceEmployee(@RequestBody Employee newEmployee,
+        @PathVariable Long id) {
+```
+
+</div>
+<div class="column">
+
+```
+        return repository.findById(id)
+            .map(employee -> {
+                employee.setName(newEmployee.getName());
+                employee.setRole(newEmployee.getRole());
+                return repository.save(employee);
+            })
+            .orElseGet(() -> {
+                newEmployee.setId(id);
+                return repository.save(newEmployee);
+            });
+    }
+    @DeleteMapping("/employee/{id}")
+    void deleteEMployee(@PathVariable Long id) {
+        repository.deleteById(id);
+    }
+}
+```
+
+Finally, let's deal with **error handling**:
+```
+@ControllerAdvice
+class EmployeeNotFoundAdvide {
+    @ResponseBody
+    @ExceptionHandler(ExmployeeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String employeeNotFoundHandler(EmployeeNotFoundException ex) {
+        return ex.getMessage();
+    }
+}
+```
+The **advice** above is rendered straight into the response body, because of the **`@ResponseBody`** annotation. **`@ExceptionHandler`** configures the advice to only respond if an `EmployeeNotFoundException` is thrown. **`@ResponseStatus`** configures the advice to issue an HTTP 404 error code.
 
 </div>
 </div>
