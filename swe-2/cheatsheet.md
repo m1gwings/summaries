@@ -2384,6 +2384,93 @@ Finally, from $UD$ and $DU$ we can compute **`use-def`** and **`def-use`** pairs
 - a **`use-def` chain** is a couple $q \rightarrow k$ s. t. $(v, q)$ is a **use of $v$** and $k \in UD(v, q)$;
 - a **`def-use` chain** is a couple $q \rightarrow k$ s. t. $(v, q)$ is a **definition of $v$** and $k \in DU(v, q)$.
 
+#### Symbolic execution
+
+**Symbolic execution** is in the middle of the spectrum **static vs dynamic analysis**.
+
+</div>
+<div class="column">
+
+The **very idea** is the following: **symbolic execution executes programs on symbolic values**.
+
+It is capable of **computing reachability and path feasibility peorperties**.
+In particular:
+- **reachability** answers the question "_Does some execution of the program reach the location $l$ in $S$?_" (symbolic execution tries to **verify that $l$ cannot be reached**, or alternatively **spots the condition under which $l$ can be reached**);
+- **path feasibility** answers the question "_Is the given path $p$ feasible?_" (symbolic execution tries to **verify that $p$ cannot be executed**, or alternatively **spots the condition under which $p$ can be executed**).
+
+In **symbolic execution** we represent the execution of a path `p = <0, ..., n>` with a symbolic state which is composed of: a symbolic value for every variable, a path condition, that is a condition that, if satisfied, allows to execute `p`.
+
+In particular:
+- inputs are **initialized** with symbolic (generic) values and the path condition is initialized to true:
+```
+0: void f(type_1 x_1, ..., type_n x_n) {
+```
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/symbolic-execution/initialization.svg"
+    width="280mm" />
+</p>
+
+- statements **are executed symbolically**:
+
+```
+0: void f(type_1 x_1, ..., type_n x_n) {
+1:     y = expr(x_1, ..., x_n);
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/symbolic-execution/statement-execution.svg"
+    width="300mm" />
+</p>
+
+(_For example, the symbolic value of_ `y = x_1 + x_2;` _will be $X_1 + X_2$_).
+
+- we **update path conditions when we reach a "branching" statement** (and **not after the "symbolic evaluation" of the condition**):
+
+```
+0: void f(type_1 x_1, ..., type_n x_n) {
+1:     y = expr(x_1, ..., x_n);
+2:     if (cond(x_1, ..., x_n, y)) {
+```
+
+We can choose between:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/symbolic-execution/condition-true.svg"
+    width="300mm" />
+</p>
+
+and:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/symbolic-execution/condition-false.svg"
+    width="300mm" />
+</p>
+
+(_For example, if the condition is: _`x_1 + y == x_3`_, we can choose between the path conditions: $X_1 + Y = X_3$ and $X_1 + Y \neq X_3$_).
+
+Of course **the choice will affect the rest of the symbolic execution**, the **executed branch will be the one satisfied by the path condition**.
+
+**Important remark**: we can build a tree to represent the symbolic execution of every possible branch. (In general this tree could be not finite in the presence of while statements).
+
+</div>
+<div class="column">
+
+At the end of the symbolic execution of a path we can have two possible outcomes: `SAT` exit if the path condition $\pi$ is satisfied by at least one assignment for the inputs, or `UNSAT` otherwise. Through this we can understand if a path is feasible and if a given location is reachable.
+
+Unfortunately symbolic execution has **several limitations**:
+- **path conditions** may be **too complex** for constraint solvers;
+- (as remarked before) **unbounded loops give rise to infinite sets of paths**;
+- **there may be calls to external code in a pre-compiled library (for which we don't have the source)** (then we can't execute such code symbolically).
+
 </div>
 <div class="column">
 
