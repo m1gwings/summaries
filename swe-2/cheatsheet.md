@@ -1313,7 +1313,7 @@ message Guest {
     string firstName = 1;
     string lastName = 2;
 }
-message Guests { repeated Guest guests = 3; }
+message Guests {repeated Guest guests = 3;}
 ```
 
 </div>
@@ -1976,6 +1976,180 @@ class EmployeeNotFoundAdvide {
 }
 ```
 The **advice** above is rendered straight into the response body, because of the **`@ResponseBody`** annotation. **`@ExceptionHandler`** configures the advice to only respond if an `EmployeeNotFoundException` is thrown. **`@ResponseStatus`** configures the advice to issue an HTTP 404 error code.
+
+### Design Document (DD)
+
+A **DD** has several **purposes**: it allows the **communication** between requirements analysts, architects, and developers; it is the **baseline** for implementation activities;
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+it constitutes a **mapping between requirements and components**; it the **baseline for integration and quality assurance**; it **refines the plan and previous estimations**.
+
+The **reference structure of a DD** is:
+
+1. Introduction
+
+>> Scope $\leftarrow$ _reviews the domain and product, **summary of main architectural styes/choices**_
+>> Definitions, acronyms, abbreviations
+>> Reference documents
+>> Overview $\leftarrow$ _describes contents and structure of the remainder of the DD_
+
+2. Architectural Design
+
+>> Overview: high-level components and interactions $\leftarrow$ _**informal view** (free style notation), major interfaces_
+>> Component view $\leftarrow$ _components + interfaces: components diagrams, composite structure, class diagrams (detailed view)_
+>> Deployment view $\leftarrow$ _infrastructure: deployment diagram(s) including non-logical elements_
+>> Component interfaces $\leftarrow$ _details for each interface (name, signature, returned objects)_
+>> Runtime view $\leftarrow$ _dynamics of the interactions: sequence diagrams (realization of use cases)_
+>> Selected architectural styles and patterns
+>> Other design decisions
+
+3. User Interface Design $\leftarrow$ _overview of UIs, possibly mockups, may refine what's in the RASD (if present)_
+
+4. Requirements traceability $\leftarrow$ _mapping between requirements and design elements_
+
+5. Implementation, Integration and Test Plan $\leftarrow$ _order in which you plan to implement subsystems and components as well as plan of the integration and test of the integration_
+
+6. Effort Spent
+
+7. References
+
+</div>
+<div class="column">
+
+### Software qualities and architectures
+
+Several software qualities are directly influenced by architectural choices: we need **metrics** to quantify qualities and specific **methodologies to analyze** the quantitative impact of architectural choices on these qualities.
+
+#### Availability
+
+A service shall be **continuosly available** to the user, that is, it should have **little downtype** and **rapid** service **recovery**.
+In order to measure the availability of a service we need to introduce some quantities of interest. In particular, **when a system fails**, we call:
+- **time of occurrence** the time at which the user becomes aware of the failure;
+- **detection time** the time at which operators become aware of the failure;
+- **response time** the time required by operators to diagnose the issue and respond to users;
+- **repair time** the time required to fix the service/components that caused the failure;
+- **recovery time** the time required to restore the system (re-configuration, re-initialization, ...).
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/failure-recovery.svg"
+    width="500mm" />
+</p>
+
+Furthermore, we call:
+- **Mean Time To Repair** (**MTTR**) the average time between the occurrence of a failure and service recovery, also known as the **downtime**;
+- **Mean Time To Failures** (**MTTF**) the average time between the recovery from one failure nad the occurrence of the next failur, also known as **uptime**;
+- **Mean Time Between Failures** (**MTBF**) the average time between the occurrences of two consecutive failures.
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/time-between-failures.svg"
+    width="500mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+Now that we've introduced **the quantities of intereset**, we are ready to define the **availability** of a service, that is, the **probability that a component is working propertly at time $t$**:
+
+$$
+A = \frac{MTTF}{MTBF} = \frac{MTTF}{MTTF + MTTR}
+$$
+
+Availability is typically specified in **"nines notation"**: 90% is 1-nine, 99% is 2-nines, 99.9% is 3-nines, ... .
+
+Once we have computed the availability of a single component with the formula above, we are ready to compute the availability for the whole system where several components operate in **series** and in **parallel**. In particular:
+- we say that **elements operate in series** if the failure of an element in the series leads to a failure of the whole combination;
+- we say the **elements operate in parallel** if the failure of an element leads to other elements taking over the operations of the failed element.
+
+System in **series** are represented as follows:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/series.svg"
+    width="300mm" />
+</p>
+
+The **availability of the series is the product of the availabilities of the subsystems**:
+
+$$
+A_{series} = A_A \cdot A_B
+$$
+
+System in **parallel** are represented as follows:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/parallel.svg"
+    width="250mm" />
+</p>
+
+</div>
+<div class="column">
+
+The **availability of the parallel is**:
+
+$$
+A_{parallel} = 1 - (1 - A_A) \cdot (1 - A_B)
+$$
+
+**Important remark**: when computing the availability of a **complex system** where components are connected in series and in parallel, we can substitue a set of components in parallel with a single component with the equivalent availability, and the same applies for components in series. By iterating this substitutions we will get to a single component, whose availability is the one of the whole system.
+
+##### Tactis for availability
+
+The main tactics for availability are **replication** and **forward error recovery** (plus the **circuit breaker** that we've seen when talking about microservices).
+
+- **Replication**
+
+We have 4 **replication approaches**:
+
+> - **hot spare**: C1 is leading, C2 is always ready to take over
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/hot-spare.svg"
+    width="200mm" />
+</p>
+
+> - **warm spare**: C1 is leading and periodically updating C2. If C1 fails, some time might be needed to fully update C2
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/warm-spare.svg"
+    width="200mm" />
+</p>
+
+</div>
+<div class="column">
+
+> - **cold spare**: C2 is dormant and started and updated only when needed
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/cold-spare.svg"
+    width="300mm" />
+</p>
+
+> - **triple modular redundancy**: C1, C2, and C3 are all active. The produced result is the one produced by the majority
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/triple-modular-redundancy.svg"
+    width="300mm" />
+</p>
+
+- **Forward error recovery**
+
+When C1 is in the failure state, a recovery mechanism moves it to the degraded state. In the degraded state, C1 continues to be available even if not fully functional.
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/availability/forward-error-recovery.svg"
+    width="300mm" />
+</p>
 
 </div>
 </div>
