@@ -407,8 +407,8 @@ The syntax is:
         "query": {
             "bool": {
                 "must": [
-                    leafquery1,
-                    leafquery2,
+                    leaf_query1,
+                    leaf_query2,
                     ...
 ```
 
@@ -435,3 +435,119 @@ where **`leafquery1`** is what we assigned to the **`query`** field when perform
 
 #### Aggregations
 
+Elasticsearch supports three different types of aggregations, namely:
+- **metric aggregations** that calculate metrics from field values;
+- **bucket aggregations** that group documents into buckets, based on field values, ranges, or other criteria;
+- **pipeline aggregations** that take input from other aggregations instead of documents or fields.
+
+> **Important remark**: in Elasticsearch, aggregations return the **set of documents** on which we're performing the aggregation, before the aggregations themselves. The **`size`** parameter defines how many of these documents are returned.
+
+Aggregations can be run as part of a search by specifying the **aggs** parameter. The syntax for **bucket aggregations** is the following:
+
+<div class="algorithm">
+
+```
+    GET index_name/_search
+    {
+        "size": 0,
+        "aggs": {
+            "aggregation_name": {
+                "terms": {
+                    "field": "field_name"
+                }
+            }
+        }
+    }
+```
+
+</div>
+
+
+We can perform **bucket aggregrations on the result of a query**, through this syntax:
+
+<div class="algorithm">
+
+```
+    GET index_name/_search
+    {
+        "size": 0,
+        "query": { ... },
+        "aggs": {
+            ...
+        }
+    }
+```
+
+</div>
+
+---
+
+Within the same `aggs` operator it is possible to **perform multiple bucket aggregations on different fields**:
+
+<div class="algorithm">
+
+```
+    GET index_name/_search
+    {
+        "size": 0,
+        "aggs": {
+            "aggregation_name1": {
+                "terms": {
+                    "field": "field_name1"
+                }
+            },
+            "aggregation_name2": {
+                "terms": {
+                    "field": "field_name2"
+                }
+            }
+        }
+    }
+```
+
+</div>
+
+Finally, Elasticsearch supports **sub-aggregations** which are computed for each aggregation by considering the documents in each one of them.
+
+<div class="algorithm">
+
+```
+    GET index_name/_search
+    {
+        "size": 0,
+        "aggs": {
+            "aggregation_name": {
+                "terms": {
+                    "field": "field_name1"
+                },
+                "aggs": {
+                    "sub_aggregation_name": {
+                        "terms": {
+                            "field": "field_name2"
+                        }
+                    }
+                }
+            }
+        }
+    }
+```
+
+</div>
+
+The syntax for **metric aggregation** is analogous:
+
+```
+    GET index_name/_search
+    {
+        "size": 0,
+        "aggs": {
+            "aggregation_name": {
+                operator: {
+                    "field": "field_name"
+                }
+            }
+        }
+    }
+```
+where **`operator`** is one among **`"sum"`**, **`"avg"`**, ... .
+Of course we can perform **metric aggregations** as **sub-aggregations** of **bucket aggregations**. **The syntax follows from straightforward adaptation**.
