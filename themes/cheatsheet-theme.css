@@ -67,6 +67,11 @@ ul {
     padding-right: 0cm;
 }
 
+ol {
+    padding-left: 0.5cm;
+    padding-right: 0cm;
+}
+
 blockquote {
     margin-left: 0.5cm;
     margin-right: 0cm;
