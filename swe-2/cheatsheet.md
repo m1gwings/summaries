@@ -2153,3 +2153,239 @@ When C1 is in the failure state, a recovery mechanism moves it to the degraded s
 
 </div>
 </div>
+
+---
+
+## Verification & Validation
+
+<div class="multiple-columns">
+<div class="column">
+
+**Verification** answers the question: "_Are we building the software right (w.r.t. a specification)?_".
+
+**Validation** answers the qeustion: "_Are we building the right software (w.r.t. stakeholder needs)?_".
+
+### Quality assurance (QA)
+
+**Quality assurance** defines policies and processes to achieve **quality**.  In order to perform quality assurance, we need a way to assess **quality** a find **defects**.
+But, first of all, we need to define what we mean with quality and defects:
+- **quality** is a general term which may refer to: the absence of defects (or bugs), or the absence of other issues that prevent the fulfilment of non-functional requirements;
+- **failure** refers to the termination of the ability of a product to perform a required function or its inability to perform it within previosuly specified limits; it can also refer to an event in which a system or system component does not perform a required function within specified limits;
+- **fault** refers to the manifestation of a defect;
+- a **defect** is an imperfection or deficiency in a program (for example a function should always return a positive value, but returns a negative value);
+- an **error** is a human action that introduced an incorrect result.
+
+### Verification
+
+In other engineering disciplines we can "cover infinite cases" with a single test (for example if a bridge can handle $x$ tons, then it can handle also $0.99 x$ tons).
+This is not the case for software engineering:
+```
+...
+a = y / (x + 20)
+...
+```
+the code above works for any value of `x` but `-20`.
+For this reason we need to perfrom verification in severl phases during the entire development process.
+A model which comprehends the various verification (and validation) stages that we have to perform is the V model.
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/verification/v-model.png"
+    width="500mm" />
+</p>
+
+The main approaches for verification in SWE are:
+- **static analysis**: done on source code without execution (the analysis is static but properties are dynamic);
+- **testing** (**dynamic analysis**): done by executing the sources (usually by sampling); it analyzes the actual behavior compared to the expected one.
+
+#### Static analysis
+
+The **core idea of static analysis** is the following: it analyzes the source code, each analyzer targets a fixed set of **hard-coded** (pre-defined, not custom) properties; it is completely **automatic**; at the end, the output reports **safe** if there are **no issues** or **unsafe** if there are potential issues.
+The **checked properties** are often general safety properties, that is, the absence of certain conditions that may yield errors. For example: **no overflow** for integer variables, **no type errors**, ... .
+
+We say **program behavior all possible executions** of a program, **as sequences of states**.
+Static analysis **allows us to find possible erroneous states**, but **program behavior may not reach those states**. Thus, we say that **static analysis is pessimistic**.
+Static analysis is based on **over-approximations** to be **sound**. The degree of precision is often traded-off against efficiency:
+- **perfect precision** is often impossible due to undecidability;
+- **high precision** may still be too computationally **expensive**;
+- **low precision** is **cheaper** but leads to many **false positives** that must be verified manually.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+##### Control-Flow Graphs (CFG)
+
+Many static analysis methods are based on **CFG**s. A **CFG** is a directed graph representing possible **execution paths**:
+- a CFG **node** corresponds to a program **statement**;
+- a CFG **edge** connects two **consecutive statements**;
+- we **ignore declarations without assignment** since they do not affect the program state.
+
+We can represent the control-flow constructs as follows:
+- **sequence**
+```
+statement1
+statement2
+...
+```
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/CFG/sequence.svg"
+    width="120mm" />
+</p>
+
+- **if**
+
+```
+if (statement1) {
+    statement2
+} else {
+    statement3
+}
+...
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/CFG/if.svg"
+    width="200mm" />
+</p>
+
+- **while**
+
+```
+while (statement1) {
+    statement2
+}
+...
+```
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/CFG/while.svg"
+    width="160mm" />
+</p>
+
+- **for**
+
+You just need to translate:
+```
+for (int i = 0; i < n; i++) {
+    statement1
+}
+...
+```
+into
+
+</div>
+<div class="column">
+
+```
+int i = 0
+while (i < n) {
+    statement1
+    i++
+}
+...
+```
+and then apply the transformation rules defined before.
+
+##### Data-flow analysis
+
+**Data-flow analysis** works on the CFG of a program. It extracts information about how the **data flows**: what values are read (used), and written (defined).
+An example is **live variable analysis**.
+
+- **Live variable analysis**
+
+Given a CFG, a variable $v$ is **live at** the exit of **block** $b$ if there is some **path** (on the CFG) from block $b$ **to a use** $c$ of $v$ taht does not redefine $v$ (that is, there is no **intermediate block** ($b$ and $c$ are excluded) in the path that redefines $v$).
+
+**Live variable analysis** determines, for each block, which variables **may be live** at the exit of that block. We say "**may**" since not every path on the CFG is a feasible path (that is, a path in the **program behavior**).
+We use $LV(b)$ to represent the **set of live variables at block $b$**. So, because of what we just remarked, if $x \notin LV(k)$ then **definetely** $x$ is not live at $k$, if $x \in LV(k)$, **still**, $x$ **may not be live at $k$**.
+
+Live variable analysis allows to perform **dead assignment elimintation**: if a variable is **not live after** it is **defined** by an assignment, the assignment is **useless** and can be **removed** without changing the program behavior.
+
+**Important remark**: live variable analysis can be performed automatically through some standard algorithms.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **Reaching definitions**
+
+Given a CFG, a **definition $(v, k)$** is an **assignment** to variable $v$ **occurring** at block $k$.
+We say that a definition $(v, k)$ **reaches** block $r$ if there is **a path from $k$ to $r$** that does not redefine $v$.
+
+The **goal** of **reaching definition analysis** is the following: for each block of the CFG we want to **determine which definitions may reach that block**.
+We denote with $RD_{IN}(k)$ the **set of definitions reaching block $k$** and with $RD_{OUT}(k)$ the **set of definitions which exit from block $k$** (if block $k$ defines or redefines some variable, then $RD_{IN}(k) \neq RD_{OUT}(k)$).
+
+In order to compute $RD_{IN}(k)$ and $RD_{OUT}(k)$ for every block $k$ we can exploit the following **equations**:
+- $RD_{IN}(k)$ $=$ $\cup_{h \rightarrow k} (RD_{OUT}(h))$;
+- $RD_{OUT}(k)$ $=$ $(RD_{IN}(k) \setminus kill_{RD}(k)) \cup gen_{RD}(k)$
+
+where
+- $h \rightarrow k$ means that block $h$ is a predecessor of block $k$ in the CFG;
+- $kill_{RD}(k)$ is the set of definitions in $RD_{IN}(k)$ regarding **variables** which are **redefined at $k$**;
+- $gen_{RD}(k)$ is the set of **definitions at $k$**.
+
+In particular **we start by assigning $RD_{IN}(0) = \{\}$** where $0$ is the first block, then **we keep applying the formulas above to the blocks until convergence**.
+
+**Important remark**: in principle, when performing **reaching definition analysis** on paper, we would have to write down a "$RD_{IN}$" and a "$RD_{OUT}$" set for each block; **it is worth observing that**:
+- **if block $k$ does not define any variable**, then $RD_{IN}(k) = RD_{OUT}(k)$;
+- **if block $k$ has only one predecessor $h$**, then $RD_{OUT}(h) = RD_{IN}(k)$;
+
+</div>
+<div class="column">
+
+- **and of course holds the transitive property**.
+
+So if sets $A, B, C, D, ...$ are equal, instead of writing down $A = \{ ... \}$, $B = \{ ... \}$, $C = \{ ... \}$, $D = \{ ... \}$, $...$, we can use the **compact notation instead**:
+$$
+A = B = C = D = ... = \{ ... \} \text{ .}
+$$
+
+- **`use-def`** and **`def-use` chains**
+
+The information about which statements **define** values and which **use** them is useful for program optimization or to avoid potential errors. For this purpose we use:
+- **`use-def`** (**UD**) **chains**: they are links from a **use** to **all the definitions** that may reach it;
+- **`def-use`** (**DU**) **chains**: they are links from a **definition** to **all the uses that it may reach**.
+
+In particular, we denote with $UD(v, k)$ the **set of blocks in which $v$ is defined**, and such that, the definition reaches the **use** $(v, k)$, that is:
+
+$$
+
+UD(v, k) = \begin{cases}
+\{ q \mid (v, q) \in RD_{IN}(k) \} \text{ if } v \text{ is used in block } k \\
+\{ \} \text{ otherwise}
+\end{cases}
+
+$$
+
+Analogously, we denote with $DU(v, k)$ the **set of blocks in which $v$ is used**, and such that, the **definition** $(v, k)$ reaches that usage, that is:
+
+$$
+DU(v, k) = \begin{cases}
+\{ q \mid k \in UD(v, q) \} \text{ if } v \text{ is defined in block } k \\
+\{ \} \text{ otherwise}
+\end{cases}
+$$
+
+Finally, from $UD$ and $DU$ we can compute **`use-def`** and **`def-use`** pairs, in particular, for a given variable $v$:
+- a **`use-def` chain** is a couple $q \rightarrow k$ s. t. $(v, q)$ is a **use of $v$** and $k \in UD(v, q)$;
+- a **`def-use` chain** is a couple $q \rightarrow k$ s. t. $(v, q)$ is a **definition of $v$** and $k \in DU(v, q)$.
+
+</div>
+<div class="column">
+
+</div>
+</div>
