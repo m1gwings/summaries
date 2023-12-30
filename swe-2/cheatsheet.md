@@ -2205,7 +2205,7 @@ The main approaches for verification in SWE are:
 The **core idea of static analysis** is the following: it analyzes the source code, each analyzer targets a fixed set of **hard-coded** (pre-defined, not custom) properties; it is completely **automatic**; at the end, the output reports **safe** if there are **no issues** or **unsafe** if there are potential issues.
 The **checked properties** are often general safety properties, that is, the absence of certain conditions that may yield errors. For example: **no overflow** for integer variables, **no type errors**, ... .
 
-We say **program behavior all possible executions** of a program, **as sequences of states**.
+We say **program behavior**, **all possible executions** of a program, **as sequences of states**.
 Static analysis **allows us to find possible erroneous states**, but **program behavior may not reach those states**. Thus, we say that **static analysis is pessimistic**.
 Static analysis is based on **over-approximations** to be **sound**. The degree of precision is often traded-off against efficiency:
 - **perfect precision** is often impossible due to undecidability;
@@ -2459,10 +2459,13 @@ and:
 
 Of course **the choice will affect the rest of the symbolic execution**, the **executed branch will be the one satisfied by the path condition**.
 
-**Important remark**: we can build a tree to represent the symbolic execution of every possible branch. (In general this tree could be not finite in the presence of while statements).
+
+**Important remark**: **pay attention when you evaluate symbolically `for` statements**. It is important to keep in mind that to each `for` correspond: the initialization of the loop variable, the evaluation of a condition, and the increment of the loop variable.
 
 </div>
 <div class="column">
+
+**Important remark**: we can build a tree to represent the symbolic execution of every possible branch. (In general this tree could be not finite in the presence of while statements).
 
 At the end of the symbolic execution of a path we can have two possible outcomes: `SAT` exit if the path condition $\pi$ is satisfied by at least one assignment for the inputs, or `UNSAT` otherwise. Through this we can understand if a path is feasible and if a given location is reachable.
 
@@ -2471,8 +2474,339 @@ Unfortunately symbolic execution has **several limitations**:
 - (as remarked before) **unbounded loops give rise to infinite sets of paths**;
 - **there may be calls to external code in a pre-compiled library (for which we don't have the source)** (then we can't execute such code symbolically).
 
+#### Testing
+
+The **very idea** of **dynamic analysis** (a.k.a. **testing**) is to analyze the **program behavior** (_remember that program behavior has a precise definition, take a look at the static analysis paragraph_).
+The properties that we want to test are encoded as **executable oracles**, that represent **expected outputs** and **desired conditions**.
+Since we can run only a **finite set of test cases**, testing **is not an exhaustive verification**.
+**Failures come with concrete inputs that trigger them**. **Execution is automatic**, **definition of test cases and oracles may not**.
+
+The **main goal** of testing is **making programs fail**.
+
+**Other common goals are**:
+
 </div>
 <div class="column">
+
+- exercise different parts of a program to increase coverage;
+- make sure the interaction between components works (integration testing);
+- support fault localization and error removal (debugging);
+- ensure that bugs introduced in the past do not happen again (regression testing).
+
+We call **test case** a set of **inputs**, **execution conditions**, and a **pass/fail criterion**. **Running a test case** typically involves:
+- the **setup**: bring the program to an **initial state** that fulfils the execution conditions;
+- the **execution**: **run** the program on the actual inputs;
+- the **teardown**: **record** the output, the final state, and any **failure** determined based on the pass/fail criterion.
+
+A **test set** or **test suite** can include multiple test cases.
+
+A **test case specification** is a requirement to be satisfied by one or more actual test cases (for example: "_the input must be a sentence composed of at least two words_").
+
+##### Unit testing
+
+**Unit testing** is aimed at **testing small pieces of code** (units) in **isolation**. The notion of unit typically depends on the programming language (examples can be: classes, methods, functions, procedures, etc.).
+It allows to find problems early, guide the design and increase coverage.
+
+There is an **important problem of testing in isolation**: **units may depend on other units**. We need to **simulate missing units**.
+In particular, if we want to **test** in isolation the **unit B** which **uses unit C** and **is used by unit A**, then we need to develop a so-called **driver** which simulates **A** and a **stub** which simulates **C**.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+##### Integration testing
+
+**Integration testing** is aimed at exercising **interfaces** and **components' interaction**.
+The **faults** discovered by integration testing regard:
+- **inconsistent interpretation of parameters** (for example different modules could use different measurement units (meters/yards));
+- **violations of assumptions about domains** (for example buffer overflow);
+- **side effect on parameters or resoruces** (for example conflicts on temporary files);
+- **non-functional properties** (for example unanticipated performance issues).
+
+When we want to perform integration testing, it is useful to define a **test plan**, which defines how to carry it out. It must be consistent with the **build plan**, which defines the order of implementation of units.
+
+There are several **integration testing strategies**:
+- **Big bang**
+
+In this approach, we test only after integrating all modules together.
+> - **pros**: does not require stubs, requires less drivers/oracles;
+> - **cons**: there is minimum observability, fault localization/diagnosability, efficacy, feedback; furthermore, it has an high cost of repair.
+
+- **Iterative and incremental strategies**
+
+In this family of approaches, we test componenets as soon as they're released.
+
+> - **Hierarchical**
+
+This approach is based on the **hierarchical structure of the system**. We can proceed in two fashions: **top-down** and **bottom-up**.
+
+</div>
+<div class="column">
+
+In the **top-down strategy** we work from the top level (in terms of "use" or "include" relation) toward the bottom: we **need stubs of used modules** at each step of the process. As modules are ready (following the build plan), more functionality is teastble. We replace some stubs and we need other stubs for "lower levels". When all modules are incorporated, the whole functionality can be tested.
+
+In the **bottom-up strategy** we start from the "leaves" of the "uses" hierarchy. In this case we don't need stubs, **but drivers**. Newly developed modules may replace existing drivers, and new modules may require new drivers. In this way we could create several working subsystems, that will be eventually integrated into the final one.
+
+> - **Thread strategy**
+
+The **thread strategy** is based on the concept of **thread**, which is a **portion of several modules** that, together, provide a **user-visible** program **feature**. Integrating by threads **maximize visible progress for users** (or other stakeholders). Furhtermore the **thread strategy** reduces drivers and stubs but typically the integration plan is more complex.
+
+> - **Critical modules strategy**
+
+The **critical modules strategy** is based on the following concept: **start with modules having highest risk**. **Risk assessment** is a **necessary first step** if we want to apply this strategy.
+
+##### System (e2e) testing
+
+**System testing** is conducted on a complete integrated system by independent teams (it is a form of black box testing). The testing environment should be as close as possible to production environment. It can be either **functional** or **non-functional**.
+
+In **functional** system **testing** we want to check whether the software meets the functional requirements. 
+
+</div>
+<div class="column">
+
+We can do so by suing the software as descibed by use cases in the RASD, checking whether the requirements are fulfilled.
+
+In **performance** (non-functional) system **testing** we want to:
+- detect bottlenecks affecting response time, utilization, throughput;
+- detect inefficient algorithms;
+- detect hardware/network issues;
+- identify optimization possibilities.
+
+We can do so through several types of **performance testing**:
+
+- **Load testing**
+
+In **load testing** we want to: expose bugs such as emmory leaks, mismanagement of memory, buffer overflows; identify upper limits of components, and compare alternative architectural options. We do so by **increasing the workload** until the system can support it; furthermore, we load the system for a long period.
+
+- **Stress testing**
+
+In **stress testing** we want to make sure that the system recovers gracefully after failure. We do so by trying to break the system under test by overwhelming its resources of by reducing resources.
+
+##### Testing workflow
+
+The diagram below depicts the main phases of testing.
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/testing-workflow.svg"
+    width="300mm" />
+</p>
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **Test case generation**
+
+As reported in the previous diagram, **test case generation** is the first phase of the testing workflow.
+Its purpose is **defining good quality test sets**:
+- showing a **high probability** of finding errors;
+- able to cover an **acceptable** amount of cases;
+- **sustainable** (we cannot run tests forever).
+
+Test cases can be generated ina **black box** or **white box** manner:
+- **white box** generation is based on code characteristics;
+- **black box** generation is based on specs characteristics.
+
+Furthermore, test cases can be defined **manually**, or **automatically** throguh techniques (concolic execution, fuzz testing, search-based testing) that we will introduce later.
+
+We can even use **symbolic execution** to **generate test cases**: given as input a target location or some paths, if the path conditions are `SAT`, we generate `N` satisfying assignments (that is, test cases); **execute**the test cases, and, for each execution, check the reached state (with an oracle).
+
+#### Concolic (concrete-symbolic) execution
+
+The **very idea** of concolic execution is the following: perform symbolic execution **alongside** a concrete one (on concrete inputs). The **state** of **concolic execution** combines a **symbolic part** and a **concrete part**, used as needed to make progress in the exploration.
+
+Furthermore, we can perform two **kinds of step**:
+- **concrete to symbolic**: derive conditions to explore new paths;
+- **symbolic to concrete**: simplify conditions to generate concrete inputs.
+
+</div>
+<div class="column">
+
+We can represent the **state** of **concolic execution** as **follows**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/concolic-execution/state.svg"
+    width="300mm" />
+</p>
+
+where $x_1$, ..., $x_n$ are **concrete values** (like $x_1 = 11$, ...) and $expr(x_1, ..., x_n)$ is evaluated (that is, it is also a concrete value).
+
+When performing **concolic execution** there is an **important difference** w.r.t. **symbolic execution** when we encounter **branch statements**: in symbolic execution we could "choose" the branch to take by modifying the path condition; in **concolic execution** we **must take the branch whose condition is satisfied by the concrete values** and the **path condition must be modified accordingly**.
+
+At the end of the exeuction (when we reach a desired location or a `return` statement), we can **negate the path condition** and generate an **assignment for the inputs** which satisfies the negated path condition. This is the **symbolic to concrete** step, where we generate inputs to test new paths. When we explore the new path through the generated inputs, computing its path condition, we're applying the **concrete to symbolic** step instead.
+
+
+Concolyc execution **solves one of the problems of symbolic execution**: it can handle **black box** functions (that is, functions defined in other pre-compiled modules that we import, for which we don't have the source code).
+Suppose that in the code to which we're applying concolic execution there is a black box function `bb`.
+If we encounter the statement `z = bb(y)`, we can put `bb(Y)` as the symbolic value of `z` (without expressing it more explicitly),
+
+</div>
+<div class="column">
+
+**but the concrete value of `z` can be computed since we can invoke the function `bb` with the concrete value of `y`**. That is:
+
+```
+0: void foo(int x, int y) {
+1:     int z := bb(y)
+```
+
+corresponds to the state:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/concolic-execution/black-box-statement.svg"
+    width="270mm" />
+</p>
+
+Remember that we **can evaluate conditions through the concrete values**; in the **path conditions** we leave the symbolic expression with the `bb` function "unexpanded":
+
+```
+0: void foo(int x, int y) {
+1:     int z := bb(y)
+2:     if (z == x) {
+```
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/concolic-execution/black-box-branch.svg"
+    width="270mm" />
+</p>
+
+Finally, **when we end the execution and want to negate the path condition**, we replace the symbolic values involving `bb` with the concrete ones. Otherwise we would not be able to find a `SAT` assignment (since we don't know what `bb` does). In the example: $\lnot bb(Y) \neq X$, which is equivalent to $bb(Y) = X$ (for which we can't find a `SAT` assignment), becomes $14 = X$.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### Fuzzing
+
+The **essence of fuzzing** is to create **random inputs**, and see if they break things. It **complements functional testing**, but it can deal also with external qualities other than correctness, like **reliability** and **security** by providing **randomly generated** data as inputs.
+It can uncover defects that might not be caught by other methods since **randomness** typically leads to **unexpected**, or **invalid** inputs.
+
+This is an example of **very simple** (it just generates random strings) **fuzzer** in Python:
+
+```
+def fuzzer(max_length: int = 100, char_start: int = 32,
+    char_range: int = 32) -> str:
+    string_length = random.randrange(0, max_length + 1)
+    out = ""
+    for i in range(0, string_length):
+        out += chr(random.randrange(char_start, char_start + char_range))
+    return out
+```
+
+We can **automate fuzzing** with a Python script like the following:
+
+```
+import os
+import tempfile, subprocess
+
+trials = 100 # testing budget
+program = "..." # put your program here
+
+basename = "input.txt"
+tempdir = tempfile.mkdtemp()
+# tmp file s.t. we do not clutter the file system
+FILE = os.path.join(tempdir, basename)
+
+runs = [ ]
+for i in range(trials):
+    with open(FILE, "w") as f:
+        data = fuzzer()
+        f.write(data)
+    result = subprocess.run([program, FILE],
+        stdin = subprocess.DEVNULL,
+        stdout = subprocess.PIPE,
+```
+
+</div>
+<div class="column">
+
+```
+        stderr = subprocess.PIPE,
+        universal_newlines = True)
+    runs.append((data, result))
+```
+
+From the result, we can check the **program output** and the **status**. Then we can answer the following questions:
+- _How many runs passed?_ (_no error messages_)
+```
+sum(1 for (data, result) in runs if result.stderr == "")
+```
+- _How many runs crashed?_
+```
+sum(1 for (data, result) in runs if result.returncode != 0)
+```
+
+Common bugs found by fuzzers are: **buffer overflows**, **missing error checks** (_languages like C do not have exceptions, instead they have functions that return special error codes in exceptional circumstances_), **rogue numbers** (_fuzzing easily generates uncommon values in the input, causing interesting behavior_).
+
+A **good practice** is to perform **fuzzing** while alongside running **runtime memory checks**: the instrumentation **checks** at runtime **every memory operation** to detect potential violations (_out-of-bounds accesses to heap or stack; use after free; double frees_).
+
+##### Mutational fuzzing
+
+The simple fuzzing approach that we've adopted so far has a **problem**: **many programs expect inputs in very specific formats before they would actually process them**, in this case, completely random inputs have a low chance to execute deep paths.
+The solution to this problem is provided by **mutational fuzzing**: rather than random inputs from scratch (generational fuzzing), we **mutate** a given valid input. A **mutation** is a simple input manipulation like, for example, inserting, deleting or modifying a character in a string.
+
+We can easily build a **mutational fuzzer** in Python:
+
+```
+import random
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+def insert_random_char(s: str) -> str:
+    pos = random.randint(0, len(s))
+    random_char = chr(random.randrange(32, 127))
+    return s[:pos] + random_char + s[pos:]
+
+def delete_random_char(s: str) -> str:
+    ...
+
+def flip_random_char(s: str) -> str:
+    ...
+
+def mutate(s: str) -> str:
+    mutators = [    delete_random_char,
+                    insert_random_char,
+                    flip_random_char ]
+    mutator = random.choice(mutators)
+    return mutator(s)
+```
+
+Of course, we can also apply **multiple mutations**:
+```
+mutations = ...
+fuzz_input = seed_input
+for i in range(mutations):
+    fuzz_input = mutate(fuzz_input)
+```
+
+Note that this introduces a tradeoff: **multiple mutations guarantee and higher variety of inputs**, but **too many mutations have an higher chance of producing an invalid input**.
+
+##### Guiding fuzzing by coverage
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
