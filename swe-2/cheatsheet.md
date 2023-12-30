@@ -2690,7 +2690,7 @@ Finally, **when we end the execution and want to negate the path condition**, we
 
 #### Fuzzing
 
-The **essence of fuzzing** is to create **random inputs**, and see if they break things. It **complements functional testing**, but it can deal also with external qualities other than correctness, like **reliability** and **security** by providing **randomly generated** data as inputs.
+The **essence of fuzzing** is to create **random inputs**, and see if they break things. It **complements functional testing**, since it can deal also with qualities other than correctness, like **reliability** and **security** by providing **randomly generated** data as inputs.
 It can uncover defects that might not be caught by other methods since **randomness** typically leads to **unexpected**, or **invalid** inputs.
 
 This is an example of **very simple** (it just generates random strings) **fuzzer** in Python:
@@ -2701,7 +2701,8 @@ def fuzzer(max_length: int = 100, char_start: int = 32,
     string_length = random.randrange(0, max_length + 1)
     out = ""
     for i in range(0, string_length):
-        out += chr(random.randrange(char_start, char_start + char_range))
+        out += chr(random.randrange(char_start,
+        char_start + char_range))
     return out
 ```
 
@@ -2713,7 +2714,6 @@ import tempfile, subprocess
 
 trials = 100 # testing budget
 program = "..." # put your program here
-
 basename = "input.txt"
 tempdir = tempfile.mkdtemp()
 # tmp file s.t. we do not clutter the file system
@@ -2757,12 +2757,6 @@ A **good practice** is to perform **fuzzing** while alongside running **runtime 
 The simple fuzzing approach that we've adopted so far has a **problem**: **many programs expect inputs in very specific formats before they would actually process them**, in this case, completely random inputs have a low chance to execute deep paths.
 The solution to this problem is provided by **mutational fuzzing**: rather than random inputs from scratch (generational fuzzing), we **mutate** a given valid input. A **mutation** is a simple input manipulation like, for example, inserting, deleting or modifying a character in a string.
 
-We can easily build a **mutational fuzzer** in Python:
-
-```
-import random
-```
-
 </div>
 </div>
 
@@ -2771,7 +2765,11 @@ import random
 <div class="multiple-columns without-title">
 <div class="column">
 
+We can easily build a **mutational fuzzer** in Python:
+
 ```
+import random
+
 def insert_random_char(s: str) -> str:
     pos = random.randint(0, len(s))
     random_char = chr(random.randrange(32, 127))
@@ -2799,14 +2797,105 @@ for i in range(mutations):
     fuzz_input = mutate(fuzz_input)
 ```
 
-Note that this introduces a tradeoff: **multiple mutations guarantee and higher variety of inputs**, but **too many mutations have an higher chance of producing an invalid input**.
+Note that this introduces a tradeoff: **multiple mutations guarantee an higher variety of inputs**, but **too many mutations have an higher chance of producing an invalid input**.
 
 ##### Guiding fuzzing by coverage
+
+We can solve the problem of generating invalid inputs with an higher and higher probability when we keep applying mutations by following this principle: _we should keep and mutate only **inputs** that are **especially valuable**_. In particular, we can evaluate an input from the coverage (number of executed lines, branches, or paths) that it achieves.
 
 </div>
 <div class="column">
 
+This principle can be applied as follows: the fuzzer keeps and maintains a **population** of valuable inputs; if a new input (obtained through mutation) finds another path (that we had not explored yet), it will be added to the population; otherwise it will be discarded.
+We can implement such approach as follows:
+```
+PASS = "PASS"
+FAIL = "FAIL"
+def run_function(foo: Callable, inp: str) -> Any:
+    with Coverage() as cov:
+        try: result = foo(inp)
+            outcome = PASS
+        except Exception:
+            return = None
+            outcome = FAIL
+    return result, outcome, cov.coverage()
+```
 
+where we assume that there exists a `Coverage` class that we can use to retrieve coverage of a test run: the `coverage` method returns the coverage achieved as a list of tuples `<function-name, executed-lines number>`.
+```
+def mutation_coverage_fuzzer(foo: Callable, seed: List[str],
+min_must: int = 2,
+    max_muts: int = 10; budget: int = 100)
+        -> List[Tuple[int, str, int]]:
+    population = seed
+    cov_seen = set()
+    summary = []
+    for j in range(budget):
+        candidate = random.choice(population)
+        trials = random.randint(min_muts, max_muts)
+        for i in range(trials):
+            candidate = mutate(candidate)
+        result, outcome, new_cov = run_function(foo, candidate)
+        if outcome == PASS and not set(new_cov).issubset(cov_seen):
+            population.append(candidate)
+            cov_seen.update(new_cov)
+            summary.append((j, candidate, len(cov_seen)))
+    return summary
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### Search-Based Software Testing (SBST)
+
+The **essence** of **SBST** is to recast testing as an **optimization problem**. In particular, we want to generate **specific test cases** that achieve some **test objective** (we will be more concrete in a moment). The **set of test cases** is our **search space**, we want to evaluate the **fitness** of each test case w.r.t. our test objective in order to guide the exploration. That is, starting from a test case (maybe sampled randomly from the search space), we want to generate better and better test cases, in order to achieve the objective.
+
+The **steps of SBST** are:
+1. **Identify the objective**;
+2. Define how to **measure** the **distance** of the current execution **from the objective**;
+3. **Instrument the code** to compute the fitness (i.e. the distance) of the current execution (i.e. of the test case) to the objective;
+4. **Define a neighborhood relation**: given a test case we want to know all the test cases that are "close" to it: this is relevant when we want to explore the search space looking for better test cases. The neighborhood relation is domain dependent, in general two test cases are neighbors if we can go from one to the other with a simple modification.
+5. **Choose an optimization algorithm** to perform the search.
+
+The **optimization algorithms** used in SBST often involve **local search techniques** like hillclimbing: where we compute the fitness function for every neighbor of the current test case and choose as the next test case the one with the "best fitness" (if the fitness is expressed as a distance, we **minimize** it). Then we keep iterating this procedure until we're satisfied by the fitness of the current test case.
+As every local search technique, hillclimbing could get stuck in local minima. To partially solve the problem, we can start multiple searches with different initial test cases, each one chosen randomly.
+
+The **strengths** of SBST are:
+- compared to concolic execution, it guides the generation toward a **specific testing objective**;
+- compared to fuzzing, typically it generates more **meaningful** test cases;
+- eventually it reaches the objective with enough budget.
+
+The **weaknesses** of SBST are:
+- it requires domain-knowledge to define the notion of fitness;
+- it heavily relies on the quality of the heuristics to explore the neighborhood;
+- it is computationally expensive and time-consuming. 
+
+</div>
+<div class="column">
+
+##### SBST in practice
+
+One **usual test objective** for SBST is to **cover a certain path** in a program.
+In this case there is a **natural way to come up with a distance function**.
+First of all we **find the corresponding path condition** through symbolic execution.
+We want to find a distance function whose value is 0 if the test case satisfies the path condition, strictly positive otherwise. We can proceed as follows:
+- define a distance function for every atomic condition:
+    - if `cond: a == b` then `dist(a, b): return abs(a - b)`;
+    - if `cond: a <= b` then `dist(a, b): return max(0, b - a)`;
+    - ... (_distance functions for other atomic conditions on numeric values are easily defined by analogy_);
+- normalize the distance from each condition such that a condition does not weigth more than another:
+    - we do so with the norm function: $norm(x) = \frac{x}{1 + x}$ which maps every distance (which has non-negative values) to $[0, 1)$, in particular `norm_dist(a, b): return norm(dist(a, b))`;
+- combine the distances from atomic conditions according to the logical operator which connects them in the path condition:
+    - if `cond: cond1 && cond2` then `norm_dist: return max(norm_dist1, norm_dist2)` (or `(norm_dist1 + norm_dist2) / 2`);
+    - if `cond: cond1 || cond2` then `norm_dist: return min(norm_dist1, norm_dist2)`;
+    - if `cond: !cond1` then `norm_dist: return 1 - norm_dist1`.
+
+Finally we have to **instrument** (modify) the code in order to calculate the value for the distance function alongside the actual computation. At this point we're ready to apply the optimization procedure.
 
 </div>
 </div>
