@@ -3235,14 +3235,11 @@ There are two families of techniques for doing so:
 
 #### Experience-based approaches
 
-Experience-based techniques rely on judgements based on experience of past projects.
-The **usual steps** are:
+Experience-based techniques rely on judgements based on experience of past projects. The **usual steps** are:
 - identify the deliverables to be produced in the new project (both documents and software);
 - document these in a spreadsheet;
 - estimate the effort needed for each of them;
 - compute the total effort required.
-
-It usually helps to get the whole team involved in the effort estimation and to ask each team member to explain their estimate.
 
 #### Algorithmic cost modelling
 
@@ -3255,11 +3252,11 @@ Most models are similar, but they use **different values for A, B, and M**.
 The **size of a software system** can be known accurately only when it is finished. Several factors influence the final size: the use of COTS (Components Off The Shelf), the programming language, the distribution of the team. As the **development process progresses**, then the **size estimate becomes more accurate**. The estimates of the factors contributing to **B** and **M** are subjective and vary according to the judgement of the estimator.
 
 We have two options for estimating software size:
+- option 1: from the RASD or other informal perliminary documents, we identify the main characteristics of the software to be and classify them in therms of **function points**; then, from the number of function points we determine the software LOC (Lines Of Code) estimation;
 
 </div>
 <div class="column">
 
-- option 1: from the RASD or other informal perliminary documents, we identify the main characteristics of the software to be and classify them in therms of **function points**; then, from the number of function points we determine the software LOC (Lines Of Code) estimation;
 - option 2: we estimate the LOC directly, based on previous experience/projects.
 
 - **Function points**
@@ -3273,6 +3270,14 @@ The **function types** are:
 - **External Input**: elementary operation to elaborate data coming from the external environment;
 **External Output**: elementary operation that generates data for the external environment;
 **External Inquiry**: elementary operation that involves input and output (without significant elaboration of data from logic files). 
+
+The **corresponding weights** are:
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/software-size-estimation/function-points-weights.svg"
+    width="200mm" />
+</p>
+
+Finally, FPs can be used to estimate LOC depending on the average number of LOC per FP for a given language (**AVC**), the formula is: **LOC = AVC $\cdot$ number of function points**.
 
 </div>
 </div>
