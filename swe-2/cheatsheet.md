@@ -2899,3 +2899,380 @@ Finally we have to **instrument** (modify) the code in order to calculate the va
 
 </div>
 </div>
+
+---
+
+## Project management
+
+<div class="multiple-columns">
+<div class="column">
+
+### What is a project?
+
+A **project** is a temporary organization (time, resources) that is created for the purpose of delivering one or more business products (scope) according to an agreed Business Case (scope, cost, time, quality, risks)".
+
+### What is project management?
+
+According to PMBOK, project variables include but are not limited to: **scope**, **quality**, **schedule** (time), **budget** (cost), **resources**, **risks**.
+In particular:
+- the **scope** is the problem that you want to solve;
+- the **project strategy** is how you plan to solve such problem;
+- a **plan** is defined in terms of: the work to be done in detail, how long it may take, the resources you need and how much they cost, how you intend to manange communication, risks, quality, changes, ... .
+
+**Project management** is used to manage (**plan**, **monitor**, and **control**) these variables in order to make the project successful.
+
+So, to perform project management, we need also to define **success criteria** and **assess them**.
+
+The project management process can be split into different phases, we take as example those identified by the PMBOK:
+1. Initiating;
+2. Planning;
+3. Executing;
+4. Monitoring and Controlling;
+5. Closing.
+
+In particular:
+- **Initiating** is all about obtaining the commitment to start the project, that is, we need to:
+
+</div>
+<div class="column">
+
+> 1. Define the project scope and strategy.
+
+- **Planning** includes:
+
+> 1. Define the schedule;
+> 2. Define the stakeholders and risks;
+> 3. Estimate cost, resources;
+> 4. Define the project management processes needed for execution, monitoring, and controlling:
+>> 1. When and how to communicate;
+>> 2. How to manage procurement;
+>> 3. ... .
+
+### Project scheduling
+
+In order to define a **schedule**, we have to answer the following questions: "_What has to be done and when_", "_How the project parts fir together_", "_What work people have to do_".
+
+Let's introduce some **terminology**:
+- **Tasks** are activities that must be completed to achieve the project goal (also called Work Packages (WPs));
+- **Milestones** are points in the schedule in which you can assess progress;
+- **Deliverables** are work products that are delivered to the customer.
+
+Graphical notations are normally used to illustrate the project schedule.
+**Gantt charts** are the most commonly used representations for project schedules. They show the schedule as activities or resoruces against time.
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/gantt-chart.png"
+    width="270mm" />
+</p>
+
+</div>
+<div class="column">
+
+Gantt diagrams often result from one or more of the following methods:
+- **Work Breakdown Structure**;
+- **Precedence Diagram Method**;
+- **Critical Path Method**.
+
+#### Work Breakdown Structure (WBS)
+
+**WBS** details the work that must be done, it **breaks down** the work into **tasks** that can be easy to **estimate**, **assign** and **track**.
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/WBS.svg"
+    width="300mm" />
+</p>
+
+#### Precedence Diagram Method (PDM)
+
+**PDM** is a technique used for constructing a schedule starting from the precedence relationships between activities. It defines which task (**predecessor** triggers the other (**successor**)).
+The principal **types of dependencies** are:
+- **Finish to start**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/finish-to-start.svg"
+    width="250mm" />
+</p>
+
+- **Start to finish**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start-to-finish.svg"
+    width="250mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **Finish to finish**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/finish-to-finish.svg"
+    width="130mm" />
+</p>
+
+- **Start to finish**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start-to-finish.svg"
+    width="250mm" />
+</p>
+
+We can also introduce a delay "_in the triggering_", known as **lag time**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/lag-time.svg"
+    width="250mm" />
+</p>
+
+Usually in a PDM schedule there are also two special **nodes**:
+- **Start**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start.svg"
+    width="100mm" />
+</p>
+
+- and **End**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/end.svg"
+    width="100mm" />
+</p>
+
+(_with obvious semantics_).
+
+The constraints enforce in PDM can be **flexible** (_start as soon as possible_), 
+
+</div>
+<div class="column">
+
+**partially flexible** (_start not earliear than, finish not later then (deadline)_), or **inflexible** (_a task that should occur on a specific date_).
+
+#### Critical Path Method (CPM)
+
+**CPM** is used to estimate the **minimum project duration**. Given a project schedule network diagram and an estimation of activities duration, it allows to calculate the **early start**, **early finish**, **late start**, and **late finish** dates that do not delay the **project finish date** or any schedule constraint.
+The difference to the finish date is called **task float**. If it is zero, the the **task is critical**.
+The **critical path** results in a connected sequence of tasks that runs from the start till the end of the project.
+
+For example, this is a possible schedule network diagram:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/critical-path-method/schedule-network-diagram.png"
+    width="300mm" />
+</p>
+
+On the corresponding Gantt chart, we can see the **critical path**:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/critical-path-method/corresponding-gantt-chart.png"
+    width="300mm" />
+</p>
+
+### Risk management plan
+
+The **objective** of **risk management plan** is to define a framework to identify, analyze, treat, and monitor the risk constantly.
+
+</div>
+<div class="column">
+
+#### Risk identification
+
+**Risk identification** can be based on:
+- prior experience;
+- brainstorming;
+- lessons learned from similar projects;
+- checklists (well-known risks).
+
+A **rule of thumb** is to pose each risk in the form "if <situation>, then <consequence>, for <stakeholder>".
+Indeed, examples of **incorrect risk formulation** are: statements with consequence, but no stakeholder (_no impact on the project_); statements with consequence, but no situation (_cause-effect not properly understood_).
+
+#### Risk measurement
+
+**Measuring risk** consists in the evaluation of:
+- the **likelihood** (expressed as a probability) of the situation,
+- and, the **impact** of the consequence.
+
+In particular we have an **high risk** when both the quantities above are **high**.
+
+When evaluating **risk** we can use NASA risk selector plot:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-probability-risk-sector.png"
+    width="300mm" />
+</p>
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-impact-risk-sector.png"
+    width="300mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+From the values obtained for **probability** and **impact** attributes, we can compute the **risk** through the table below:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-risk-table.png"
+    width="300mm" />
+</p>
+
+### Executing, monitoring and controlling
+
+**Project execution** consists in:
+- Launch the project: kick off meeting;
+- Acquire and manage the project team (internal and external resources);
+- Acquire the required equipment and materials and external services;
+- Perform the work identified in the schedule;
+- Perform monitoring and controlling activities.
+
+**Monitoring** consists of collecting data about where the project stands, since projects never stick to the initial plans due to changes, problems, ... .
+
+**Controlling** is where you implement corrections to get your project back on track.
+
+#### Monitoring
+
+The (up-to-date) data that we want to gather when doing monitoring is: track when tasks start,
+
+</div>
+<div class="column">
+
+track actual work hours or actual duration, track how much work or duration remains, explore additional costs.
+
+Then we can compare the **actual schedule** with the **baseline schedule**. Some warning signs are: tasks running late, tasks not started that should be, haven't completed as much work as planned.
+Also we have to compare actual costs to assigned budget.
+
+Finally we want to monitor sirks and, in case they become reality, follow the mitigation strategy defined in the risk management plan.
+
+##### Earned Value Analysis
+
+**Earned Value Analysis** is a methodology to assess project performance and progress.
+
+The rationale is the following: the variables scope, time and cost related to a project's activity cannot be compared to each other. Then we use the **earned value** which is the **financial equivalent** derived from the three project variables.
+
+The method is based on the following **quantities of interest**:
+- **Budget at completion** (**BAC**) is the total buget for the project;
+- **Planned value** (**PV**) is the budgeted cost of work planned;
+- **Earned value** (**EV**) is the budgeted cost of work performed;
+- **Actual cost** (**AC**) is the actual cost for the completed work.
+
+We're:
+- **over budget** if **EV < AC**;
+- **behind schedule** if **EV < PV**.
+
+</div>
+<div class="column">
+
+From the quantities just defined, we can compute some KPIs:
+- from the **schedule point of view**:
+    - the **schedule variance** is: **SV = EV - PV**;
+    - the **schedule performance index** is: **SPI = EV / PV**;
+- and, from the **cost point of view**:
+    - the **cost variance** is: **CV = EV - AC**;
+    - the **cost performance index** is: **CPI = EV / AC**.
+
+**CPI** and **SPI** allow us to perform an estimation of the budget at completion of the project, given one of the following assumptions:
+1. we continue to **spend at the same rate**: that is, CPI stays the same;
+2. we continue to **spend at the baseline rate**;
+3. we continue **at the same cost and schedule performance index**: that is, both CPI and SPI stay the same.
+
+In particular the **Cost Estimate At Completion** (**EAC**) is:
+- if assumption (1) holds: **EAC = BAC / CPI**;
+- if assumption (2) holds: **EAC = AC + (BAC - EV)**;
+- if assumption (3) holds: **EAC = [AC + (BAC - EV)] / (CPI * SPI)**.
+
+#### Controlling
+
+**Controlling** means balancing scope, time, cost, resources and qualities.
+If schedule is important, you can use techniques like **fast-tracking** and **crashing**.
+If money is a priority, you can reduce costs by reducing resources or overhead costs.
+If schedule, money, and resources are not negotiable, then reduce scope eliminating the tasks associated with it.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+##### Fast tracking
+
+**Fast tracking** consists in pushing tasks to start earlier than they would by introducing **negative lag time**, if needed.
+This can be done only if the considered tasks can actually be parallelized. Fast tracking has no cost increase, but introduces an higher risk.
+
+##### Crashing
+
+**Crashing** consists in shortening the tasks on the critical path by adding new resources. It implies a cost increase, and it is feasible only if the addition of new resources is beneficial (remember that people and months aren't interchangeable).
+
+### Closing
+
+**Closing** is the last phase of project management, it consists in these activities:
+- Ensure project acceptance;
+- Track project performance;
+- List and store the lessons learned;
+- Close contracts;
+- Release resources.
+
+### Effort and cost estimation (for SWE)
+
+Organizations need to make **software effort** and **cost** estimates.
+There are two families of techniques for doing so:
+- **Experience-based techniques**: the estimate of future effort requirement is based on the manager's experience of past projects and the application domain (essentially, the manager makes an informed judgement of what the effort requirements are likely to be);
+- **Algorithmic cost modelling**: in this approach, a formulaic approach is used to compute the project effort based on estimates of product attributes, such as size, and process characteristics, such as experience of staff involved.
+
+</div>
+<div class="column">
+
+#### Experience-based approaches
+
+Experience-based techniques rely on judgements based on experience of past projects.
+The **usual steps** are:
+- identify the deliverables to be produced in the new project (both documents and software);
+- document these in a spreadsheet;
+- estimate the effort needed for each of them;
+- compute the total effort required.
+
+It usually helps to get the whole team involved in the effort estimation and to ask each team member to explain their estimate.
+
+#### Algorithmic cost modelling
+
+In this approach, the estimation is based on a mathematical function of **product**, **project** and **process** attributes whose values are estimated by project managers.
+The formula is: **Effort = A x Size x B x M** where **A** is an organization-dependent constant, **Size** is a measure of the "quantity" of product, **B** reflects the disproportionate effort for large projects, and **M** is a multiplier reflecting product, process, and people attributes.
+Most models are similar, but they use **different values for A, B, and M**.
+
+##### Estimating size of software systems
+
+The **size of a software system** can be known accurately only when it is finished. Several factors influence the final size: the use of COTS (Components Off The Shelf), the programming language, the distribution of the team. As the **development process progresses**, then the **size estimate becomes more accurate**. The estimates of the factors contributing to **B** and **M** are subjective and vary according to the judgement of the estimator.
+
+We have two options for estimating software size:
+
+</div>
+<div class="column">
+
+- option 1: from the RASD or other informal perliminary documents, we identify the main characteristics of the software to be and classify them in therms of **function points**; then, from the number of function points we determine the software LOC (Lines Of Code) estimation;
+- option 2: we estimate the LOC directly, based on previous experience/projects.
+
+- **Function points**
+
+**Function points** are based on a combination of program characteristics: data structures, inputs and outputs, inquiries, and external interfaces. A weight is associated with each of these FP counts; the total is computed by multiplying each "raw" count by their weight and summing all partial values:
+**FP = $\sum$ ( number of elements of a given type $\cdot$ type weight )**.
+
+The **function types** are:
+- **Internal Logic File** (**ILF**): an homogeneous set of data used and managed by the application;
+- **External Interface File** (**EIF**): homogeneous set of data used by the application but generated and maintained by other applications;
+- **External Input**: elementary operation to elaborate data coming from the external environment;
+**External Output**: elementary operation that generates data for the external environment;
+**External Inquiry**: elementary operation that involves input and output (without significant elaboration of data from logic files). 
+
+</div>
+</div>
