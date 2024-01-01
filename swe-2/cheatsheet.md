@@ -1151,7 +1151,7 @@ Typical allocation structures are:
     width="500mm" />
 </p>
 
-**Deployment structures** captures the topology of a system's hardware. It is built as part of architectural specification. The purpose is: specify the distribution of components, and identify performance bottlenecks.
+**Deployment structures** captures the topology of a system's hardware. They are built as part of architectural specification. The purpose is: specify the distribution of components, and identify performance bottlenecks.
 Deployment structures are developed by architects, networking engineers, and system engineers.
 
 </div>
@@ -1357,7 +1357,7 @@ and **software architects**.
 
 **OpenAPI specification defines** how to describe a REST API interface through an **OpenAPI definition**.
 An **OpenAPI definition** is a (JSON or YAML) file which describes what a service offers through its interface.
-Using OpenAPI specification has several benefits: it is a format standardized, public, and well-known; it is readable by humans (to understand and use the REST API), and machins (to automate tasks like testing or code generation).
+Using OpenAPI specification has several benefits: it is a format standardized, public, and well-known; it is readable by humans (to understand and use the REST API), and machines (to automate tasks like testing or code generation).
 **OpenAPI definition describes**: endpoints, resources, operations, parameters (including data types), authentication/authorization mechanism.
 Furthermore it offers some **supporting tool** like: an **API validator** which checks the conformance to the standard; a **documentation** generator which produces clear and human readable description; a **SDK** generation which creates automatically client libraries in a programming language of choice.
 
@@ -1392,7 +1392,7 @@ The main technical issues of the client-server architectural style are:
 
 **Forking** is the simple approach used by **Apache Web Server** for **handling multiple simultaneous requests**: **one process** was created **per request** or **per client**.
 
-It is a simple architecture which is also simple to program and gurantess isolation and protection given by the "one-connection-per-process" model, but has **scalability issues**.
+It is a simple architecture which is also simple to program and gurantees isolation and protection given by the "one-connection-per-process" model, but has **scalability issues**.
 
 </div>
 <div class="column">
