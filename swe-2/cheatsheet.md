@@ -3273,11 +3273,31 @@ The **function types** are:
 
 The **corresponding weights** are:
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/software-size-estimation/function-points-weights.svg"
+    <img src="http://localhost:8080/swe-2/static/function-points/weights.svg"
     width="200mm" />
 </p>
 
-Finally, FPs can be used to estimate LOC depending on the average number of LOC per FP for a given language (**AVC**), the formula is: **LOC = AVC $\cdot$ number of function points**.
+FPs can be used to estimate LOC depending on the average number of LOC per FP for a given language (**AVC**), the formula is: **LOC = AVC $\cdot$ number of function points**.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+We can represent FPs in diagrams of this kind:
+
+<p align="center">
+    <img src="http://localhost:8080/swe-2/static/function-points/diagram.svg"
+    width="500mm" />
+</p>
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
