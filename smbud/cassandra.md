@@ -56,7 +56,7 @@ The **`DESCRIBE`** command can be used to check whether a keyspace (or a table) 
 
 </div>
 
-It can also be applied to other elements;
+It can also be applied to other elements.
 
 ---
 
@@ -74,7 +74,7 @@ To be able to perform the operations on the tables, we must choose in which keys
 
 ### Delete or modify a keyspace
 
-Keyspaces can be also modified (with **`ALTER`**) and delete (with **`DROP`**) with the corresponding commands:
+Keyspaces can be also modified (with **`ALTER`**) and deleted (with **`DROP`**); the syntax is the following:
 
 <div class="algorithm">
 
@@ -386,9 +386,10 @@ The syntax to **define a "collection" field** is pretty easy:
         ...
     )
 ```
-(_for example `email list<text>`_).
 
 </div>
+
+(_for example `email list<text>`_).
 
 It is also easy to **update a collection**:
 
