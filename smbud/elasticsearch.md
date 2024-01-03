@@ -536,6 +536,8 @@ Finally, Elasticsearch supports **sub-aggregations** which are computed for each
 
 The syntax for **metric aggregation** is analogous:
 
+<div class="algorithm">
+
 ```
     GET index_name/_search
     {
@@ -549,5 +551,11 @@ The syntax for **metric aggregation** is analogous:
         }
     }
 ```
+
+</div>
+
 where **`operator`** is one among **`"sum"`**, **`"avg"`**, ... .
+
+---
+
 Of course we can perform **metric aggregations** as **sub-aggregations** of **bucket aggregations**. **The syntax follows from straightforward adaptation**.
