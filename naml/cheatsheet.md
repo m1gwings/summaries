@@ -179,7 +179,7 @@ array([[[1, 2],
 ```
 
 
-### Operations on arrays
+### Basic operations on arrays
 
 Most of NumPy operators on arrays **apply _elementwise_**.
 For example:
@@ -539,5 +539,52 @@ array([[0, 1],
        [2, 3]])
 ```
 
+### Predicates on arrays
+
+#### Atomic predicates
+
+**Atomic predicates** on arrays, defined for example through the usual comparison operators, are **evaluated _elementwise_** and return **arrays of booleans**, _which can be used for indexing_:
+```
+a = np.array([[7, 11, 2],
+              [3, 8, 4]])
+```
+The value of `a <= 5` is:
+```
+array([[False, False,  True],
+       [ True, False,  True]])
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+All the usual comparison operators are supported: `<=`, `>=`, `==`, `!=`, `<`, `>`.
+
+#### Compound predicates
+
+We can compose atomic predicates into **compound predicates** through the usual **logical connectors**.
+- **`logical_or`**: computes the truth value of `x1 OR x2` elementwise.
+For example, let:
+```
+a = np.array([[7, 9, 9],
+              [1, 3, 2]])
+```
+> Then, the value of `np.logical_or(a <= 2, a >= 9)` is:
+```
+array([[False,  True,  True],
+       [ True, False,  True]])
+```
+- **`logical_and`**: computes the truth value of `x1 AND x2` elementwise.
+- **`logical_not`**: computes the truth value of `NOT x` elementwise.
+- **`logical_xor`**: computes the truth value of `x1 XOR x2` elementwise.
+
+</div>
+<div class="column">
+</div>
+<div class="column">
 </div>
 </div>
