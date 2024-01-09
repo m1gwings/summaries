@@ -582,8 +582,34 @@ array([[False,  True,  True],
 - **`logical_not`**: computes the truth value of `NOT x` elementwise.
 - **`logical_xor`**: computes the truth value of `x1 XOR x2` elementwise.
 
+### Randomness
+
+- **`random.seed`**: sets the seed of the NumPy random number generator. For example:
+```
+np.random.seed(0)
+```
+- **`random.uniform`**: samples an array of shape specified by the parameter `size` from a uniform distribution with lower boundary specified by the parameter `low` and upper boundary specified by the parameter `high`.
+
 </div>
 <div class="column">
+
+> For example:
+```
+np.random.seed(0)
+a = np.random.uniform(low = 0, high = 5,
+    size = (3, 2))
+```
+> The value of `a` is:
+```
+array([[2.74406752, 3.57594683],
+       [3.01381688, 2.72441591],
+       [2.118274  , 3.22947057]])
+```
+> (_The default values for the parameters are: `size = None` (it returns just one number), `low = 0.0`, `high = 1.0`_).
+
+- **`random.normal`**: samples an array of shape specified by the parameter `size` from a normal (gaussian) distribution with mean specified by the paramter `loc` and standard deviation specified by the paramter `scale`.
+(_The default values for the parameters are: `size = None`, `loc = 0.0`, `scale = 1.0`_).
+
 </div>
 <div class="column">
 </div>
