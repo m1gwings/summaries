@@ -81,7 +81,7 @@ array([[1.+0.j, 1.+0.j, 1.+0.j],
        [1.+0.j, 1.+0.j, 1.+0.j]],
        dtype=complex64)
 ```
-- **`empty`**: creates an **array** whose **initial contant** is random and **depends on the state of the memory**: 
+- **`empty`**: creates an **array** whose **initial content** is random and **depends on the state of the memory**: 
 ```
 a = np.empty((2, 2), dtype = np.int64)
 ```
@@ -133,7 +133,7 @@ for i in range(x.size):
     for j in range(y.size):
         print(f'({xv[i, j]}, {yv[i, j]})')
 ```
-The result is:
+> The result is:
 ```
 (0, 0)
 (0, 2)
@@ -142,7 +142,7 @@ The result is:
 (1, 2)
 (1, 4)
 ```
-While, with _cartesian_ indexing, the value on the `y` axis is determined by the first index and the value on the `x` axis is determined by the second index (that is, we match the `y` axis with the first axis of the returned arrays):
+> While, with _cartesian_ indexing, the value on the `y` axis is determined by the first index and the value on the `x` axis is determined by the second index:
 
 </div>
 <div class="column">
@@ -164,7 +164,7 @@ When you print an array, NumPy displays it in a similar way to nested lists, but
 - the **second-to-last axis** is printed from **top to bottom**,
 - the **rest** are also printed from **top to bottom**, with each slice separated from the next by an **empty line**.
 
-One-dimensional arrays are then printed as rows, bidimensionals as matrices, and tridimensionals as lists of matrices:
+One-dimensional arrays are then printed as rows, bidimensional as matrices, and tridimensional as lists of matrices:
 ```
 a = np.array([[[1, 2], [3, 4]],
               [[5, 6], [7, 8]]])
@@ -227,7 +227,7 @@ array([[0., 1., 2.],
        [0., 1., 2.]])
 ```
 
-> **Remark**: if, after applying the first rule, the two arrays differ in the size of an axis and neither of the two has value 1, then the **broadcasting fails**:
+> **Remark**: if, after applying the first rule, the two arrays differ in the size of an axis and neither of the two is 1, then the **broadcasting fails**:
 ```
 a = np.zeros((2, 3))
 b = np.arange(2)
@@ -308,7 +308,7 @@ When **fewer indices are provided** than the number of axes, the **missing indic
 a = np.array([[1, 2],
               [3, 4]])
 ```
-The `a[-1]` is equal to `a[-1, :]`:
+Then `a[-1]` is equal to `a[-1, :]`:
 ```
 array([3, 4])
 ```
@@ -396,45 +396,59 @@ a = np.array([False, True, False, True])
 ```
 (array([1, 3]),)
 ```
-
-RESUME...
-
-</div>
-<div class="column">
-
-</div>
-</div>
-
----
-
-<div class="multiple-columns without-title">
-<div class="column">
+Indexing `a` with an array of booleans `b` (which is achieved through the syntax `a[b]`), is equivalent to: `a[b.nonzero()]` which we can interpret with the "indexing with arrays of integers semantics".
+For example:
+```
+a = np.array([[1, 2],
+              [3, 4]])
+```
 
 </div>
 <div class="column">
 
-</div>
-<div class="column">
+```
+b = np.array([[True, False],
+              [False, True]])
+```
+Then the value of `a[b]` is:
+```
+array([1, 4])
+```
+Indeed `b.nonzero()` is:
+```
+(array([0, 1]), array([0, 1]))
+```
+(_Of course, since indexing with arrays of booleans boils down to indexing with arrays of integers, we can use indexing with arrays of boolean together with normal indexing or slicing_).
 
-</div>
-</div>
+### Aggregations on arrays
 
----
+NumPy allows easily to compute the sum, minimum, maximum, ... of **all** the elements in an array through the corresponding methods: **`sum`**, **`min`**, **`max`**, ... .
+For example:
+```
+a = np.array([[3, 4],
+              [5, 8]])
+```
+Then, the value of `a.max()` is:
+```
+8
+```
 
-<div class="multiple-columns without-title">
-<div class="column">
-
-#### Aggregations
-
-NumPy allow easily to compute the sum, minimum, maximum, ... of all the elements in an array through the corresponding methods: **`sum`**, **`min`**, **`max`**, ... .
-
-By specifying the **`axis` parameter** you can apply an operation along the specified axis of an array:
+By specifying the **`axis` parameter** we can apply an aggregation along the specified axis of an array:
 ```
 b = np.array([[ 0,  1,  2,  3],
               [ 4,  5,  6,  7],
               [ 8,  9, 10, 11]])
 ```
-The value of `b.sum(axis = 0)` is the **sum of each column**:
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+The value of `b.sum(axis = 0)` is the **sum of each column** of `b`:
 ```
 array([12, 15, 18, 21])
 ```
@@ -444,97 +458,86 @@ array([0, 4, 8])
 ```
 
 More **advanced aggregation operators** are:
-- **`cumsum`**: which is the cumulated sum of the array (if we don't specify an axis, multidimensional arrays are "unwinded" in one-dimensional arrays);
+- **`cumsum`**: which is the cumulated sum of the array (if we don't specify an axis, multidimensional arrays are "unwinded" in one-dimensional arrays, see `ravel` in the "Shape manipulation" paragraph);
 - **`mean`**: _it has straightforward semantics_.
 
 ### Shape manipulation
 
 The **shape** of an **array can be changed** with various commands.
 
-- **`ravel`** returns the array, **flattened**:
+- **`ravel`**: returns the array, **flattened**:
 ```
-a_modified = a.ravel()
+a = np.array([[1, 2, 3],
+              [4, 5, 6]])
+```
+> The value of `a` is:
+```
+array([1, 2, 3, 4, 5, 6])
 ```
 > The order of the elements in the array resulting from `ravel` is normally "C-style", that is, the rightmost index "changes the fastest", so the element after `a[0, 0]` is `a[0, 1]`.
 
-- **`reshape`** returns the array **with a modifies shape**:
+- **`reshape`**: returns the array **with a modifies shape**.
+For example, let:
+</div>
+<div class="column">
+
 ```
-a_modified = a.reshape(<shape>)
+a = np.arange(12)
+```
+> Then, the value of `a.reshape(3, 4)` is:
+```
+array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]])
 ```
 > The new shape must have the same `size` as the old one: the array is flattened and then rebuilt with the new shape.
-If a dimension is given as `-1` in a reshaping operation, the other dimensions are automatically calculated.
-
+If a dimension is given as `-1` in a reshaping operation, it is automatically calculated:
+```
+a = np.arange(15)
+```
+> Then, the value of `a.reshape(3, -1)` is:
+```
+array([[ 0,  1,  2,  3,  4],
+       [ 5,  6,  7,  8,  9],
+       [10, 11, 12, 13, 14]])
+```
 > **Important remark**: both `ravel` and `reshape` **don't modify the original array**, they return a new one.
+
+- **`newaxis`**: **increases the dimension** of an array:
+```
+a = np.arange(5)
+```
+> Then, the value of `a[:, np.newaxis]` is:
+```
+array([[0],
+       [1],
+       [2],
+       [3],
+       [4]])
+```
 
 </div>
 <div class="column">
+
+> (_That is, a column vector_). While, the value of `a[np.newaxis, :]` is:
+```
+array([[0, 1, 2, 3, 4]])
+```
+> (_That is, a row vector_).
 
 ### Copies
 
-The **`copy`** method makes a **complete** copy of the array and its data:
+- **`copy`**: makes a **complete** (deep) copy of the array and its data:
 ```
+a = np.arange(4).reshape(2, -1)
 d = a.copy()
+a[0, 0] = 42
 ```
-
-### Advanced indexing and index tricks
-
-#### Indexing with arrays of indices
-
-</div>
-<div class="column">
-
-#### Indexing with boolean arrays
-
-With **boolean indices** we explicitly choose which items in the array we want and which ones we don't.
-- The **most natural way** one can think of **for boolean indexing** is to use boolean arrays that have _the same shape as_ the original array:
-
-</div>
-</div>
-
----
-
-<div class="multiple-columns without-title">
-<div class="column">
-
+> But, the value of `d` remains:
 ```
-a = np.arange(12).reshape(3, 4)
-b = np.array([[False, False, False, False],
-              [False,  True,  True,  True],
-              [ True,  True,  True,  True]])
+array([[0, 1],
+       [2, 3]])
 ```
-The value of `a[b]` is a one-dimensional array:
-```
-array([ 5,  6,  7,  8,  9, 10, 11])
-```
-
-- The **second way** of **indexing with booleans** is to give a 1D boolean array for each dimension of the array that we want to index, selecting the slices that we want:
-```
-a = np.arange(12).reshape(3, 4)
-b1 = np.array([False, True, True])
-b2 = np.array([True, False, True, False])
-```
-> Then, the value of `a[b1, :]` is:
-```
-array([[ 4,  5,  6,  7],
-       [ 8,  9, 10, 11]])
-```
-> The value of `a[:, b2]` is:
-```
-array([[ 0,  2],
-       [ 4,  6],
-       [ 8, 10]])
-```
-> And the value of `a[]`
-
-</div>
-<div class="column">
-
-
-
-</div>
-<div class="column">
-
-
 
 </div>
 </div>
