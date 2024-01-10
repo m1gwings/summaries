@@ -610,7 +610,108 @@ array([[2.74406752, 3.57594683],
 - **`random.normal`**: samples an array of shape specified by the parameter `size` from a normal (gaussian) distribution with mean specified by the paramter `loc` and standard deviation specified by the paramter `scale`.
 (_The default values for the parameters are: `size = None`, `loc = 0.0`, `scale = 1.0`_).
 
+### Linear algebra
+
+In this paragraph we will deal with bidimensional arrays which represent matrices and vectors. (_Yes, also vectors are represented by bidimensional arrays, take a look at the "Shape manipulation" paragraph, and, in particular, at the `newaxis` operator_).
+
+#### Create matrices with a certain structure
+
+- **`zeros`**: we've already encountered this function in the "Array creation" paragraph, it can be used to create the matrix $0_{m \times n}$.
+- **`ones`**: we've already encountered this funciton in the "Array creation" paragraph, it can be used to create the matrix $1_{m \times n}$.
+
 </div>
 <div class="column">
+
+- **`identity`**: returns the identity matrix $I_n$:
+```
+I_5 = np.identity(5)
+```
+> Then, the value of `I_5` is:
+```
+array([[1., 0., 0., 0., 0.],
+       [0., 1., 0., 0., 0.],
+       [0., 0., 1., 0., 0.],
+       [0., 0., 0., 1., 0.],
+       [0., 0., 0., 0., 1.]])
+```
+- **`diag`**: returns a diagonal matrix with the specified elements on the diagonal:
+```
+d = np.arange(5)
+D = np.diag(d)
+```
+> Then, the value of `D` is:
+```
+array([[0, 0, 0, 0, 0],
+       [0, 1, 0, 0, 0],
+       [0, 0, 2, 0, 0],
+       [0, 0, 0, 3, 0],
+       [0, 0, 0, 0, 4]])
+```
+
+#### Linear algebra operations
+
+- **`A @ B`**: returns the matrix product between `A` and `B`:
+```
+A = np.arange(16).reshape(4, 4)
+B = np.ones((4, 5))
+```
+> Then, the value of `A @ B` is:
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+array([[ 6.,  6.,  6.,  6.,  6.],
+       [22., 22., 22., 22., 22.],
+       [38., 38., 38., 38., 38.],
+       [54., 54., 54., 54., 54.]])
+```
+> (_`A @ B` is equivalent to `np.dot(A, B)`_).
+
+- **`outer`**: computes the outer product between two vectors:
+```
+v = np.arange(5)[:, np.newaxis]
+u = np.arange(6)[np.newaxis, :]
+```
+> Then, the value of `np.outer(v, u)` is:
+```
+array([[ 0,  0,  0,  0,  0,  0],
+       [ 0,  1,  2,  3,  4,  5],
+       [ 0,  2,  4,  6,  8, 10],
+       [ 0,  3,  6,  9, 12, 15],
+       [ 0,  4,  8, 12, 16, 20]])
+```
+
+- **`A.T`**: returns the tranpose of `A`:
+```
+A = np.arange(12).reshape(3, 4)
+```
+> Then, the value of `A.T` is:
+```
+array([[ 0,  4,  8],
+       [ 1,  5,  9],
+       [ 2,  6, 10],
+       [ 3,  7, 11]])
+```
+
+#### Decompositions
+
+- **`linalg.svd`**: returns the SVD of the matrix `A`. 
+
+</div>
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
+
+
 </div>
 </div>
