@@ -701,17 +701,58 @@ array([[ 0,  4,  8],
 
 #### Decompositions
 
-- **`linalg.svd`**: returns the SVD of the matrix `A`. 
+- **`linalg.svd`**: returns the SVD of the matrix `A`. The boolean parameter `full_matrices` allow to choose between the full SVD and the reduced one.
 
 </div>
 <div class="column">
 
+> In particular, it only returns 
+> For example, let:
+```
+A = np.arange(12).reshape(4, 3)
+```
+> Note that `2*A[:, 1] - A[:, 0]` is:
+```
+array([ 2,  5,  8, 11])
+```
+> which corresponds to `A[:, 2]`, hence `A` is singular.
+Now, let:
+```
+U, s, V_T = np.linalg.svd(A)
+```
+> Then `U.shape` is `(4, 4)`, `V_T.shape` is `(3, 3)` and `s` is:
+```
+array([2.24467488e+01, 1.46405850e+00,
+       1.54736923e-15])
+```
+> (_The default value of `full_matrices` is `True`_).
+To reconstruct `A` we can do the following:
+```
+S = np.zeros((U.shape[0], V_T.shape[0]))
+for i in range(s.size):
+    S[i, i] = s[i]
 
+A_rec = U @ S @ V_T
+```
+> Indeed, the value of `np.round(A_rec)` is:
+```
+array([[ 0.,  1.,  2.],
+       [ 3.,  4.,  5.],
+       [ 6.,  7.,  8.],
+       [ 9., 10., 11.]])
+```
 
 </div>
 <div class="column">
 
+> If we were instead to put `full_matrices` to `False`:
+```
+U_r, s_r, V_T_r = np.linalg.svd(A,
+       full_matrices = False)
+```
+> then `U_r.shape` would be `(4, 3)`.
 
+- **`linalg.qr`**: computes the QR factorization of the given matrix. The parameter `mode` allows to specify if we want the reduced form (with the value `"reduced"`), or the complete one (with the value `"complete"`).
 
 </div>
 </div>
