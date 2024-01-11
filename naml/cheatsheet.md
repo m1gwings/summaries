@@ -616,6 +616,22 @@ array([[2.74406752, 3.57594683],
 - **`random.normal`**: samples an array of shape specified by the parameter `size` from a normal (gaussian) distribution with mean specified by the paramter `loc` and standard deviation specified by the paramter `scale`.
 (_The default values for the parameters are: `size = None`, `loc = 0.0`, `scale = 1.0`_).
 
+- **`random.shuffle`**: modifies a sequence in-place by shuffling its content.
+For example, let:
+```
+a = np.arange(6)
+np.random.seed(0)
+np.random.shuffle(a)
+```
+> Then, the value of `a` is:
+```
+array([5, 2, 1, 3, 0, 4])
+```
+
+</div>
+<div class="column">
+
+
 ### Linear algebra
 
 In this paragraph we will deal with bidimensional arrays which represent matrices and vectors. (_Yes, also vectors are represented by bidimensional arrays, take a look at the "Shape manipulation" paragraph, and, in particular, at the `newaxis` operator_).
@@ -624,9 +640,6 @@ In this paragraph we will deal with bidimensional arrays which represent matrice
 
 - **`zeros`**: we've already encountered this function in the "Array creation" paragraph, it can be used to create the matrix $0_{m \times n}$.
 - **`ones`**: we've already encountered this funciton in the "Array creation" paragraph, it can be used to create the matrix $1_{m \times n}$.
-
-</div>
-<div class="column">
 
 - **`identity`**: returns the identity matrix $I_n$:
 ```
@@ -646,6 +659,15 @@ d = np.arange(5)
 D = np.diag(d)
 ```
 > Then, the value of `D` is:
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 ```
 array([[0, 0, 0, 0, 0],
        [0, 1, 0, 0, 0],
@@ -662,14 +684,6 @@ A = np.arange(16).reshape(4, 4)
 B = np.ones((4, 5))
 ```
 > Then, the value of `A @ B` is:
-
-</div>
-</div>
-
----
-
-<div class="multiple-columns without-title">
-<div class="column">
 
 ```
 array([[ 6.,  6.,  6.,  6.,  6.],
@@ -693,6 +707,9 @@ array([[ 0,  0,  0,  0,  0,  0],
        [ 0,  4,  8, 12, 16, 20]])
 ```
 
+</div>
+<div class="column">
+
 - **`A.T`**: returns the tranpose of `A`:
 ```
 A = np.arange(12).reshape(3, 4)
@@ -705,12 +722,20 @@ array([[ 0,  4,  8],
        [ 3,  7, 11]])
 ```
 
+- **`linalg.norm`**: computes the norm of the given matrix or vector. By default, calling `x` the input array, it returns the 2-norm of `x.ravel()`:
+
+```
+x = np.arange(1, 3, 2)[:, np.newaxis]
+```
+> Then, the value of `np.linalg.norm(x)` is:
+```
+3.7416573867739413
+```
+> Furthermore, it takes an `axis` parameter which allows to specifies the axis along which to compute the norm. 
+
 #### Decompositions
 
 - **`linalg.svd`**: returns the SVD of the matrix `A`. The boolean parameter `full_matrices` allow to choose between the full SVD and the reduced one.
-
-</div>
-<div class="column">
 
 > In particular, it only returns 
 > For example, let:
@@ -718,6 +743,10 @@ array([[ 0,  4,  8],
 A = np.arange(12).reshape(4, 3)
 ```
 > Note that `2*A[:, 1] - A[:, 0]` is:
+
+</div>
+<div class="column">
+
 ```
 array([ 2,  5,  8, 11])
 ```
@@ -748,9 +777,6 @@ array([[ 0.,  1.,  2.],
        [ 9., 10., 11.]])
 ```
 
-</div>
-<div class="column">
-
 > If we were instead to put `full_matrices` to `False`:
 ```
 U_r, s_r, V_T_r = np.linalg.svd(A,
@@ -758,12 +784,25 @@ U_r, s_r, V_T_r = np.linalg.svd(A,
 ```
 > then `U_r.shape` would be `(4, 3)`.
 
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 - **`linalg.qr`**: computes the QR factorization of the given matrix. The parameter `mode` allows to specify if we want the reduced form (with the value `"reduced"`), or the complete one (with the value `"complete"`).
 For example:
 ```
 A = np.arange(12).reshape(4, 3)
 Q, R = np.linalg.qr(A)
 ```
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
@@ -1119,7 +1158,7 @@ axes = fig.add_subplot(projection = '3d')
 np.random.seed(0)
 u = np.random.normal(size = (100, 3))
 axes.scatter(u[:, 0], u[:, 1], u[:, 2], marker = 'v',
-             c = u[:, 0] * u[:, 1] * u[:, 2], s = np.max(u, axis = 1) * 10)
+    c = u[:, 0] * u[:, 1] * u[:, 2], s = np.max(u, axis = 1) * 10)
 ```
 
 <p align="center">
