@@ -799,6 +799,33 @@ A = np.arange(12).reshape(4, 3)
 Q, R = np.linalg.qr(A)
 ```
 
+### Some useful stuff
+
+- **`maximum`**: computes the **_elementwise_** maximum of the **two** given arrays:
+```
+a = np.array([[1, 2],
+              [-1, 5]])
+b = np.array([[0, 3],
+              [-2, 6]])
+c = np.maximum(a, b)
+```
+> Then, the value of `c` is:
+```
+array([[ 1,  3],
+       [-1,  6]])
+```
+
+- **`argmax`**: returns the indices of the maximum values along an axis. By default, the index is into the flattened array, otherwise along the specified axis:
+```
+a = np.array([[1, 2],
+              [-1, 2]])
+b = np.argmax(a, axis = 0)
+```
+> Then, the value of `b` is:
+```
+array([0, 0])
+```
+
 </div>
 <div class="column">
 
