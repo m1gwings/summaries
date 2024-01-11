@@ -3,6 +3,11 @@ marp: true
 theme: cheatsheet
 paginate: true
 ---
+<style>
+img {
+    filter: none;
+}
+</style>
 # NAML Cheatsheet (A. Y. 2023/2024)
 
 ## NumPy
@@ -315,9 +320,10 @@ array([3, 4])
 
 > **Important remark**: you can also use **indexing on arrays as a taget to assign to**:
 ```
-a = np.array([[0, 1],
-              [2, 3]])
+a = np.array([[1, 2],
+              [3, 4]])
 a[:, 0] = 0
+a[:, 1] = [ 11, 12 ]
 ```
 > Then, the value of `a` is:
 
@@ -330,8 +336,8 @@ a[:, 0] = 0
 <div class="column">
 
 ```
-array([[0, 1],
-       [0, 3]])
+array([[ 0, 11],
+       [ 0, 12]])
 ```
 
 #### Advanced indexing
@@ -753,6 +759,519 @@ U_r, s_r, V_T_r = np.linalg.svd(A,
 > then `U_r.shape` would be `(4, 3)`.
 
 - **`linalg.qr`**: computes the QR factorization of the given matrix. The parameter `mode` allows to specify if we want the reduced form (with the value `"reduced"`), or the complete one (with the value `"complete"`).
+For example:
+```
+A = np.arange(12).reshape(4, 3)
+Q, R = np.linalg.qr(A)
+```
+
+</div>
+</div>
+
+---
+
+## Matplotlib
+
+<div class="multiple-columns">
+<div class="column">
+
+Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations.
+
+### Importing
+
+We can import Matplotlib with:
+```
+import matplotlib.pyplot as plt
+```
+
+### The basics
+
+The **fundamental classes** in Matplotlib are:
+- **`Artist`**: basically, everything which is visible on a Matplotlib plot is an `Artist`;
+- **`Figure`**: represents the **whole** plotted figure. It keeps track of all the child `Axes`, a group of 'special' `Artist`s (titles, figure legends, colorbars, etc. ), and even nested subfigures;
+- **`Axes`**: it is an `Artist` attached to a `Figure` that contains a region for plotting data, and usually includes two (or three in the case of 3D) `Axis` objects (**be aware of the difference between `Axes` and `Axis`**). Each `Axes` also has a title, an x-label, an y-label (and, in the 3D case, a z-label);
+- **`Axis`**: they provide ticks and tick labels to set scales for the data in the `Axes`.
+
+### Create a `Figure` with some `Axes`
+
+- **`subplots`**: allows to create a `Figure` with a certain number of `Axes`. In particular:
+
+```
+fig, axes = plt.subplots()
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/axes.png" width="250mm" />
+</p>
+
+</div>
+<div class="column">
+
+> creates a `Figure` with a single `Axes`.
+We can also create a figure with several `Axes` arranged in a "matrix-like" fashion with the `nrows` and `ncols` parameters:
+
+```
+fig, axes = plt.subplots(nrows = 2, ncols = 2)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/multiple-axes.png" width="300mm" />
+</p>
+
+> in this case, `axes` is a bidimensional NumPy array, which allows us to access the `Axes` object in a certain position.
+Finally we can specify the size of the figure through the `figsize` parameter which takes the width and height of the figure (in this order) in a pair (the units are inches):
+
+```
+fig, axes = plt.subplots(nrows = 2, ncols = 3, figsize = (8, 4))
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/figsize.png" width="350mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+### Plotting on a `Axes`
+
+Plotting functions expect NumPy arrays as input, or objects that can be passed to `np.asarray`.
+- **`plot`**: plots y versus x as lines and/or markers.
+In particular:
+
+```
+fig, axes = plt.subplots()
+
+y = np.arange(12) ** 2
+axes.plot(y)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/plot.png" width="450mm" />
+</p>
+
+> plots `y` using the index array `[0, ..., y.size - 1]` as `x`; while
+
+```
+fig, axes = plt.subplots()
+
+x = np.linspace(0, 1, 10)
+y = x ** 2
+axes.plot(x, y)
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/plot-y-vs-x.png" width="270mm" />
+</p>
+
+
+> plots y versus x with the given `x`.
+`plot` provides several parameters to change the default plotting style:
+> - `linestyle`: with values `"-"`, `"--"`, '"-."', ":", ... allows to specify the style of the line;
+> - `linewidth`: allows to specify the width (in points) of the line;
+> - `markersize`: allows to specify the size (in points) of marker.
+
+> Additionally, we can use several "format strings" to specify the plotting style, for example:
+
+```
+fig, axes = plt.subplots()
+x = np.linspace(0, 2 * np.pi, 20)
+y = np.sin(x)
+
+axes.plot(x, y, 'v-.')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/format-strings.png" width="300mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+> You can find all the available format strings here: [https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html) .
+
+- **`scatter`**: makes a scatter plot y versus x, with varying marker size and/or color:
+
+```
+fig, axes = plt.subplots()
+
+np.random.seed(0)
+n = 10
+x = np.random.uniform(0, 5, n)
+y = np.random.uniform(-1, 3, n)
+axes.scatter(x, y)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/scatter.png" width="330mm" />
+</p>
+
+> Through the `s` parameter we can change the size of the markers, `c` allows to change their color (with `cmap` we can set the color map to use):
+
+```
+fig, axes = plt.subplots()
+
+np.random.seed(0)
+n = 10
+x = np.random.uniform(0, 5, n)
+y = np.random.uniform(-1, 3, n)
+s = (np.arange(n) + 1) * 5
+c = x * y
+axes.scatter(x, y, s = s, c = c)
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/scatter-with-size-and-color.png" width="330mm" />
+</p>
+
+> Finally, the `marker` parameter allows to change the style of the marker using the same syntax of `plot`'s format strings (with only the character relative to the marker) and the `c` parameter can be used also to set a color for all the markers:
+
+```
+fig, axes = plt.subplots()
+
+np.random.seed(0)
+n = 10
+x = np.random.uniform(0, 1, n)
+y = np.random.uniform(0, 1, n)
+
+axes.scatter(x, y, marker = 'v', c = 'r')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/scatter-with-marker-and-color.png" width="330mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **`semilogy`**: analogous to plot, but the y axis is logarithmic. For example:
+
+```
+fig, axes = plt.subplots()
+
+x = np.linspace(0, 1, 10)
+y = np.exp(x)
+axes.semilogy(x, y)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/semilogy.png" width="290mm" />
+</p>
+
+- **`loglog`**: analogous to plot, but both the x and y axis are logarithmic. For example:
+
+```
+fig, axes = plt.subplots()
+
+x = np.linspace(0, 10, 100)
+y = x ** 2
+axes.loglog(x, y)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/loglog.png" width="290mm" />
+</p>
+
+</div>
+<div class="column">
+
+### Style `Axes`
+
+#### Set `Axes`' title
+
+- **`set_title`**: allows to set the title of an `Axes`:
+
+```
+fig, axes = plt.subplots()
+
+axes.set_title("My title")
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/title.png" width="260mm" />
+</p>
+
+#### Add `Axes` labels
+
+- **`set_xlabel`**: sets the label of the `Axes`. **`set_ylabel`** has analogous behavior:
+
+```
+fig, axes = plt.subplots()
+
+axes.set_xlabel("My x label")
+axes.set_ylabel("My y label")
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/axis-label.png" width="260mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### Add `Axes` legend
+
+Often we want to identify lines or markers onto an `Axes`. For doing so, we can use the **`label`** parameter inside the plotting functions that we discussed earlier. Finally, we need to invoke the **`legend`** method:
+
+```
+fig, axes = plt.subplots(ncols = 2)
+
+x = np.linspace(0, 1, 100)
+y1 = x
+y2 = np.exp(x)
+
+np.random.seed(0)
+u = np.random.normal(loc = 0.5, scale = 0.5, size = (20, 2))
+
+axes[0].semilogy(x, y2, 'b-', label = '$e^x$')
+axes[1].plot(x, y1, 'b-', label = '$x$')
+axes[1].scatter(u[:, 0], u[:, 1], marker = '^', c = 'r',
+    label = '$y_1$ vs $y_2$')
+
+for a in axes:
+    a.legend()
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/legend.png" width="500mm" />
+</p>
+
+</div>
+<div class="column">
+
+#### Hide `Axes`'s ticks
+
+- **`axis`**: can be used to hide the ticks of an `Axes`:
+
+```
+fig, axes = plt.subplots()
+
+axes.plot(np.sqrt(np.arange(100)))
+axes.axis('off')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/hidden-axis.png" width="400mm" />
+</p>
+
+#### Set `Axes` aspect ratio
+
+- **`axis`**: can be used to set the aspect ratio of an `Axes` to 1:1 :
+
+```
+fig, axes = plt.subplots()
+
+theta = np.linspace(0, 2*np.pi, 100)
+x = np.cos(theta)
+y = np.sin(theta)
+
+axes.plot(x, y, 'r:')
+axes.axis('equal')
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/1-1-aspect-ratio.png" width="250mm" />
+</p>
+
+### More advanced stuff
+
+#### 3D scatterplot
+
+When performing a 3D plot we need to create a `Figure` and add an `Axes` to it in two separate phases. When we add the `Axes` object, the `projection` parameter of the `add_subplot` method allows to specify that we want a 3D plot:
+
+```
+fig = plt.figure()
+axes = fig.add_subplot(projection = '3d')
+
+np.random.seed(0)
+u = np.random.normal(size = (100, 3))
+axes.scatter(u[:, 0], u[:, 1], u[:, 2], marker = 'v',
+             c = u[:, 0] * u[:, 1] * u[:, 2], s = np.max(u, axis = 1) * 10)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/3d-scatter.png" width="270mm" />
+</p>
+
+</div>
+<div class="column">
+
+Through the **`view_init`** method, we can move the virtual camera which produces the 3D plot: the `elev` parameter allows to specify the elevation angle in degrees which rotates the camera above the plane pierced by the vertical axis, the `azim` parameter allows to specify the angle in degrees which rotates the camera about the vertical axis, finally the `roll` parameter allows to specify the angle in degrees which rotates the camera about the viewing axis:
+
+```
+fig = plt.figure()
+axes = fig.add_subplot(projection = '3d')
+
+np.random.seed(0)
+u = np.random.normal(size = (100, 3))
+axes.scatter(u[:, 0], u[:, 1], u[:, 2], marker = 'v',
+             c = u[:, 0] * u[:, 1] * u[:, 2],
+             s = np.max(u, axis = 1) * 10)
+axes.view_init(45, 45, 0)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/3d-scatter-different-view.png" width="270mm" />
+</p>
+
+#### Plotting shapes
+
+##### Plotting circles
+
+We can create a `Circle` `Patch` through the constructor provided in the `patches` package. Then we can add it to the `Axes` through the **`add_patch`** method (_when plotting circles, remember to set the aspect ration of the `Axes` to 1:1_):
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+fig, axes = plt.subplots()
+
+import matplotlib.patches as patches
+
+np.random.seed(0)
+n = 20
+r = np.random.uniform(1, 6, n) / 100
+c = np.random.uniform(size = (n, 2))
+
+for i in range(n):
+    axes.add_patch(patches.Circle(c[i, :], radius = r[i],
+                                  color = 'r', alpha = 0.5))
+
+axes.axis('equal')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/circles.png" width="450mm" />
+</p>
+
+##### Plotting vectors
+
+- **`arrow`**: allows to plot a vector (an arrow), the parameters `x` and `y` specify the coordinates of the arrow base, the `dx` and `dy` parameters specify the length of the arrow along `x` and `y` direction.
+
+</div>
+<div class="column">
+
+```
+fig, axes = plt.subplots()
+
+axes.arrow(0, 1, 1, -1,
+           head_width = 0.05, head_length = 0.05,
+           length_includes_head = True,
+           color = 'r')
+axes.arrow(1, 0, 1, 1,
+           head_width = 0.05, head_length = 0.05,
+           length_includes_head = True,
+           color = 'b')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/arrows.png" width="450mm" />
+</p>
+
+#### Plotting images
+
+- **`imread`**: allows to read an image into a three-dimensional NumPy array. To each pixel correspond three values to represent its color with RGB encoding.
+
+```
+A_RGB = plt.imread("colorful-image.jpg")
+```
+
+- **`imshow`**: allows to plot images onto an `Axes`. The `cmap` parameter allows us to plot the image in gray scale.
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+A = A_RGB.mean(axis = 2)
+
+fig, axes = plt.subplots()
+
+axes.imshow(A, cmap = "gray")
+axes.axis('off')
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/image.png" width="450mm" />
+</p>
+
+</div>
+<div class="column">
+
+#### Add colorbar
+
+- **`colorbar`**: allows to add a color bar for a certain plot on an `Axes`. For example, it can add colorbars to images:
+
+```
+A_RGB = plt.imread("colorful-image.jpg")
+
+fig, axes = plt.subplots()
+img = axes.imshow(A_RGB)
+axes.axis('off')
+
+fig.colorbar(img, ax = axes)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/colorbar.png" width="450mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
