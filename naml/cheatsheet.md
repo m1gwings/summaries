@@ -1329,6 +1329,121 @@ fig.colorbar(img, ax = axes)
 
 ---
 
+## Other packages
+
+<div class="multiple-columns">
+<div class="column">
+
+### `pandas`
+
+#### Creating a `DataFrame`
+
+We can create a `DataFrame` from a dictionary with NumPy arrays as values:
+```
+a = np.array([0, 1, 2])
+b = np.array([11, 12, 3])
+df = pd.DataFrame({
+       "A": a,
+       "B": b
+})
+```
+Then, `df` is:
+```
+   A   B
+0  0  11
+1  1  12
+2  2   3
+```
+
+- **`read_csv`**: constructs a `DataFrame` from a CSV file:
+```
+cat data.csv
+```
+```
+A, B
+0, 11
+1, 12
+```
+```
+df = pd.read_csv("data.csv")
+```
+Then, the value of `df` is:
+```
+   A   B
+0  0  11
+1  1  12
+```
+
+</div>
+<div class="column">
+
+#### Inspecting a `DataFrame`
+
+- **`describe`**: returns several statistics about the `DataFrame`:
+```
+a = np.array([0, 1, 2])
+b = np.array([11, 12, 3])
+df = pd.DataFrame({
+       "A": a,
+       "B": b
+})
+```
+> The output of `df.describe` is:
+```
+         A          B
+count  3.0   3.000000
+mean   1.0   8.666667
+std    1.0   4.932883
+min    0.0   3.000000
+25%    0.5   7.000000
+50%    1.0  11.000000
+75%    1.5  11.500000
+max    2.0  12.000000
+```
+
+- **`info`**: returns the number of non-null entries in each column and the corresponding type.
+The value of `df.info()` for the `DataFrame` created above is:
+```
+RangeIndex: 3 entries, 0 to 2
+Data columns (total 2 columns):
+ #   Column  Non-Null Count  Dtype
+---  ------  --------------  -----
+ 0   A       3 non-null      int64
+ 1   B       3 non-null      int64
+dtypes: int64(2)
+memory usage: 180.0 bytes
+```
+
+</div>
+<div class="column">
+
+- **`head`**: returns the first `n` rows of the `DataFrame`. The default value of `n` is 5.
+For example:
+```
+df = pd.DataFrame({
+    "A": np.arange(16),
+    "B": np.arange(4, 20)
+})
+```
+> Then, `df.head()` is:
+```
+   A  B
+0  0  4
+1  1  5
+2  2  6
+3  3  7
+4  4  8
+```
+
+#### Computing statistics on a `DataFrame`
+
+RESUME...
+
+</div>
+</div>
+
+---
+
 <div class="multiple-columns without-title">
 <div class="column">
 
