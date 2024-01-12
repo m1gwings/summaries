@@ -735,9 +735,8 @@ x = np.arange(1, 3, 2)[:, np.newaxis]
 
 #### Decompositions
 
-- **`linalg.svd`**: returns the SVD of the matrix `A`. The boolean parameter `full_matrices` allow to choose between the full SVD and the reduced one.
+- **`linalg.svd`**: returns the SVD of the matrix `A`. The boolean parameter `full_matrices` allow to choose between the full SVD and the "reduced" one (in this case, with reduced form, we mean that both `U` and `V` have $\min(m, n)$ columns, where $A \in \mathbb{R}^{m \times n}$).
 
-> In particular, it only returns 
 > For example, let:
 ```
 A = np.arange(12).reshape(4, 3)
@@ -1570,6 +1569,25 @@ A = df.to_numpy()
 array([[ 0, 11],
        [ 1, 12]])
 ```
+
+</div>
+</div>
+
+---
+
+## Methods & Algorithms
+
+<div class="multiple-columns">
+<div class="column">
+
+### SVD
+
+
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
