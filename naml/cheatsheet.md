@@ -1437,7 +1437,139 @@ df = pd.DataFrame({
 
 #### Computing statistics on a `DataFrame`
 
-RESUME...
+- **`mean`**: returns the mean of the values in the columns of the `DataFrame`:
+
+```
+df = pd.read_csv("data.csv")
+df_mean = df.mean()
+```
+> The value of `df_mean` is:
+```
+A      0.5
+ B    11.5
+dtype: float64
+```
+> Furthermore, we can subtract `df_mean` from `df`, obtaining a behavior similar to NumPy broadcasting:
+```
+centered_df = df - df_mean
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+> The value of `centered_df` is:
+```
+     A    B
+0 -0.5 -0.5
+1  0.5  0.5
+```
+
+- **`std`**: returns the sample standard deviation of the values in the columns the `DataFrame`:
+```
+df = pd.read_csv("data.csv")
+centered_df = df - df.mean()
+df_std = centered_df.std()
+```
+> Then, the value of `df_std` is:
+```
+A     0.707107
+ B    0.707107
+dtype: float64
+```
+> As with `mean`, we can divide `centered_df` by `df_std`, obtaining a behavior similar to NumPy broadcasting:
+```
+normalized_df = centered_df / df_std
+```
+> The value of `normalized_df` is:
+```
+          A         B
+0 -0.707107 -0.707107
+1  0.707107  0.707107
+```
+
+- **`corr`**: returns the pairwise (sample) correlation of the columns, excluding null values:
+```
+df = pd.read_csv("data.csv")
+```
+
+</div>
+<div class="column">
+
+> Then, the value of `df.corr()` is:
+```
+      A    B
+A   1.0  1.0
+ B  1.0  1.0
+```
+
+#### Accessing the columns of a `DataFrame`
+
+- **`df["Column Name"]`**: returns the column named `ColumnName` in the `df` `DataFrame`:
+```
+df = pd.read_csv("data.csv")
+```
+> Then, the value of `df["A"]` is:
+```
+0    0
+1    1
+Name: A, dtype: int64
+```
+
+#### Some useful stuff
+
+- **`nunique`**: returns the number of unique elements in the `df` column:
+```
+df = pd.read_csv("data.csv")
+n = df["A"].nunique()
+```
+> Then, the value of `n` is:
+```
+2
+```
+
+- **`dropna`**: drops the rows of the `DataFrame` where at least the value of a column is missing:
+
+</div>
+<div class="column">
+
+```
+df = pd.DataFrame({
+    "name": ['Alfred', 'Batman',
+        'Catwoman'],
+    "toy": [np.nan, 'Batmobile',
+        'Bullwhip'],
+    "born": [pd.NaT,
+        pd.Timestamp("1940-04-25"),
+        pd.NaT]})
+```
+> The value of `df` is:
+```
+       name        toy       born
+0    Alfred        NaN        NaT
+1    Batman  Batmobile 1940-04-25
+2  Catwoman   Bullwhip        NaT
+```
+> Then, `df.dropna()` is:
+```
+     name        toy       born
+1  Batman  Batmobile 1940-04-25
+```
+
+- **`to_numpy`**: converts a `DataFrame` into a bi-dimensional NumPy array:
+```
+df = pd.read_csv("data.csv")
+A = df.to_numpy()
+```
+> Then, the value of `A` is:
+```
+array([[ 0, 11],
+       [ 1, 12]])
+```
 
 </div>
 </div>
