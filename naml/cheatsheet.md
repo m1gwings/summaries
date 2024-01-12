@@ -1584,6 +1584,7 @@ array([[ 0, 11],
 
 #### Compute the _cumulate fraction_ and _fraction of explained variance_ of singular values
 
+(_See lab 1_).
 Let $k$ be the number of singular values.
 The $i$-th **_cumulate fraction_** is:
 $$\frac{\sum_{j=1}^i \sigma_j}{\sum_{j=1}^k \sigma_j}$$
@@ -1609,7 +1610,6 @@ def best_rank_k(U, s, V_T, k):
 #### Randomized SVD
 
 (_See lecture 5.15_).
-
 Let $A \in \mathbb{R}^{m \times n}$
 We start by sampling $k + p$ (where $p$ is an oversampling factor) normal vectors, and we put them in the matrix $\Omega \in \mathbb{R^{n \times (k + p)}}$.
 Then, the column space of $Y = (A A^T)^q A \Omega$ is a "sample" of the column space of $A$, but the singular values of $Y$ are $\sigma_k^q$ where $\sigma_k$ are the singular values of $A$ (this improves the result).
@@ -1638,8 +1638,8 @@ def rSVD(A, k, q, p):
 
 #### PCA where _rows are samples_
 
-Let $A \in \mathbb{R}^{m \times n}$.
-Let $\overline{A}$ be $A$ after the centering.
+(_See lecture 10.1_).
+Let $A \in \mathbb{R}^{m \times n}$. Let $\overline{A}$ be $A$ after the centering.
 $$C = \frac{1}{m} \overline{A}^T \overline{A}$$
 is the sample covariance matrix, which has the same eigenvectors of $\overline{A}^T \overline{A}$.
 Let $U \Sigma V^T = \overline{A}$, then, the eigenvectors of $C$ are (by how the SVD is defined) the columns of $V$, which we call **principal directions**.
@@ -1684,10 +1684,71 @@ def PCA(A, k):
     return princ_comp, princ_dir
 ```
 
+### Binary classifier evaluation
+
+(_See lab 2_).
+From the predicated and actual labels, we can compute the **_confusion matrix_**:
+```
+def confusion_matrix(predicted_labels, actual_labels,
+                     false_class_val, true_class_val):
+    true_positives = np.logical_and(
+        actual_labels == true_class_val,
+        predicted_labels == true_class_val
+    ).sum()
+    false_positives = np.logical_and(
+        actual_labels == false_class_val,
+        predicted_labels == true_class_val
+    ).sum()
+    true_negatives = np.logical_and(
+        actual_labels == false_class_val,
+        predicted_labels == false_class_val).sum()
+```
+
 </div>
 <div class="column">
 
+```
+    false_negatives = np.logical_and(
+        actual_labels == true_class_val,
+        predicted_labels == false_class_val
+    ).sum()
+    return true_positives, false_positives, \
+        true_negatives, false_negatives
+```
 
+From the confusion matrix, we can compute the **_accuracy_** of the classifier:
+```
+def accuracy(true_positives, false_positives,
+             true_negatives, false_negatives):
+    return (true_positives + true_negatives) / \
+        (true_positives + false_positives +
+         true_negatives + false_negatives)
+```
+
+### Singular Value Truncation (SVT)
+
+(_See lecture 7.16_).
+
+```
+def SVT(A, omega, tau, tol):
+    def overwrite_known_values(X, A, omega):
+        for i, j in omega:
+            X[i, j] = A[i, j]
+    
+    X = np.zeros(A.shape)
+    overwrite_known_values(X, A, omega)
+    while True:
+        X_old = X.copy()
+        U, s, V_T = np.linalg.svd(X, full_matrices = False)
+        s[s <= tau] = 0
+        X = U @ np.diag(s) @ V_T
+        overwrite_known_values(X, A, omega)
+        
+        if np.linalg.norm(X - X_old) < tol:
+            break
+    
+    return X
+```
 
 </div>
 </div>
