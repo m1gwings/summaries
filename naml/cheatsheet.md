@@ -1582,7 +1582,107 @@ array([[ 0, 11],
 
 ### SVD
 
+#### Compute the _cumulate fraction_ and _fraction of explained variance_ of singular values
 
+Let $k$ be the number of singular values.
+The $i$-th **_cumulate fraction_** is:
+$$\frac{\sum_{j=1}^i \sigma_j}{\sum_{j=1}^k \sigma_j}$$
+The $i$-th **_fraction of explained variance_** is:
+$$\frac{\sum_{j=1}^i \sigma_j^2}{\sum_{j=1}^k \sigma_j^2}$$
+
+```
+_, s, _ = np.linalg.svd(A, full_matrices = False)
+
+cumulate_fraction = s.cumsum() / s.sum()
+
+fract_expl_variance = (s**2).cumsum() / (s**2).sum()
+```
+
+#### Compute the _best rank $k$_ approximation
+
+```
+def best_rank_k(U, s, V_T, k):
+    if k > s.size: raise ValueError()
+    return U[:, :k] @ np.diag(s[:k]) @ V_T[:k, :]
+```
+
+#### Randomized SVD
+
+(_See lecture 5.15_).
+
+Let $A \in \mathbb{R}^{m \times n}$
+We start by sampling $k + p$ (where $p$ is an oversampling factor) normal vectors, and we put them in the matrix $\Omega \in \mathbb{R^{n \times (k + p)}}$.
+Then, the column space of $Y = (A A^T)^q A \Omega$ is a "sample" of the column space of $A$, but the singular values of $Y$ are $\sigma_k^q$ where $\sigma_k$ are the singular values of $A$ (this improves the result).
+Let's apply QR factorization to $Y$: $\:QR = Y$.
+The columns of $Q = [\underline{q}_1 ... \underline{q}_n]$ are an orthonormal basis for the column space of $Y$.
+
+</div>
+<div class="column">
+
+Hence, $QQ^T = [\underline{q}_1 \underline{q}_1^T ... \underline{q}_n \underline{q}_n^T ]$ is a projection matrix onto the column space of $Y$.
+Then, since $C(Y) \approx C(A_k)$, it follows that $QQ^TA \approx A_k$.  Let $B = Q^T A$. By the SVD $B = \tilde{U} \Sigma V^T$. Hence $A_k \approx Q \tilde{U} \Sigma V^T$.
+
+```
+def rSVD(A, k, q, p):
+    omega = np.random.normal(size = (A.shape[1], k + p))
+    Y = A @ omega
+    for _ in range(q):
+        Y = A @ A.T @ Y
+    Q = np.linalg.qr(Y)[0][:, :k]
+    B = Q.T @ A
+    U_tilde, s, V_T = np.linalg.svd(B)
+    return Q @ U_tilde, s, V_T
+```
+
+### PCA
+
+#### PCA where _rows are samples_
+
+Let $A \in \mathbb{R}^{m \times n}$.
+Let $\overline{A}$ be $A$ after the centering.
+$$C = \frac{1}{m} \overline{A}^T \overline{A}$$
+is the sample covariance matrix, which has the same eigenvectors of $\overline{A}^T \overline{A}$.
+Let $U \Sigma V^T = \overline{A}$, then, the eigenvectors of $C$ are (by how the SVD is defined) the columns of $V$, which we call **principal directions**.
+The **principal components** are the coordinates of the data, w.r.t. the principal directions. If we want to put them on rows as the original data matrix: $\Phi = \overline{A} V$.
+
+```
+def PCA(A, k):
+    if k > A.shape[1]: raise ValueError
+    centered_A = A - A.mean(axis = 0)
+    _, _, V_T = np.linalg.svd(centered_A)
+    princ_dir = V_T.T[:, :k]
+    princ_comp = centered_A @ princ_dir
+    
+    return princ_comp, princ_dir
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### PCA where _columns are samples_
+
+Let $A \in \mathbb{R}^{m \times n}$.
+Let $\overline{A}$ be $A$ after the centering.
+$$C = \frac{1}{n} \overline{A} \overline{A}^T$$
+is the sample covariance matrix, which has the same eigenvectors of $\overline{A} \overline{A}^T$.
+Let $U \Sigma V^T = \overline{A}$, then, the eigenvectors of $C$ are (by how the SVD is defined) the columns of $U$, which we call **principal directions**.
+The **principal components** are the coordinates of the data, w.r.t. the principal directions. If we want to put them on columns as the original data matrix: $\Phi = U^T \overline{A}$.
+
+```
+def PCA(A, k):
+    if k > A.shape[0]: raise ValueError
+    centered_A = A - A.mean(axis = 1)[:, np.newaxis]
+    U, _, _ = np.linalg.svd(centered_A)
+    princ_dir = U[:, :k]
+    princ_comp = U.T @ centered_A
+    
+    return princ_comp, princ_dir
+```
 
 </div>
 <div class="column">
