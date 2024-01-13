@@ -2538,9 +2538,31 @@ k_valid_conv_v = signal.convolve(v, k, mode = 'valid')
 
 ### Neural network
 #### Parameters initialization
+##### Glorot Normal initialization
+
+It works as follows:
+- inizialize the biases with zero value;
+- inizialize the weights sampling from a normal distribution with zero mean and with standard deviation 
 
 </div>
 <div class="column">
+
+$$
+\sqrt{\frac{2}{n + m}}
+$$
+where $n$ and $m$ are the number of input and output neurons of the corresponding weights matrix.
+
+```
+def glorot_normal_params_init(layers_size):
+    params = [ ]
+    for i in range(len(layers_size) - 1):
+        n = layers_size[i]
+        m = layers_size[i + 1]
+        W = np.sqrt(2/(n+m)) * np.random.normal(size = (m, n))
+        b = np.zeros(size = (m, 1))
+        params += [ W, b ]
+    return params
+```
 
 #### Neural network definition
 
@@ -2549,14 +2571,12 @@ The following function implements a feed-forward NN with the parameters in a lis
 ```
 def ANN(x, params):
     activ = ...
-
+    
     num_layers = int(len(params)/2)
-
     W = [0::2]
     b = [1::2]
 
     layer = x.T
-
     for i in range(num_layers - 1):
         layer = W[i] @ layer + b[i]
         if i < num_layers - 2:
@@ -2564,11 +2584,23 @@ def ANN(x, params):
         else:
             # Last layer
             ...
-    
     return layer.T
 ```
 
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 #### Activation functions
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
