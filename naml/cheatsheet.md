@@ -1575,6 +1575,66 @@ array([[ 0, 11],
 
 ---
 
+<div class="multiple-columns without-title">
+<div class="column">
+
+### `jax`
+#### Performing "NumPy computations" in Jax
+When we want to apply `jax` transformations to a function, this function must not have side-effects. Then, if we need to use NumPy functions with `jax`, we need to invoke the corresponding function from `jax.numpy`:
+```
+import jax.numpy as jnp
+
+x = jnp.array([1, 2, 3])
+y = jnp.array([4, 5, 6])
+```
+Then, the value of `jnp.dot(x, y)` is:
+```
+Array(32, dtype=int32)
+```
+
+#### Compile functions
+
+- **`jit`**: compiles the function in input and returns the compiled version:
+```
+def f(x, y):
+    return jnp.sqrt(jnp.dot(x**2, y**2))
+
+jitted_f = jax.jit(f)
+```
+> The value of `jitted_f(jnp.array([1, 2, 3]), jnp.array([4, 5, 6]))`:
+```
+Array(20.976177, dtype=float32)
+```
+
+#### Automatic differentiation
+
+- **`grad`**: returns a function which evaluates the gradient of the function in input. The `argnums` parameter allows to specify the argument w.r.t. which we differentiate.
+
+</div>
+<div class="column">
+
+```
+def f(x, y):
+    return jnp.cos(x) + jnp.exp(y)
+
+df_dy = jax.grad(f, argnums = 1)
+```
+Then, the value of `df_dy(1., 1.)` is:
+```
+Array(2.7182817, dtype=float32,
+    weak_type=True)
+```
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
 ## Methods & Algorithms
 
 <div class="multiple-columns">
@@ -1874,10 +1934,151 @@ def KR_pred(X_tilde, X, alpha, k):
 
 ### AutoDiff with dual numbers
 
+Dual numbers are defined as follows: $\mathbb{D} = (\mathbb{R}^2, +_D, \cdot_D)$ where:
+- $(x_1, x_2) +_D (y_1, y_2) = (x_1 + y_1, x_2 + y_2)$;
+- $(x_1, x_2) \cdot_D (y_1, y_2) = (x_1 \cdot y_1, x_1 \cdot y_2 + y_1 \cdot x_2)$.
+
+We define $\epsilon = (0, 1) \in \mathbb{D}$. Then $\epsilon^2 = 0$. (This allows us to write dual numbers as $x_1 + \epsilon x_2$).
+We define the **extension** of a function $f : \mathbb{R} \rightarrow \mathbb{R}$ to $\mathbb{D}$ as:
+$$
+\begin{matrix}
+\hat{f} : \mathbb{D} \rightarrow \mathbb{D} \\
+(x_1, x_2) \mapsto (f(x_1), f'(x_1)x_2)
+\end{matrix}
+$$
+$\hat{f}$ has a lot of good properties:
+- $\hat{(f + g)}(x_1, x_2) = \hat{f}(x_1, x_2) +_D \hat{g}(x_1, x_2)$;
+- $\hat{(f \cdot g)}(x_1, x_2) = \hat{f}(x_1, x_2) \cdot_D \hat{g}(x_1, x_2)$;
+- $\hat{\frac{1}{f}}(x_1, x_2) = \frac{1}{\hat{f}(x_1, x_2)}$ (_the reciprocal is taken in $\mathbb{D}$_);
+- $\hat{(f \circ g)}(x_1, x_2) = \hat{f} \circ \hat{g} (x_1, x_2)$;
+- $\hat{id_\mathbb{R}} = id_\mathbb{D}$.
+
 </div>
 <div class="column">
 
+Then, if $f$ is the composition of sum, products and reciprocals of functions $g_i$ for which we know the derivative, we can compute $\hat{g_i}$ through the definition, and then $\hat{f}$ is obtained by performing sum, products and reciprocals **in $\mathbb{D}$**.
 
+Finally $\hat{f}(x_1, 1) = (f(x_1), f'(x_1))$.
+
+Let's put everything in a library:
+
+```
+class DualNumber:
+    def __init__(self, real, dual):
+        # dual number: 'real' + 'dual' * eps
+        self.real = real
+        self.dual = dual
+
+    def __add__(self, other):
+        # implement the operation "self + other"
+        if isinstance(other, DualNumber):
+            return DualNumber(self.real + other.real,
+                self.dual + other.dual)
+        else:
+            return DualNumber(self.real + other, self.dual)
+
+    def __radd__(self, other):
+        # implement the operation "other + self"
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        # implement the operation "self - other"
+        if isinstance(other, DualNumber):
+            return DualNumber(self.real - other.real,
+                self.dual - other.dual)
+        else:
+            return DualNumber(self.real - other, self.dual)
+
+    def __rsub__(self, other):
+        # implement the operation "other - self"
+        return DualNumber(other, 0) - self
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+    def __mul__(self, other):
+        # implement the operation "self * other"
+        if isinstance(other, DualNumber):
+            return DualNumber(self.real * other.real,
+            self.dual * other.real + self.real * other.dual)
+        else:
+            return DualNumber(other * self.real, other * self.dual)
+
+    def __rmul__(self, other):
+        # implement the operation "other * self"
+        return self.__mul__(other)
+
+    def __truediv__(self, other):
+        # implement the operation "self / other"
+        if isinstance(other, DualNumber):
+            return DualNumber(self.real / other.real,
+                (self.dual * other.real - \
+                self.real * other.dual) / (other.real ** 2))
+        else:
+            return (1/other) * self
+
+    def __rtruediv__(self, other):
+        # implement the operation "other / self"
+        return DualNumber(other, 0.0).__truediv__(self)
+
+    def __pow__(self, other):
+        # implement the operation "self ** other"
+        # f^g = e^(g log f) => (f^g)' = e^(g log f) *
+        # (g' * log f + g * 1/f * f') =
+        # = f^g * (g' * log f + g/f * f')
+        if isinstance(other, DualNumber):
+            return DualNumber(self.real ** other.real,
+                self.real ** other.real * (other.dual * \
+                np.log(self.real) + other.real / self.real \
+                 * self.dual))
+        else:
+            return DualNumber(self.real ** other,
+                other * (self.real ** (other - 1)) * self.dual)
+```
+
+</div>
+<div class="column">
+
+```
+    def __repr__(self):
+        return repr(self.real) + ' + ' + repr(self.dual) + 'ε'
+```
+
+Then, we can extend usual functions to $\mathbb{D}$:
+
+```
+def sin(x):
+    if isinstance(x, DualNumber):
+        return DualNumber(np.sin(x.real), np.cos(x.real) * x.dual)
+    else:
+        return np.sin(x)
+
+def cos(x):
+    if isinstance(x, DualNumber):
+        return DualNumber(np.cos(x.real), -np.sin(x.real) * x.dual)
+    else:
+        return np.cos(x)
+
+def exp(x):
+    if isinstance(x, DualNumber):
+        return DualNumber(np.exp(x.real), np.exp(x.real) * x.dual)
+    else:
+        return np.exp(x.real)
+```
+
+Finally, we can perform AutoDiff as follows:
+
+```
+def auto_diff(f, x):
+    return f(DualNumber(x, 1)).dual
+```
 
 </div>
 </div>
