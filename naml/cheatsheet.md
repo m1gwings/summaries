@@ -1758,6 +1758,135 @@ def SVT(A, omega, tau, tol):
 <div class="multiple-columns without-title">
 <div class="column">
 
+### Computing the pseudoinverse
+
+(_See lecture 7.9_).
+Let $A = U \Sigma V^T$. Then $A^+ = V \Sigma^+ U^T$, where $\Sigma^+$ is the result of **transposing** $\Sigma$ and taking the **reciprocal** of the non-null values on the diagonal. (If we exploit the "reduced" form, with the meaning intended in NumPy by putting `full_matrices = False`, we don't need to take the transpose of $\Sigma$ (since it is diagonal)).
+
+```
+def pinv(A):
+    U_r, s, V_T_r = np.linalg.svd(A, full_matrices = False)
+    s[s > 0] = 1 / s[s > 0]
+    return V_T_r.T @ np.diag(s) @ U_r.T
+```
+
+### Least Squares (LS)
+
+(_See lecture 7.10_).
+We can solve LS through the pseudoinverse: $\hat{\underline{w}} = X^+ y$.
+In particular, to have a linear affine model (instead of a purely linear one), we can enrich the feature vector with a constant feature of value $1$: $X_{ext} = \left[ \begin{matrix} X & \underline{1} \end{matrix} \right]$.
+Then $\hat{\underline{w}} = X_{ext}^+ y$.
+```
+def LS(X, y):
+    X_ext = np.block([X, np.ones((X.shape[0], 1))])
+    return np.linalg.pinv(X_ext) @ y
+```
+
+#### Ridge regression
+
+(_See lecture 8.7_).
+The model result from ridge regression with hyperparameter $\lambda > 0$ is:
+$$
+\hat{\underline{w}}_{RR} = (X^TX + \lambda I)^{-1} X^T \underline{y} \text{ .}
+$$
+
+```
+def RR(X, y, lam):
+    X_ext = np.block([X, np.ones((X.shape[0], 1))])
+    return np.linalg.solve(
+        X_ext.T @ X_ext + lam * np.identity(X_ext.shape[1]),
+        X_ext.T @ y
+    )
+```
+
+</div>
+<div class="column">
+
+#### Kernel regression
+
+(_See lecture 9.10_).
+Let $X \in \mathbb{R}^{n \times p}$. We want to enrich the available features through a feature map $\phi(\underline{x_i})$ which provides "non-linear" features.
+Let $k(\underline{x}_i, \underline{x}_j) = f(g(\underline{x}_i, \underline{x}_j))$ where $g : \mathbb{R}^p \times \mathbb{R}^p \rightarrow \mathbb{R}$ has complexity $O(p)$, be a kernel function s.t. $k(\underline{x}_i, \underline{x}_j) = \phi(\underline{x}_i)^T \phi(\underline{x}_j)$.
+Let $\Phi = \phi(X)$ (_$\phi$ applied to every row_). Hence
+$$
+K = \left[ \begin{matrix}
+k(\underline{x}_1, \underline{x}_1) & ... & k(\underline{x}_1, \underline{x}_n) \\
+... & ... & ... \\
+k(\underline{x}_n, \underline{x}_1) & ... & k(\underline{x}_n, \underline{x}_n)
+\end{matrix} \right] = \Phi \Phi^T \text{ .}
+$$
+
+Through algebraic manipulation, we can rewrite the ridge regression model as (we use $\Phi$ instead of $X$):
+$$
+\underline{\hat{w}}_{KR} = \Phi^T U (\Sigma \Sigma^T + \lambda I)^{-1} U^T \underline{y} \text{ .}
+$$
+Let $\underline{\alpha} = U (\Sigma \Sigma^T + \lambda I)^{-1} U^T y$. Then $\underline{\hat{w}}_{KR} = \Phi^T \underline{\alpha} = \sum \alpha_i \phi(\underline{x}_i)$.
+
+By applying the SVD to $\Phi$ it is easy to see that
+$$
+\underline{\alpha} = U (\Sigma \Sigma^T + \lambda I)^{-1} U^T y = (\Phi \Phi^T + \lambda I)^{-1} \underline{y} \text{ .}
+$$
+Then
+$$
+\underline{\alpha} = (K + \lambda I)^{-1} \underline{y} \text{ .}
+$$
+Finally, we can perform predictions without having to explicitly compute $\Phi$:
+$$
+y_{pred} = \phi(\underline{x})^T \underline{\hat{w}}_{RR} = \phi(\underline{x})^T \Phi^T \underline{\alpha} = [ k(\underline{x}, \underline{x}_1) ... k(\underline{x}, \underline{x}_n) ] \underline{\alpha} = \sum \alpha_i k(\underline{x}, \underline{x}_i) \text{ .}
+$$
+
+If we want to predict an entire vector from the data $\tilde{X} \in \mathbb{R}^{l \times p}$:
+$$
+\underline{\tilde{y}} = \left[ \begin{matrix}
+k(\underline{x}_1, \underline{x}_1) & ... & k(\underline{x}_1, \underline{x}_n) \\
+... & ... & ... \\
+k(\underline{x}_l, \underline{x}_1) & ... & k(\underline{x}_l, \underline{x}_n)
+\end{matrix} \right] \underline{\alpha} = \tilde{K} \underline{\alpha} \text{ .}
+$$
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+def KR(X, y, k, lam):
+    K = np.array([[
+        k(X[i, :], X[j, :])
+        for j in range(X.shape[0]) ]
+        for i in range(X.shape[0]) ])
+    return np.linalg.solve(
+        K + lam * np.identity(X.shape[0]),
+        y
+    )
+```
+
+```
+def KR_pred(X_tilde, X, alpha, k):
+    K_tilde = np.array([[
+        k(X_tilde[i, :], X[j, :])
+        for j in range(X.shape[0]) ]
+        for i in range(X_tilde.shape[0]) ])
+    return K_tilde @ alpha
+```
+
+### AutoDiff with dual numbers
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 
 
 </div>
