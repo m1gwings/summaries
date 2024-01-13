@@ -2350,6 +2350,7 @@ from scipy.linalg import toeplitz
 
 ```
 def toeplitz_conv(k, v):
+    if k.size > v.size: raise ValueError
     c = np.zeros(k.size + v.size - 1)
     c[:k.size] = k
     r = np.zeros(v.size)
@@ -2358,7 +2359,88 @@ def toeplitz_conv(k, v):
     return K @ v
 ```
 
-#### 
+#### DFT
+
+From the convolution rule, we have that:
+$$
+\mathcal{F}(\tilde{\underline{k}} \circledast \underline{v}) = \mathcal{F}(\tilde{\underline{k}}) \odot \mathcal{F}(\underline{v}) \text{ .}
+$$
+
+```
+def DFT_conv(k, v):
+    if k.size > v.size: raise ValueError
+    V = np.fft.fft(v)
+    K = np.fft.fft(k, v.size)
+    K_conv_V = K * V
+    return np.real(np.fft.ifft(K_conv_V))
+```
+
+#### `scipy.signal.convolve`
+
+`scipy` offers a method for computing the "valid convolution":
+```
+from scipy import signal
+k_valid_conv_v = signal.convolve(v, k, mode = 'valid')
+```
+
+### Neural network
+#### Parameters initialization
+
+</div>
+<div class="column">
+
+#### Neural network definition
+
+The following function implements a feed-forward NN with the parameters in a list with this structure: $[W_1, \underline{b}_1, ..., W_l, \underline{b}_l]$. It works with **row vectors** (that is, if we put in input a matrix, the inputs are the rows).
+
+```
+def ANN(x, params):
+    activ = ...
+
+    num_layers = int(len(params)/2)
+
+    W = [0::2]
+    b = [1::2]
+
+    layer = x.T
+
+    for i in range(num_layers - 1):
+        layer = W[i] @ layer + b[i]
+        if i < num_layers - 2:
+            layer = activ(layer)
+        else:
+            # Last layer
+            ...
+    
+    return layer.T
+```
+
+#### Activation functions
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+### Loss functions
+#### MSE
+
+```
+def mse_loss(x, y, params):
+    return jnp.mean((y - ANN(x, params))**2)
+```
+
+#### Binary classification cross-entropy
+
+```
+def x_entropy_loss(x, y, params):
+    y_pred = ANN(x, params)
+    return -jnp.mean((1-y)*jnp.log(1-y_pred) + \
+        y*jnp.log(y_pred))
+```
 
 </div>
 <div class="column">
@@ -2373,7 +2455,22 @@ def toeplitz_conv(k, v):
 <div class="multiple-columns without-title">
 <div class="column">
 
+### 1st order methods
 
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+### 2nd order methods
 
 </div>
 <div class="column">
