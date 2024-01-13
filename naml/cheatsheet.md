@@ -1625,6 +1625,162 @@ Array(2.7182817, dtype=float32,
     weak_type=True)
 ```
 
+### **`numpy.fft`**
+
+- **`fft`**: computes the Discrete Fourier Transform (DFT) of the input discrete signal. We can put an additional argument zero pad the signal, the argument is the length of the padded signal:
+```
+k = np.ones(10) / 10
+v = np.sin(10 * np.linspace(-10*np.pi,
+    10*np.pi, 1000))
+
+V = np.fft.fft(v)
+K = np.fft.fft(k, v.size)
+```
+Let $X$ be the DFT of the input signal. The array returned by `fft` is:
+$$
+[X[0], X[1], ..., X[\frac{n_x}{2}-1], X[-\frac{n_x}{2}], ..., X[-1]] \text{ if } n_x \text{ is even,}
+$$
+$$
+[X[0], X[1], ..., X[\frac{n_x-1}{2}], X[-\frac{-(n_x-1)}{2}], ..., X[-1]] \text{ if } x_x \text{ is odd.}
+$$
+
+Furthermore (_see [https://math.stackexchange.com/questions/1585060/sampling-fourier-transform-and-discrete-fourier-transform](https://math.stackexchange.com/questions/1585060/sampling-fourier-transform-and-discrete-fourier-transform)_) if some hypotheses are verified:
+$$
+X[k] \approx f_s X_{cont}(k f_0)
+$$
+where we assume that:
+
+</div>
+<div class="column">
+
+- the discrete signal $\underline{x}$ has been sampled from the continuos signal $x_{cont}$;
+- the time instant corresponding to $\underline{x}[n_x - 1]$ minus the time instant corresponding to $\underline{x}[0]$ is $T_0$;
+- $\underline{x}[i] = x_{cont}(t_0 + i T_s)$;
+- $f_0 = \frac{1}{T_0}$;
+- $f_s = \frac{1}{T_s}$.
+
+That is, the DFT is an "approximated sample" of the continuous Fourier transform.
+Hence, if we want to plot the DFT as to resemble the continuous FT, we need to assign the elements returned by `fft` to the corresponding frequence (achieved through `fftfreq`), and then plot them in the right order (achieved through `fftshift`).
+
+- **`fftfreq`**: returns the DFT sample frequencies. It provides an additional `d` paramter to specify the value of $T_s$, the default value is 1. .
+
+Now, if we try to plot, the DFT without any additional step, we get the following result:
+```
+v = np.zeros(100)
+v[25:50] = 1
+V = np.fft.fft(v)
+
+fig, axes = plt.subplots()
+freq = np.fft.fftfreq(v.size)
+axes.plot(freq, np.abs(V))
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/not-shifted-ft.png" width="240mm" />
+</p>
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+To solve the problem (as anticipated), we have to use `fftshift`:
+- **`fftshift`**: shifts the zero-frequency component to the center of the spectrum (in particular it swaps the two halves of the input array).
+
+Now, the result is:
+```
+v = np.zeros(100)
+v[25:50] = 1
+V = np.fft.fft(v)
+
+fig, axes = plt.subplots()
+freq = np.fft.fftfreq(v.size)
+axes.plot(np.fft.fftshift(freq), np.fft.fftshift(np.abs(V)))
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/ft.png" width="270mm" />
+</p>
+
+- **`ifft`**: computes the inverse DFT of the input array.
+(_Note that, when plotting the reconstructed signal, we **have to take the real part**_).
+```
+v = np.zeros(100)
+v[25:50] = 1
+V = np.fft.fft(v)
+v_rec = np.real(np.fft.ifft(V))
+fig, axes = plt.subplots()
+axes.set_title("IDFT reconstruction")
+axes.plot(v_rec, 'k-', label = "Reconstructed signal")
+axes.plot(v, 'r:', label = "Original signal")
+axes.legend()
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/idft-reconstruction.png" width="400mm" />
+</p>
+
+We can also work with 2D data (for exmaple, images).
+
+- **`fft2`**: applies the 2D fft to the input data.
+- **`ifft2`**: applies the 2D ifft to the input data.
+
+```
+# Create a 2D signal
+T_s = 0.1
+x = np.arange(-2*np.pi, 2*np.pi, T_s)
+y = np.arange(-2*np.pi, 2*np.pi, T_s)
+xx, yy = np.meshgrid(x, y)
+f1 = 1
+f2 = 2
+z = np.sin(2*np.pi*f1*xx) + np.sin(2*np.pi*f2*yy)
+
+# Perform the 2D FT
+Z = np.fft.fft2(z)
+shifted_Z = np.fft.fftshift(Z)
+
+shifted_freq_x = np.fft.fftshift(np.fft.fftfreq(x.size, d = T_s))
+shifted_freq_y = np.fft.fftshift(np.fft.fftfreq(y.size, d = T_s))
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+# Perform the 2D IFT
+z_reconstructed = np.fft.ifft2(Z)
+
+# Plotting
+fig, axes = plt.subplots(nrows = 1, ncols = 3)
+axes[0].set_title("Original")
+axes[0].imshow(z)
+axes[0].axis("off")
+
+axes[1].set_title("FFT")
+axes[1].imshow(np.absolute(shifted_Z))
+axes[1].axis("off")
+
+axes[2].set_title("Reconstructed")
+axes[2].imshow(np.real(z_reconstructed))
+axes[2].axis("off")
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/2D-ft.png" width="500mm" />
+</p>
+
 </div>
 <div class="column">
 
@@ -2079,6 +2235,135 @@ Finally, we can perform AutoDiff as follows:
 def auto_diff(f, x):
     return f(DualNumber(x, 1)).dual
 ```
+
+### Convolutions
+#### Direct formula
+(_See lecture 12, add-on to convolutions, and lab 5_).
+Let $\underline{k}$ be a vector of $n_k$ elements and $\underline{v}$ be a vector of $n_v$ elements. We assume that $n_k \leq n_v$ ($\underline{k}$ is known as _kernel_).
+In particular the $(i+1)$-th element of $\underline{k}$ is $\underline{k}[i]$, same for $\underline{v}$ (that is, we index starting from 0).
+
+From _add-on to convolutions, page 2_, we can compute the convolution between $\underline{k}$ and $\underline{v}$ as:
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+$$
+(\underline{k} * \underline{v})[i] = \sum_{j = \max(0, i-n_v+1)}^{\min(i, n_k-1)} \underline{k}[j] \underline{v}[i-j] \text{ for } i \in \{ 0, ..., n_k+n_v-2 \} \text{ .}
+$$
+
+```
+def conv(k, v):
+    return np.array([
+        np.array([
+            k[j] * v[i - j]
+            for j in range(
+                max(0, i - v.size + 1),
+                min(i, k.size - 1) + 1
+            )
+        ]).sum()
+        for i in range(k.size + v.size - 1)])
+```
+
+The definition of circular convolution is extended to $\underline{k}$ and $\underline{v}$ of different size by making $\underline{k}$ of the same size of $\underline{v}$ through zero padding:
+$$
+\tilde{\underline{k}}^T = [ \underline{k}^T \: \underline{0}_{n_v - n_k}^T ] \text{ .}
+$$
+That is:
+$$
+(\underline{k} \circledast \underline{v})[i] =^{def} (\tilde{\underline{k}} \circledast \underline{v})[i] \text{ for } i \in \{ 0, ..., n_v - 1 \} \text{ .}
+$$
+From _lecture 12.4_:
+$$
+(\tilde{\underline{k}} \circledast \underline{v})[i] = \begin{cases}
+\sum_{j = 0}^{i} \tilde{\underline{k}}[j] \underline{v}[i-j] + \sum_{j=i+1}^{n_v-1} \tilde{\underline{k}}[j]\underline{v}[i+n_v-j] \text{ if } i \in \{ 0, ..., n_v-2 \} \\
+\sum_{j = 0}^{n_v-1} \tilde{\underline{k}}[j]\underline{v}[i-j] \text{ if } i = n_v-1
+\end{cases} \text{ .}
+$$
+Now let $i \geq n_k-1$, $i < n_v-1$, then, if $j \geq i+1 \geq n_k$, it follows that $\tilde{\underline{k}}[j] = 0$.
+Hence:
+$$
+(\tilde{\underline{k}} \circledast \underline{v})[i] = \sum_{j = 0}^{n_k-1} \underline{k}[j] \underline{v}[i-j] + \sum_{j = n_k}^{i} 0 \underline{v}[i-j] + \sum_{j=i+1}^{n_v-1} 0 \underline{v}[i+n_v-j] = \sum_{j = 0}^{n_k-1} \underline{k}[j] \underline{v}[i-j] =
+$$
+$$
+= \sum_{j = \max(0, i-n_v+1)}^{\min(i, n_k-1)} \underline{k}[j] \underline{v}[i-j] = (\underline{k} * \underline{v})[i] \text{ .}
+$$
+
+Analogously: $(\tilde{\underline{k}} \circledast \underline{v})[n_v - 1] = (\underline{k} * \underline{v})[n_v - 1]$.
+
+</div>
+<div class="column">
+
+That is:
+$$
+(\tilde{\underline{k}} \circledast \underline{v})[i] = (\tilde{\underline{k}} \circledast \underline{v})[i] \forall i \in \{ n_k-1, ..., n_v-1 \} \text{ .}
+$$
+
+We define **valid** this "_portion_" of the circular convolution which is equal to the "standard" (linear) one.
+
+Furthermore, from _lecture 12.5_:
+$$
+(\tilde{\underline{k}} \circledast \underline{v})[i] = \sum_{j = 0}^{n_v - 1} \tilde{\underline{k}}[j] \underline{v}[(i-j)\mod n] = \sum_{j = 0}^{n_k - 1} \underline{k}[j] \underline{v}[(i-j)\mod n] \text{ for } i \in \{ 0, ..., n_v-1 \} \text{ .}
+$$
+
+```
+def circular_conv(k, v):
+    if k.size > v.size: raise ValueError
+    return np.array([
+        (k * v[(i - np.arange(k.size)) % v.size]).sum()
+        for i in range(v.size)])
+```
+
+Now computing the "valid convolution" is straightforward:
+```
+def valid_conv(k, v):
+    return circular_conv(k, v)[k.size - 1:]
+```
+
+#### Toeplitz matrices
+
+By _add-on to convolutions, page 4_, we can compute the convolution between $\underline{k}$ and $\underline{v}$ (where $n_k \leq n_v$) with the Toeplitz matrix with first column:
+$$
+\underline{c} = \left[ \begin{matrix} \underline{k} \\ \underline{0}_{n_v-1} \end{matrix} \right]
+$$
+and first row:
+$$
+\underline{r} = \left[ \begin{matrix} \underline{k}[0] \\ \underline{0}_{n_v-1} \end{matrix} \right] \text{ .}
+$$
+
+We can create Toeplitz matrices with **`scipy.linalg.toeplitz`**:
+```
+from scipy.linalg import toeplitz
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+def toeplitz_conv(k, v):
+    c = np.zeros(k.size + v.size - 1)
+    c[:k.size] = k
+    r = np.zeros(v.size)
+    r[0] = k[0] # Not needed
+    K = toeplitz(c, r)
+    return K @ v
+```
+
+#### 
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
