@@ -1941,6 +1941,25 @@ def accuracy(true_positives, false_positives,
          true_negatives + false_negatives)
 ```
 
+#### Classifiers with output $[0, 1]$ (not $\{0, 1\}$)
+
+In this case the evaluation of the accuracy takes into account also the "confidence" of the classification:
+```
+def accuracy(predicted_labels, actual_labels):
+    true_positives = predicted_labels[actual_labels == 1]
+    true_negatives = 1 - predicted_labels[actual_labels == 0]
+    return (jnp.sum(true_positives) + jnp.sum(true_negatives)) / \
+        actual_labels.size
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 ### Singular Value Truncation (SVT)
 
 (_See lecture 7.16_).
@@ -1965,6 +1984,11 @@ def SVT(A, omega, tau, tol):
     
     return X
 ```
+
+</div>
+<div class="column">
+
+
 
 </div>
 </div>
