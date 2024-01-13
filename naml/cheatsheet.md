@@ -1781,10 +1781,139 @@ axes[2].axis("off")
     <img src="http://localhost:8080/naml/static/2D-ft.png" width="500mm" />
 </p>
 
+
+### `seaborn`
+
+Seaborn is a Python data visualization library based on matplotlib. It provides a high-level interface for drawing attractive and informative statistical graphics.
+We can import it through:
+```
+import seaborn as sns
+```
+
+
+- **`displot`**: plots a univariate o bivariate distribution:
+
 </div>
 <div class="column">
 
+```
+np.random.seed(0)
+data = pd.DataFrame({
+    "A": 1 + 2 * np.random.normal(size = 100),
+    "B": -2 + 3 * np.random.normal(size = 100)
+})
+```
+```
+sns.displot(data["A"])
+```
 
+<p align="center">
+    <img src="http://localhost:8080/naml/static/univariate-displot.png" width="230mm" />
+</p>
+
+```
+sns.displot(data)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/bivariate-displot.png" width="300mm" />
+</p>
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+- **`scatterplot`**: produces a scatter plot:
+```
+np.random.seed(0)
+data = pd.DataFrame({
+    "A": 1 + 2 * np.random.normal(size = 100),
+    "B": -2 + 3 * np.random.normal(size = 100),
+    "C": np.arange(100)
+})
+
+sns.scatterplot(data = data, x = "A" ,y = "B", hue = "C")
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/seaborn-scatter.png" width="300mm" />
+</p>
+
+- **`heatmap`**: can be used to visualize the covariance matrix of a data set as a heat map. The parameter `annot` set to `True` adds the corresponding numeric value to every rectangle of the heat map.
+
+```
+np.random.seed(0)
+U = 2 * np.random.normal(size = (100, 2))
+data = pd.DataFrame({
+    "A": U[:, 0],
+    "B": U[:, 1],
+    "C": 0.1 * U[:, 0] - 0.05 * U[:, 1],
+    "D": U[:, 0] * U[:, 1]
+})
+
+sns.heatmap(data.corr(), annot = True)
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/correlation-heatmap.png" width="500mm" />
+</p>
+
+- **violinplot**: performs a violin plot of the input data on the given `Axes`. A violin plot depicts the quartiles along with the "smoothed" distribution:
+
+```
+np.random.seed(0)
+U = 2 * np.random.normal(size = (10000, 2))
+data = pd.DataFrame({
+    "A": U[:, 0],
+    "B": U[:, 1],
+    "C": 0.1 * U[:, 0] - 0.05 * U[:, 1],
+    "D": U[:, 0] * U[:, 1],
+    "E": np.arange(10000) / 500
+})
+
+fig, axes = plt.subplots()
+axes.set_title("Violin plot")
+sns.violinplot(data = data, ax = axes)
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/violin-plot.png" width="500mm" />
+</p>
+
+- **`jointplot`**: performs a joint plot:
+```
+actual = np.random.uniform(size = 100)
+predicted = actual + 0.1 * np.random.normal(size = 100)
+
+data = pd.DataFrame({
+    "Actual": actual,
+    "Predicted": predicted
+})
+
+sns.jointplot(data = data, x = "Actual", y = "Predicted")
+```
+
+</div>
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/joint-plot.png" width="500mm" />
+</p>
 
 </div>
 </div>
