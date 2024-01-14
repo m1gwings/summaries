@@ -2123,6 +2123,17 @@ def accuracy(predicted_labels, actual_labels):
         actual_labels.size
 ```
 
+### Multi-class classifier evaluation
+
+We compute accuracy as the number of correct classifications over the number of samples (in analogy to the definition for binary classification). The function below computes the accuracy when the classifier is a NN:
+
+```
+def accuracy(x, y, params):
+    # Assumes samples on the rows
+    return jnp.mean(np.argmax(ANN(x, params), axis = 1) \
+        == np.argmax(y, axis = 1))
+```
+
 </div>
 </div>
 
