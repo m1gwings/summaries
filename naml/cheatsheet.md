@@ -928,10 +928,28 @@ b = np.argmax(a, axis = 0)
 array([0, 0])
 ```
 
+- **`genfromtxt`**: loads an array from a text file. Each line past the first `skip_header` lines is split at the `delimiter` character, and characters following the `comments` character are discarded. For example:
+```
+cat data.txt
+```
+```
+1., 2., 3.
+4., 5., 6.
+
+```
+
 </div>
 <div class="column">
 
-
+> We can load the data into an array with:
+```
+a = np.genfromtxt("data.txt", delimiter = ',')
+```
+> Then, the value of `a` is:
+```
+array([[1., 2., 3.],
+       [4., 5., 6.]])
+```
 
 </div>
 </div>
