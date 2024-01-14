@@ -951,6 +951,23 @@ array([[1., 2., 3.],
        [4., 5., 6.]])
 ```
 
+- **`corrcoef`**: computes the Pearson's correlation coefficient of the data in the input matrix (for all the pairs of variables). By setting `rowvar = False`, rows are samples.
+```
+np.random.seed(0)
+u = np.random.normal(size = (100, 1))
+v = np.random.uniform(size = (100, 1))
+x = 0.9 * u + 0.1 * v
+y = 2 * u
+A = np.block([u, v, x, y])
+```
+> Then, the value of `np.corrcoef(A, rowvar = False)` is:
+```
+array([[ 1.        , -0.02156949,  0.99951108,  1.        ],
+       [-0.02156949,  1.        ,  0.00970038, -0.02156949],
+       [ 0.99951108,  0.00970038,  1.        ,  0.99951108],
+       [ 1.        , -0.02156949,  0.99951108,  1.        ]])
+```
+
 </div>
 </div>
 
