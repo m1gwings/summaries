@@ -2832,9 +2832,9 @@ class UpdatablePlot():
         self.progress = progress
         self.data = data
         
-        if self.progress - self.last_upd_progress > \
+        if (self.progress - self.last_upd_progress >= \
             self.delta_prog_upd or self.progress == \
-                self.max_progress:
+                self.max_progress) and self.progress >= 2:
             self.__update()
 ```
 
@@ -3274,6 +3274,98 @@ def newton_method(f, x_guess, num_epochs, tol):
         data["$f$"].append(jitted_f(x))
         
         upd_plot.make_progress(e + 1, data)
+    
+    return x
+```
+
+- **BFGS**
+
+(_See [Wikipedia](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm)_).
+
+$$
+p^{(e)} = - B_e^{-1} \nabla f(x^{(e)})
+$$
+
+$$
+\alpha_e = \arg \min f(x^{(e)} + \alpha p^{(e)}) \text{ (in practice, we do a line search)}
+$$
+
+</div>
+<div class="column">
+
+$$
+s^{(e)} = \alpha_e p^{(e)}
+$$
+
+$$
+x^{(e+1)} = x^{(e)} + s^{(e)}
+$$
+
+$$
+y^{(e)} = \nabla f(x^{(e+1)}) - \nabla f(x^{(e)})
+$$
+
+$$
+\rho = \frac{1}{(y^{(e)})^T s^{(e)}}
+$$
+
+$$
+E = I - \rho y^{(e)} (s^{(e)})^T
+$$
+
+$$
+B_{e+1}^{-1} = E^T B_e^{-1} E + \rho s^{(e)} (s^{(e)})^T
+$$
+
+```
+from jax.config import config
+config.update("jax_enable_x64", True)
+from scipy.optimize import line_search
+
+def BFGS(f, x_guess, num_epochs, tol):
+    x = x_guess.copy()
+    
+    jitted_f = jax.jit(f)
+    jitted_grad = jax.jit(jax.grad(f))
+    
+    upd_plot = UpdatablePlot("Training", "epoch", num_epochs, 1)
+    data = { "$f$": [ jitted_f(x) ] }
+    
+    g = jitted_grad(x)
+    B_inv = np.identity(x.size)
+    
+    for e in range(num_epochs):
+        p = - B_inv @ g
+        alpha = line_search(jitted_f, jitted_grad, x, p)[0]
+        
+        if alpha is None:
+            break
+        
+        s = alpha * p
+        x += s
+        data["$f$"].append(jitted_f(x))
+        upd_plot.make_progress(e + 1, data)
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+        y = jitted_grad(x) - g
+        
+        rho = 1. / np.dot(y, s)
+        E = np.identity(x.size) - rho * np.outer(y, s)
+        B_inv = E.T @ B_inv @ E + rho * np.outer(s, s)
+        
+        if np.linalg.norm(g) < tol:
+            break
+        
+        g += y
     
     return x
 ```
