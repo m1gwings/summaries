@@ -3244,6 +3244,40 @@ def rms_prop(layers_size, learning_rate, num_epochs,
 
 - **Newton method**
 
+$$
+x^{(e+1)} = x^{(e)} - H^{-1} \nabla f
+$$
+
+```
+from jax.config import config
+config.update("jax_enable_x64", True)
+
+def newton_method(f, x_guess, num_epochs, tol):
+    x = x_guess.copy()
+    
+    jitted_f = jax.jit(f)
+    jitted_grad = jax.jit(jax.grad(f))
+    jitted_hess = jax.jit(jax.jacfwd(jax.jacrev(f)))
+    
+    upd_plot = UpdatablePlot("Training", "epoch", num_epochs, 1)
+    data = { "$f$": [ jitted_f(x) ] }
+    
+    for e in range(num_epochs):
+        g = jitted_grad(x)
+        H = jitted_hess(x)
+        incr = np.linalg.solve(H, -g)
+        x += incr
+        
+        if np.linalg.norm(incr) < tol:
+            break
+        
+        data["$f$"].append(jitted_f(x))
+        
+        upd_plot.make_progress(e + 1, data)
+    
+    return x
+```
+
 </div>
 <div class="column">
 
