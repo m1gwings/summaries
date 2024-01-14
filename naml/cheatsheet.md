@@ -1625,6 +1625,49 @@ Array(2.7182817, dtype=float32,
     weak_type=True)
 ```
 
+- **`jacrev`**: returns a function which evaluates row-by-row the jacobian of the input function using reverse-mode AD:
+```
+def f(x):
+    return jnp.sum(jnp.exp(x))
+
+grad = jax.jacrev(f)
+```
+> The value of `grad(jnp.array([0., 0.]))` is:
+```
+Array([1., 1.], dtype=float32)
+```
+
+- **`jacfwd`**: returns a function which evaluates column-by-column the jacobian of the input function using forward-mode AD:
+```
+def f(x):
+    return jnp.sum(jnp.exp(x))
+
+grad = jax.jacrev(f)
+hess = jax.jacfwd(grad)
+```
+> The value of `hess(jnp.array([0., 0.]))` is:
+
+</div>
+<div class="column">
+
+```
+Array([[1., 0.],
+       [0., 1.]], dtype=float32)
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
 ### **`numpy.fft`**
 
 - **`fft`**: computes the Discrete Fourier Transform (DFT) of the input discrete signal. We can put an additional argument zero pad the signal, the argument is the length of the padded signal:
@@ -1678,7 +1721,6 @@ axes.plot(freq, np.abs(V))
 <p align="center">
     <img src="http://localhost:8080/naml/static/not-shifted-ft.png" width="240mm" />
 </p>
-
 
 </div>
 </div>
@@ -2547,6 +2589,78 @@ k_valid_conv_v = signal.convolve(v, k, mode = 'valid')
 <div class="multiple-columns without-title">
 <div class="column">
 
+### Hessian related stuff
+
+#### Computing the hessian
+
+Observe that:
+$$
+H = H^T = \left[ \begin{matrix}
+\frac{\partial}{\partial x_1} (\frac{\partial f}{\partial x_1}) & ... & \frac{\partial}{\partial x_n} (\frac{\partial f}{\partial x_1}) \\
+... & ... & ... \\
+\frac{\partial}{\partial x_1} (\frac{\partial f}{\partial x_n}) & ... & \frac{\partial}{\partial x_n} (\frac{\partial f}{\partial x_n})
+\end{matrix} \right] = 
+\frac{\partial}{\partial \underline{x}} \left[ \begin{matrix}
+\frac{\partial f}{\partial x_1} \\
+... \\
+\frac{\partial f}{\partial x_n}
+\end{matrix} \right] =
+\frac{\partial}{\partial \underline{x}} \nabla f = \frac{\partial}{\partial \underline{x}} (\frac{\partial}{\partial \underline{x}} f)^T \text{ .}
+$$
+
+Hence, we can use `jax.jacrev` and `jax.jacfwd` to compute the hessian. Note that, when applied to a function with values in $\mathbb{R}$, `jax.jacrev` returns a function which computes the jacobian and returns it as a one-dimensional array. Then, the difference between $(\frac{\partial}{\partial \underline{x}} f)^T$ and $\frac{\partial}{\partial \underline{x}} f$ is immaterial.
+
+```
+hess = jax.jacfwd(jax.jacrev(f))
+```
+
+#### Hessian vector product
+
+Observe that:
+$$
+\Phi = (\nabla f)^T \underline{v}
+$$
+$$
+\nabla_{\underline{x}} \Phi = \left[ \begin{matrix}
+\frac{\partial}{\partial x_1}[(\nabla f)^T \underline{v}] \\
+... \\
+\frac{\partial}{\partial x_n}[(\nabla f)^T \underline{v}]
+\end{matrix} \right] =
+\left[ \begin{matrix}
+\frac{\partial}{\partial x_1}[v_1 \frac{\partial f}{\partial x_1} + ... + v_n \frac{\partial f}{\partial x_n}] \\
+... \\
+\frac{\partial}{\partial x_n}[v_1 \frac{\partial f}{\partial x_1} + ... + v_n \frac{\partial f}{\partial x_n}]
+\end{matrix} \right] =
+$$
+$$
+= \left[ \begin{matrix}
+\frac{\partial}{\partial x_1} (\frac{\partial f}{\partial x_1}) & ... & \frac{\partial}{\partial x_1} (\frac{\partial f}{\partial x_n}) \\
+... & ... & ... \\
+\frac{\partial}{\partial x_n} (\frac{\partial f}{\partial x_1}) & ... & \frac{\partial}{\partial x_n} (\frac{\partial f}{\partial x_n})
+\end{matrix} \right] \left[ \begin{matrix} v_1 \\ ... \\ v_n \end{matrix} \right] = H \underline{v}
+$$
+
+Then, we can compute the hessian vector product in a smart way:
+```
+grad = jax.grad(f)
+phi = lambda x, v: jnp.dot(grad(x), v)
+
+hess_vec_product = jax.grad(phi, argnums = 0)
+```
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 ### Neural networks
 #### Parameters initialization
 ##### Glorot Normal initialization
@@ -3128,6 +3242,8 @@ def rms_prop(layers_size, learning_rate, num_epochs,
 
 #### 2nd order methods
 
+- **Newton method**
+
 </div>
 <div class="column">
 
@@ -3140,6 +3256,7 @@ def rms_prop(layers_size, learning_rate, num_epochs,
 
 <div class="multiple-columns without-title">
 <div class="column">
+
 
 </div>
 <div class="column">
