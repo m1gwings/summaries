@@ -2554,12 +2554,13 @@ where $n$ and $m$ are the number of input and output neurons of the correspondin
 
 ```
 def glorot_normal_params_init(layers_size):
+    np.random.seed(0)
     params = [ ]
     for i in range(len(layers_size) - 1):
         n = layers_size[i]
         m = layers_size[i + 1]
         W = np.sqrt(2/(n+m)) * np.random.normal(size = (m, n))
-        b = np.zeros(size = (m, 1))
+        b = np.zeros(shape = (m, 1))
         params += [ W, b ]
     return params
 ```
@@ -2570,11 +2571,12 @@ The following function implements a feed-forward NN with the parameters in a lis
 
 ```
 def ANN(x, params):
-    activ = ...
+    # Define the activation function as
+    # a global variable `activ`
     
-    num_layers = int(len(params)/2)
-    W = [0::2]
-    b = [1::2]
+    num_layers = int(len(params)/2) + 1
+    W = params[0::2]
+    b = params[1::2]
 
     layer = x.T
     for i in range(num_layers - 1):
@@ -2640,7 +2642,477 @@ def x_entropy_loss(x, y, params):
 <div class="multiple-columns without-title">
 <div class="column">
 
-### 1st order methods
+### Training
+#### Helper functions
+
+Let's list some helper functions.
+- **`UpdatablePlot`**: allows the training algorithm to update the plot during the trainings.
+```
+from IPython import display
+
+class UpdatablePlot():
+    def __init__(self, title, progress_quantity, max_progress,
+                 delta_prog_upd = 100):
+        self.title = title
+        self.progress_quantity = progress_quantity
+        self.max_progress = max_progress
+        self.delta_prog_upd = delta_prog_upd
+        
+        _, self.axes = plt.subplots()
+        
+        self.progress = 0
+        self.data = {}
+        
+        self.__update()
+    
+    PLOTTING_STYLES = [ 'b-', 'r-', 'k-', 'g:' ]
+    LEFT_LIM = 0.1
+    RIGHT_LIM_MARGIN = 10
+    
+    def __update(self):
+        self.axes.clear()
+        self.axes.set_title(f'{self.title}' +
+            f' ({self.progress}/{self.max_progress})')
+        self.axes.set_xlabel(self.progress_quantity)
+        i = 0
+        plotted = False
+        for quantity in self.data:
+            self.axes.loglog(self.data[quantity][:self.progress],
+                           self.PLOTTING_STYLES[i],
+                           label = quantity)
+            plotted = True
+```
+
+</div>
+<div class="column">
+
+```
+            i += 1
+            i %= len(self.PLOTTING_STYLES)
+        self.axes.set_xlim(self.LEFT_LIM, self.progress +
+            self.RIGHT_LIM_MARGIN)
+        if plotted:
+            self.axes.legend()
+        
+        display.display(plt.gcf())
+        display.clear_output(wait = True)
+        
+        self.last_upd_progress = self.progress
+    
+    def make_progress(self, progress, data):
+        if progress < self.progress: raise ValueError
+        self.progress = progress
+        self.data = data
+        
+        if self.progress - self.last_upd_progress > \
+            self.delta_prog_upd or self.progress == \
+                self.max_progress:
+            self.__update()
+```
+
+- **`update_history`**: updates the data structure used to store the history of loss functions during the training.
+
+```
+def update_history(history, losses, params):
+    for loss_name, loss in losses:
+        history[loss_name].append(loss(x, y, params))
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### 1st order methods
+
+- **Gradient descent (GD)**
+
+$$
+g^{(e)} = \frac{1}{N} \sum_{i = 1}^N \nabla_\theta \mathcal{L}(x_i, y_i, \theta^{(e)})
+$$
+
+$$
+\theta^{(e+1)} = \theta^{(e)} - \lambda g^{(e)}
+$$
+
+```
+def gd(layers_size, learning_rate, num_epochs):
+    # Define the ANN function as
+    # a global function `ANN`.
+    
+    # Analogously define the parameters'
+    # initialization function as `params_init`.
+    
+    # Put the loss functions in a list:
+    # `losses = [ ("Loss name", loss_func), ... ]`;
+    # the first one, is the one that will be used for
+    # the training.
+    
+    # Define the function `update_history`.
+    
+    # Put input and output in the global
+    # variables `x` and `y` respectively.
+    
+    upd_plot = UpdatablePlot("Training", "epochs",
+            num_epochs)
+    
+    jitted_losses = [ ]
+    for i in range(len(losses)):
+        jitted_losses.append((losses[i][0], jax.jit(losses[i][1])))
+    
+    history = { loss_name: [ ] for loss_name, _ in losses }
+    
+    params = params_init(layers_size)
+    
+    update_history(history, losses, params)
+    
+    jitted_grad = jax.jit(jax.grad(losses[0][1], argnums = 2))
+```
+
+</div>
+<div class="column">
+
+```
+    
+    for e in range(num_epochs):
+        g = jitted_grad(x, y, params)
+        for i in range(len(params)):
+            params[i] -= learning_rate * g[i]
+        
+        update_history(history, jitted_losses, params)
+        
+        upd_plot.make_progress(e + 1, history)
+    
+    return params
+```
+
+- **Stochastic gradient descent (SGD)**
+
+$$
+\lambda_e = \max(\lambda_{\min}, \lambda_{\max}(1-\frac{e}{E}))
+$$
+
+$$
+g^{(e)} = \frac{1}{|I_e|} \sum_{i \in I_e} \nabla_\theta \mathcal{L}(x_i, y_i, \theta^{(e)}) \text{ where } I_e \subset \{ 1, ..., N \} \text{ sampled uniformly }
+$$
+
+$$
+\theta^{(e+1)} = \theta^{(e)} - \lambda_e g^{(e)}
+$$
+
+```
+def sgd(layers_size, learning_rate_min, learning_rate_max,
+        learning_rate_decay, num_epochs, batch_size):
+    # Define the ANN function as
+    # a global function `ANN`.
+    
+    # Analogously define the parameters'
+    # initialization function as `params_init`.
+    
+    # Put the loss functions in a list:
+    # `losses = [ ("Loss name", loss_func), ... ]`;
+    # the first one, is the one that will be used for
+    # the training.
+    
+    # Define the function `update_history`.
+    
+    # Put input and output in the global
+    # variables `x` and `y` respectively.
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+    
+    upd_plot = UpdatablePlot("Training", "epochs",
+            num_epochs)
+    
+    jitted_losses = [ ]
+    for i in range(len(losses)):
+        jitted_losses.append((losses[i][0], jax.jit(losses[i][1])))
+    
+    history = { loss_name: [ ] for loss_name, _ in losses }
+    
+    params = params_init(layers_size)
+    
+    update_history(history, losses, params)
+    
+    jitted_grad = jax.jit(jax.grad(losses[0][1], argnums = 2))
+    
+    for e in range(num_epochs):
+        learning_rate = np.maximum(learning_rate_min,
+            learning_rate_max * (1 - e/learning_rate_decay))
+        for _ in range(int(x.shape[0] / batch_size)):
+            I = np.random.choice(x.shape[0], batch_size)
+            g = jitted_grad(x[I, :], y[I, :], params)
+            for i in range(len(params)):
+                params[i] -= learning_rate * g[i]
+        
+        update_history(history, jitted_losses, params)
+        
+        upd_plot.make_progress(e + 1, history)
+    
+    return params
+```
+
+- **SGD with momentum**
+
+$$
+\lambda_e = \max(\lambda_{\min}, \lambda_{\max}(1-\frac{e}{E}))
+$$
+
+$$
+g^{(e)} = \frac{1}{|I_e|} \sum_{i \in I_e} \nabla_\theta \mathcal{L}(x_i, y_i, \theta^{(e)}) \text{ where } I_e \subset \{ 1, ..., N \} \text{ sampled uniformly }
+$$
+
+$$
+v^{(e+1)} = \alpha v^{(e)} - \lambda_e g^{(e)}, v^{(0)} = 0
+$$
+
+</div>
+<div class="column">
+
+$$
+\theta^{(e+1)} = \theta^{(e)} + v^{(e+1)}
+$$
+
+```
+def momentum(layers_size, learning_rate_min, learning_rate_max,
+        learning_rate_decay, num_epochs, batch_size, alpha = 0.9):
+    # Define the ANN function as
+    # a global function `ANN`.
+    
+    # Analogously define the parameters'
+    # initialization function as `params_init`.
+    
+    # Put the loss functions in a list:
+    # `losses = [ ("Loss name", loss_func), ... ]`;
+    # the first one, is the one that will be used for
+    # the training.
+    
+    # Define the function `update_history`.
+    
+    # Put input and output in the global
+    # variables `x` and `y` respectively.
+    
+    upd_plot = UpdatablePlot("Training", "epochs",
+            num_epochs)
+    
+    jitted_losses = [ ]
+    for i in range(len(losses)):
+        jitted_losses.append((losses[i][0], jax.jit(losses[i][1])))
+    
+    history = { loss_name: [ ] for loss_name, _ in losses }
+    
+    params = params_init(layers_size)
+    
+    update_history(history, losses, params)
+    
+    jitted_grad = jax.jit(jax.grad(losses[0][1], argnums = 2))
+    
+    velocity = [ np.zeros(param.shape) for param in params ]
+    
+    for e in range(num_epochs):
+        learning_rate = np.maximum(learning_rate_min,
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+            learning_rate_max * (1 - e/learning_rate_decay))
+        for _ in range(int(x.shape[0] / batch_size)):
+            I = np.random.choice(x.shape[0], batch_size)
+            g = jitted_grad(x[I, :], y[I, :], params)
+            for i in range(len(params)):
+                velocity[i] = alpha * velocity[i] - \
+                    learning_rate * g[i]
+                params[i] += velocity[i]
+        
+        update_history(history, jitted_losses, params)
+        
+        upd_plot.make_progress(e + 1, history)
+    
+    return params
+```
+
+- **AdaGrad**
+
+$$
+g^{(e)} = \frac{1}{|I_e|} \sum_{i \in I_e} \nabla_\theta \mathcal{L}(x_i, y_i, \theta^{(e)}) \text{ where } I_e \subset \{ 1, ..., N \} \text{ sampled uniformly }
+$$
+
+$$
+r^{(e+1)} = r^{(e)} + g^{(e)} \odot g^{(e)}, r^{(0)} = 0
+$$
+
+$$
+\theta^{(e+1)} = \theta^{(e)} - \frac{\lambda}{\delta + \sqrt{r^{(e+1)}}} \odot g^{(e)}
+$$
+
+```
+def adagrad(layers_size, learning_rate, num_epochs,
+            batch_size, delta = 1e-7):
+    # Define the ANN function as
+    # a global function `ANN`.
+    
+    # Analogously define the parameters'
+    # initialization function as `params_init`.
+    
+    # Put the loss functions in a list:
+    # `losses = [ ("Loss name", loss_func), ... ]`;
+    # the first one, is the one that will be used for
+    # the training.
+    
+    # Define the function `update_history`.
+```
+
+</div>
+<div class="column">
+
+```
+    
+    # Put input and output in the global
+    # variables `x` and `y` respectively.
+    
+    upd_plot = UpdatablePlot("Training", "epochs",
+            num_epochs)
+    
+    jitted_losses = [ ]
+    for i in range(len(losses)):
+        jitted_losses.append((losses[i][0], jax.jit(losses[i][1])))
+    
+    history = { loss_name: [ ] for loss_name, _ in losses }
+    
+    params = params_init(layers_size)
+    
+    update_history(history, losses, params)
+    
+    jitted_grad = jax.jit(jax.grad(losses[0][1], argnums = 2))
+    
+    cumul_square_grad = [ np.zeros(param.shape) for param in params ]
+    
+    for e in range(num_epochs):
+        for _ in range(int(x.shape[0] / batch_size)):
+            I = np.random.choice(x.shape[0], batch_size)
+            g = jitted_grad(x[I, :], y[I, :], params)
+            for i in range(len(params)):
+                cumul_square_grad[i] += g[i]**2
+                params[i] -= learning_rate / \
+                    (delta + np.sqrt(cumul_square_grad[i])) * g[i]
+        
+        update_history(history, jitted_losses, params)
+        
+        upd_plot.make_progress(e + 1, history)
+    
+    return params
+```
+
+- **RMSProp**
+
+$$
+g^{(e)} = \frac{1}{|I_e|} \sum_{i \in I_e} \nabla_\theta \mathcal{L}(x_i, y_i, \theta^{(e)}) \text{ where } I_e \subset \{ 1, ..., N \} \text{ sampled uniformly }
+$$
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+$$
+r^{(e+1)} = \rho r^{(e)} + (1 - \rho) g^{(e)} \odot g^{(e)}, r^{(0)} = 0
+$$
+
+$$
+\theta^{(e+1)} = \theta^{(e)} - \frac{\lambda}{\delta + \sqrt{r^{(e+1)}}} \odot g^{(e)}
+$$
+
+```
+def rms_prop(layers_size, learning_rate, num_epochs,
+             batch_size, decay_rate, delta = 1e-7):
+    # Define the ANN function as
+    # a global function `ANN`.
+    
+    # Analogously define the parameters'
+    # initialization function as `params_init`.
+    
+    # Put the loss functions in a list:
+    # `losses = [ ("Loss name", loss_func), ... ]`;
+    # the first one, is the one that will be used for
+    # the training.
+    
+    # Define the function `update_history`.
+    
+    # Put input and output in the global
+    # variables `x` and `y` respectively.
+    
+    upd_plot = UpdatablePlot("Training", "epochs",
+            num_epochs)
+    
+    jitted_losses = [ ]
+    for i in range(len(losses)):
+        jitted_losses.append((losses[i][0], jax.jit(losses[i][1])))
+    
+    history = { loss_name: [ ] for loss_name, _ in losses }
+    
+    params = params_init(layers_size)
+    
+    update_history(history, losses, params)
+    
+    jitted_grad = jax.jit(jax.grad(losses[0][1], argnums = 2))
+    
+    cumul_square_grad = [ np.zeros(param.shape) for param in params ]
+```
+
+</div>
+<div class="column">
+
+```
+    
+    for e in range(num_epochs):
+        for _ in range(int(x.shape[0] / batch_size)):
+            I = np.random.choice(x.shape[0], batch_size)
+            g = jitted_grad(x[I, :], y[I, :], params)
+            for i in range(len(params)):
+                cumul_square_grad[i] = decay_rate * \
+                    cumul_square_grad[i] + (1 - decay_rate) * \
+                        g[i] ** 2
+                params[i] -= learning_rate / \
+                    (delta + np.sqrt(cumul_square_grad[i])) * g[i]
+        
+        update_history(history, jitted_losses, params)
+        
+        upd_plot.make_progress(e + 1, history)
+    
+    return params
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+#### 2nd order methods
 
 </div>
 <div class="column">
@@ -2654,8 +3126,6 @@ def x_entropy_loss(x, y, params):
 
 <div class="multiple-columns without-title">
 <div class="column">
-
-### 2nd order methods
 
 </div>
 <div class="column">
