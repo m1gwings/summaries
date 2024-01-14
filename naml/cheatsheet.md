@@ -2536,16 +2536,24 @@ from scipy import signal
 k_valid_conv_v = signal.convolve(v, k, mode = 'valid')
 ```
 
-### Neural network
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+### Neural networks
 #### Parameters initialization
 ##### Glorot Normal initialization
 
 It works as follows:
 - inizialize the biases with zero value;
 - inizialize the weights sampling from a normal distribution with zero mean and with standard deviation 
-
-</div>
-<div class="column">
 
 $$
 \sqrt{\frac{2}{n + m}}
@@ -2577,6 +2585,12 @@ def ANN(x, params):
     num_layers = int(len(params)/2) + 1
     W = params[0::2]
     b = params[1::2]
+```
+
+</div>
+<div class="column">
+
+```
 
     layer = x.T
     for i in range(num_layers - 1):
