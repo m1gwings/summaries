@@ -2846,6 +2846,36 @@ def update_history(history, losses, params):
         history[loss_name].append(loss(x, y, params))
 ```
 
+> The version below plots the losses on both training and validation set (**see next page**):
+```
+def update_history(history, losses, params):
+    for loss_name, loss in losses:
+        history[f"{loss_name} (train)"].append(loss(x_train, y_train,
+                                                  params))
+        history[f"{loss_name} (valid)"].append(loss(x_valid, y_valid,
+                                                  params))
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+> In case you want to use an history on both training and validation set, remember to update `history` initialization in the training algorithm:
+```
+history = { ext_loss_name: [ ] for loss_name, _ in losses
+            for ext_loss_name in [ f"{loss_name} (train)",
+                                   f"{loss_name} (valid)"] }
+```
+
+</div>
+<div class="column">
+
+
+
 </div>
 </div>
 
@@ -3382,6 +3412,83 @@ def BFGS(f, x_guess, num_epochs, tol):
 
 <div class="multiple-columns without-title">
 <div class="column">
+
+#### Regularization
+
+- **$L^2$ regularization**
+
+We achieve $L^2$ regularization by adding a penalty term:
+$$
+MSW = \frac{1}{N_w} \sum_{i=1}^{N_w} w_i^2
+$$
+to the loss function (where $N_w$ is the number of weights, $w_i$ is the $i$-th weight).
+
+```
+def msw(params):
+    n_w = 0.
+    squared_w_sum = 0.
+    for W in params[0::2]:
+        squared_w_sum += (W**2).sum()
+        n_w += W.size
+    return squared_w_sum / n_w
+```
+
+The "regularized" loss function is:
+$$
+\mathcal{L}_{reg}(x, y, \theta) = \mathcal{L}(x, y, \theta) + \beta MSW(\theta)
+$$
+
+```
+def l2_regularization(loss, beta):
+    # Define the `msw` global function
+    return lambda x, y, params: loss(x, y, params) + \
+        beta * msw(params)
+```
+
+We can use the following function to compare different values of the penalry coefficient $b$:
+
+```
+def train_for_every_beta(betas, loss, loss_name):
+    # Define a Callable `training_method` (use a lambda function)
+    loss_train = [ ]
+    loss_valid = [ ]
+    mean_squared_w = [ ]
+    
+    
+    for beta in betas:
+        losses[0] = (f"Regularized {loss_name}",
+```
+
+</div>
+<div class="column">
+
+```
+                     l2_regularization(loss, beta))
+        params = training_method()
+        loss_train.append(loss(x_train, y_train, params))
+        loss_valid.append(loss(x_valid, y_valid, params))
+        mean_squared_w.append(msw(params))
+    
+    return loss_train, loss_valid, mean_squared_w
+```
+
+The result of the above function can be used to plot the "Tikhonov L-curve" (MSE (train) vs MSW):
+
+```
+# Tikhonov L-curve (MSE (train) vs MSW)
+fig, axes = plt.subplots()
+axes.set_title("MSE (train) vs MSW")
+axes.plot(loss_train, mean_squared_w, 'bo-')
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 
 
 </div>
