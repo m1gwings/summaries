@@ -796,20 +796,23 @@ x = np.arange(1, 3, 2)[:, np.newaxis]
 ```
 3.7416573867739413
 ```
-> Furthermore, it takes an `axis` parameter which allows to specifies the axis along which to compute the norm. 
+> It takes an `axis` parameter which allows to specifies the axis along which to compute the norm, and an `ord` parameter which specifies the type of norm, `ord = 2` computes the 2-norm of the input matrix:
+$$
+||A||_2 = \max\frac{||A\underline{v}||_2}{||\underline{v}||_2} \text{ .}
+$$
 
 #### Decompositions
 
 - **`linalg.svd`**: returns the SVD of the matrix `A`. The boolean parameter `full_matrices` allow to choose between the full SVD and the "reduced" one (in this case, with reduced form, we mean that both `U` and `V` have $\min(m, n)$ columns, where $A \in \mathbb{R}^{m \times n}$).
+
+</div>
+<div class="column">
 
 > For example, let:
 ```
 A = np.arange(12).reshape(4, 3)
 ```
 > Note that `2*A[:, 1] - A[:, 0]` is:
-
-</div>
-<div class="column">
 
 ```
 array([ 2,  5,  8, 11])
@@ -841,13 +844,6 @@ array([[ 0.,  1.,  2.],
        [ 9., 10., 11.]])
 ```
 
-> If we were instead to put `full_matrices` to `False`:
-```
-U_r, s_r, V_T_r = np.linalg.svd(A,
-       full_matrices = False)
-```
-> then `U_r.shape` would be `(4, 3)`.
-
 </div>
 </div>
 
@@ -856,12 +852,54 @@ U_r, s_r, V_T_r = np.linalg.svd(A,
 <div class="multiple-columns without-title">
 <div class="column">
 
+> If we were instead to put `full_matrices` to `False`:
+```
+U_r, s_r, V_T_r = np.linalg.svd(A,
+       full_matrices = False)
+```
+> then `U_r.shape` would be `(4, 3)`.
+
 - **`linalg.qr`**: computes the QR factorization of the given matrix. The parameter `mode` allows to specify if we want the reduced form (with the value `"reduced"`), or the complete one (with the value `"complete"`).
 For example:
 ```
 A = np.arange(12).reshape(4, 3)
 Q, R = np.linalg.qr(A)
 ```
+
+- **`linalg.pinv`**: returns the _pseudoinverse_ of the input matrix. That is:
+$$
+A^+ = V \Sigma^+ U^T \text{ .}
+$$
+> (_Take a look at the paragraph about the pseudoinverse in the "Methods & Algorithms" chapter_).
+
+- **`linalg.solve`**: takes a matrix `A` and a vector `b` and returns the solution (if it exists) of the linear system `A @ x == b`.
+
+```
+x = np.linalg.solve(A, b)
+```
+
+- **`dot`**: computes the dot product between the two vectors in input:
+```
+u = np.arange(3)
+v = np.arange(3) + 3
+```
+> Then, the value of `np.dot(u, v)` is:
+```
+14
+```
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
 
 ### Some useful stuff
 
