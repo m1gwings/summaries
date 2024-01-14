@@ -162,6 +162,38 @@ for i in range(x.size):
 ```
 (_The result is the same as before_).
 
+- **`block`**: assembles an array from nested list of blocks. Block in the innermost lists are concatenated along the last dimension, then these are conateneted along the second-last dimentions, and so on.
+```
+a = np.block([
+    [ np.zeros((4, 4)), np.ones((4, 2)) ],
+    [ np.ones((1, 4)),  np.zeros((1, 2)) ]
+])
+```
+> Then, the value of `a` is:
+```
+array([[0., 0., 0., 0., 1., 1.],
+       [0., 0., 0., 0., 1., 1.],
+       [0., 0., 0., 0., 1., 1.],
+       [0., 0., 0., 0., 1., 1.],
+       [1., 1., 1., 1., 0., 0.]])
+```
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
 ### Printing arrays
 
 When you print an array, NumPy displays it in a similar way to nested lists, but with the following layout:
@@ -3556,6 +3588,26 @@ Then, we can compute the new prediction:
 ```
 ANN(adversarial_attack(x, y, params, alpha), params)
 ```
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
+
 
 </div>
 <div class="column">
