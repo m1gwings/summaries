@@ -660,9 +660,42 @@ np.random.shuffle(a)
 array([5, 2, 1, 3, 0, 4])
 ```
 
+- **`random.choice`**: generates a random sample from a given one-dimensional array.
+
 </div>
 <div class="column">
 
+> The `size` parameter allows to specify the shape of the output array filled with samples. By default the sampling is with replacement.
+
+```
+np.random.seed(0)
+a = np.random.choice(np.array([1, 5, 7]),
+    size = (3, 2))
+```
+> Then, the value of `a` is:
+```
+array([[1, 5],
+       [1, 5],
+       [5, 7]])
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+
+
+</div>
+<div class="column">
+
+
+
+</div>
+<div class="column">
 
 ### Linear algebra
 
