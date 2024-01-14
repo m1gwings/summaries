@@ -2727,6 +2727,18 @@ def ANN(x, params):
 
 #### Activation functions
 
+- **Soft-max**
+
+$$
+\hat{z}_i = \frac{e^{z_i}}{\sum_{j=1}^n e^{z_j}}
+$$
+
+```
+def softmax(layer):
+    l = jnp.exp(layer)
+    return l / jnp.sum(l, axis = 0)
+```
+
 </div>
 <div class="column">
 
@@ -2743,6 +2755,10 @@ def ANN(x, params):
 ### Loss functions
 #### MSE
 
+$$
+\mathcal{L}(x, y, \theta) = \frac{1}{N} \sum_{i=1}^{N} (y_i - ANN_\theta(x_i))^2
+$$
+
 ```
 def mse_loss(x, y, params):
     return jnp.mean((y - ANN(x, params))**2)
@@ -2750,11 +2766,36 @@ def mse_loss(x, y, params):
 
 #### Binary classification cross-entropy
 
+$$
+\mathcal{L}(x, y, \theta) = \frac{1}{N} \sum_{i=1}^{N} - (y_i \log(p_i) + (1 - y) \log(1 - p_i))
+$$
+
+$$
+\text{where } p_i = ANN_\theta(x_i)
+$$
+
 ```
 def x_entropy_loss(x, y, params):
     y_pred = ANN(x, params)
     return -jnp.mean((1-y)*jnp.log(1-y_pred) + \
         y*jnp.log(y_pred))
+```
+
+#### Multi-class classification cross-entropy
+
+$$
+\mathcal{L}(x, y, \theta) = \frac{1}{N} \sum_{i=1}^{N} - \sum_{c=1}^M y_i[c] \log(p_i[c])
+$$
+
+$$
+\text{where } p_i = ANN_\theta(x_i)
+$$
+
+```
+def m_x_entropy_loss(x, y, params):
+    # Assumes samples on the rows 
+    return -jnp.mean(jnp.sum(y * jnp.log(ANN(x, params)),
+        axis = 1))
 ```
 
 </div>
