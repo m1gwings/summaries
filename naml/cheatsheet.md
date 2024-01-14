@@ -3541,7 +3541,21 @@ axes.plot(loss_train, mean_squared_w, 'bo-')
 <div class="multiple-columns without-title">
 <div class="column">
 
+### Adversarial attack
 
+In an aversarial attack we sligthly modify the input in the direction given by the gradient of the loss function (to "maximize" the loss associated to the small modifiaction).
+
+```
+def adversarial_attack(x, y, params, alpha):
+    # Define the `losses` list as for the training methods
+    dir = jax.grad(losses[0][1], argnums = 0)(x, y, params)
+    return x + alpha * dir
+```
+
+Then, we can compute the new prediction:
+```
+ANN(adversarial_attack(x, y, params, alpha), params)
+```
 
 </div>
 <div class="column">
