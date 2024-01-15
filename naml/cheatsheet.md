@@ -1309,6 +1309,32 @@ axes.axis('equal')
     <img src="http://localhost:8080/naml/static/1-1-aspect-ratio.png" width="250mm" />
 </p>
 
+#### Adjust view limits
+
+- **`set_xlim`**: sets the x-axis view limits. It takes the left and right limit of the x-axis:
+```
+fig, axes = plt.subplots()
+axes.plot(np.arange(10) ** 2)
+axes.set_xlim(3, 20)
+```
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/xlim.png" width="450mm" />
+</p>
+
+- **`set_ylim`**: it is analogous to x-lim, but for the y-axis.
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
 ### More advanced stuff
 
 #### 3D scatterplot
