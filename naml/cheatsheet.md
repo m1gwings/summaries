@@ -2157,6 +2157,34 @@ sns.jointplot(data = data, x = "Actual", y = "Predicted")
 
 ---
 
+<div class="multiple-columns without-title">
+<div class="column">
+
+### `time`
+
+- **`time`**: returns the time in seconds since the epoch as a floating point number.
+We can use it to compute the time required for a certain computation:
+```
+import time
+
+t0 = time.time()
+np.random.seed(0)
+np.linalg.pinv(np.random.normal(size = (1000, 1000)))
+t1 = time.time()
+
+print(f"The elapsed time is: {(t1 - t0):.3f} s")
+```
+
+</div>
+<div class="column">
+
+
+
+</div>
+</div>
+
+---
+
 ## Methods & Algorithms
 
 <div class="multiple-columns">
