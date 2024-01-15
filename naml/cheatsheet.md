@@ -3790,6 +3790,75 @@ ANN(adversarial_attack(x, y, params, alpha), params)
 
 ---
 
+## Matrix calculus toolbox
+
+<div class="multiple-columns">
+<div class="column">
+
+Let
+
+$$
+\frac{\partial}{\partial \underline{x}} \underline{f}(\underline{x})
+$$
+
+be the **jacobian** of $\underline{f}(\underline{x})$.
+
+Let $\underline{x} \in \mathbb{R}^n$, it holds that:
+
+$$
+\frac{\partial}{\partial \underline{x}} \underline{c} = O_{m \times n} \text{ where } \underline{c} \in \mathbb{R}^m \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}} (\underline{x}) = I_n \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}} (A \underline{x}) = A \text{ where } A \in \mathbb{R}^{m \times n} \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}} (\underline{f}(\underline{x}) + \underline{g}(\underline{x})) = \frac{\partial}{\partial \underline{x}}\underline{f}(\underline{x}) + \frac{\partial}{\partial \underline{x}}\underline{g}(\underline{x}) \text{ where } f, g: \mathbb{R}^n \rightarrow \mathbb{R}^m \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}}(\underline{f}(\underline{g}(\underline{x}))) = \frac{\partial}{\partial \underline{w}}\underline{f}(\underline{w}) \rvert_{\underline{w} = \underline{g}(\underline{x})} \cdot \frac{\partial}{\partial \underline{x}} \underline{g}(\underline{x}) \text{ where } f: \mathbb{R}^l \rightarrow \mathbb{R}^m, g: \mathbb{R}^n \rightarrow \mathbb{R}^l, \underline{w} \in \mathbb{R}^l \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}} \left[ \begin{matrix} \underline{f}(\underline{x}) \\ \underline{g}(\underline{x}) \end{matrix} \right] = \left[ \begin{matrix} \frac{\partial}{\partial \underline{x}} \underline{f}(\underline{x}) \\ \frac{\partial}{\partial \underline{x}} \underline{g}(\underline{x}) \end{matrix} \right] \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \left[ \begin{matrix} \underline{x} \\ \underline{y} \end{matrix} \right]} ( \underline{x}^T \underline{y} ) = \left[ \begin{matrix} \underline{y}^T & \underline{x}^T \end{matrix} \right] \text{ where } \underline{y} \in \mathbb{R}^n \text{;}
+$$
+
+$$
+\frac{\partial}{\partial \underline{x}} (\underline{f}^{-1}(\underline{x})) = (\frac{\partial}{\partial \underline{x}} \underline{f}(\underline{x}))^{-1} \text{ where } f: \mathbb{R}^n \rightarrow \mathbb{R}^n \text{ is invertible;}
+$$
+
+$$
+\nabla f(\underline{x}) = (\frac{\partial}{\partial \underline{x}} f(\underline{x}))^T \text{;}
+$$
+
+$$
+H(\underline{x}) = H^T(\underline{x}) = \frac{\partial}{\partial \underline{x}}(\nabla f(\underline{x})) \text{ .}
+$$
+
+</div>
+<div class="column">
+
+From these properties we can derive many more:
+
+$$
+\frac{\partial}{\partial \underline{x}} (\frac{1}{\underline{f}(\underline{x})}) = \frac{\partial}{\partial w} \frac{1}{w} \rvert_{w = f(\underline{x})} \frac{\partial}{\partial \underline{x}} f(\underline{x}) = - \frac{1}{w^2} \rvert_{w = f(\underline{x})} \frac{\partial}{\partial \underline{x}} f(\underline{x}) = -\frac{1}{f^2(\underline{x})} \frac{\partial}{\partial \underline{x}} f(\underline{x}) \text{ .}
+$$
+
+</div>
+</div>
+
+---
+
 <div class="multiple-columns without-title">
 <div class="column">
 
