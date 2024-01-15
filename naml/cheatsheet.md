@@ -1355,10 +1355,10 @@ axes.scatter(u[:, 0], u[:, 1], u[:, 2], marker = 'v',
     <img src="http://localhost:8080/naml/static/3d-scatter.png" width="270mm" />
 </p>
 
+Through the **`view_init`** method, we can move the virtual camera which produces the 3D plot: the `elev` parameter allows to specify the elevation angle in degrees which rotates the camera above the plane pierced by the vertical axis, the `azim` parameter allows to specify the angle in degrees which rotates the camera about the vertical axis, finally the `roll` parameter allows to specify the angle in degrees which rotates the camera about the viewing axis:
+
 </div>
 <div class="column">
-
-Through the **`view_init`** method, we can move the virtual camera which produces the 3D plot: the `elev` parameter allows to specify the elevation angle in degrees which rotates the camera above the plane pierced by the vertical axis, the `azim` parameter allows to specify the angle in degrees which rotates the camera about the vertical axis, finally the `roll` parameter allows to specify the angle in degrees which rotates the camera about the viewing axis:
 
 ```
 fig = plt.figure()
@@ -1375,6 +1375,37 @@ axes.view_init(45, 45, 0)
 <p align="center">
     <img src="http://localhost:8080/naml/static/3d-scatter-different-view.png" width="270mm" />
 </p>
+
+#### Plot surfaces
+
+- **`plot_surface`**: performs a surface plot.
+
+We can use `plot_surface` in a setting analogous to that used for 3D scatterplots:
+```
+x = np.linspace(-1, 1, 200)
+y = np.linspace(-1, 1, 200)
+xx, yy = np.meshgrid(x, y)
+np.random.seed()
+z = -xx**2 + yy**2
+fig = plt.figure()
+axes = fig.add_subplot(projection = "3d")
+axes.plot_surface(xx, yy, z, label = "Surface")
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/surface.png" width="500mm" />
+</p>
+
+</div>
+<div class="column">
 
 #### Plotting shapes
 
