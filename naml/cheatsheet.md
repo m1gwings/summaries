@@ -2289,7 +2289,7 @@ def PCA(A, k):
     centered_A = A - A.mean(axis = 1)[:, np.newaxis]
     U, _, _ = np.linalg.svd(centered_A)
     princ_dir = U[:, :k]
-    princ_comp = U.T @ centered_A
+    princ_comp = princ_dir.T @ centered_A
     
     return princ_comp, princ_dir
 ```
