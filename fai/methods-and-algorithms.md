@@ -637,4 +637,76 @@ The sentences in the propositional model are:
 - a sentence for the **goal**: it is a disjunction of the possible ways in which we can achieve the goal (if the goal includes variables); it must be satisfied at time $t = L$;
 - sentences for the **preconditions** of an action (**preconditions axioms**): $a^t \rightarrow p^t \land ... \land q^t$;
 - sentences to link $p^t$ and $p^{t+1}$ (**fluent axioms**), with the sturcture: $p^(t+1)$ is true iff $p^t$ was true and no action which makes $p$ false has been applied or an action which makes $p$ true has been applied;
-- sentences to force the plan to execute one action at the time (**actions exclusion axioms**): they are of the form $\lnot a^t_i \lor \lnot a^t_j$ for all $t$, for all $i \neq j$. 
+- sentences to force the plan to execute one action at the time (**actions exclusion axioms**): they are of the form $\lnot a^t_i \lor \lnot a^t_j$ for all $t$, for all $i \neq j$.
+
+## Uncertainty
+
+### Bayesian network
+
+A **Bayesian network** is a data structure that represents the dependencies among random variables. 
+
+- It is a Directed Acyclic Graph (DAG);
+- Each node represents a random variable;
+- A direct edge from X to Y means X is a parent of Y;
+- **Each node X has probability distribution P(X|Parents(X))**.
+
+The **joint distribution** "induced" by a Bayesian network is **defined** as:
+$$
+P(X_1, ..., X_n) = \prod_i P(X_i | Parents(X_i)) \text{.}
+$$
+
+#### Inference in bayesian networks
+
+Given a set of evidence variables $E$ and the variable $X$ in which we are interested, we want to compute the probability distribution $P(X | e)$ (where $e$ is an assignment to the variables in $E$).
+
+---
+
+We can combine the probability distributions that are represented by the Bayesian network through:
+
+- **Chain rule**
+$$
+P(X_1, ..., X_n, Y_1, ..., Y_m | W_1, ..., W_l) = P(X_1, ..., X_n | Y_1, ..., Y_m, W_1, ..., W_l) P(Y_1, ..., Y_m | W_1, ..., W_l)
+$$
+
+- **Marginalization**
+$$
+P(X_1, ..., X_n | W_1, ..., W_l) = \sum_{y_1, ..., y_m} P(X_1, ..., X_n, Y_1 = y_1, ..., Y_m = y_m | W_1, ..., W_l) 
+$$
+(we can use marginalization and the chain rule together).
+
+**When can X influence Y?**
+
+|                                 | Can X influence Y?     |
+|---------------------------------|------------------------|
+| $X \rightarrow Y$               | Yes (causal)           |
+| $X \leftarrow Y$                | Yes (evidential)       |
+| $X \rightarrow W \rightarrow Y$ | Yes (causal chain)     |
+| $X \leftarrow W \leftarrow Y$   | Yes (evidential chain) |
+| $X \leftarrow W \rightarrow Y$  | Yes                    |
+| $X \rightarrow W \leftarrow Y$  | No                     |
+
+We say that a **trail** $X_1, ..., X_k$ is active if **it has no v-structure**.
+
+**When can X influence Y given Z?**
+
+|                                 | Can X influence Y given Z?                                                                       |                 |
+|---------------------------------|--------------------------------------------------------------------------------------------------|-----------------|
+|                                 | $W \not \in Z$                                                                                   | $W \in Z$       |
+| $X \rightarrow W \rightarrow Y$ | Yes                                                                                              | No ($W$ blocks) |
+| $X \leftarrow W \leftarrow Y$   | Yes                                                                                              | No ($W$ blocks) |
+| $X \leftarrow W \rightarrow W$  | Yes                                                                                              | No ($W$ blocks) |
+| $X \rightarrow W \leftarrow Y$  | Yes, but only if one successor of $W$ is in $Z$ (then we can reach $W$ with an evidential chain) | Yes             |
+
+We can reformulate the concept of active trail: a trail $X_1, ..., X_k$ is **active given $Z$** if, for any v-structure $X_{i-1} \rightarrow X_i \leftarrow X_{i+1}$, $X_i$ or one of its descendent is in $Z$ and no other $X_i$ in v-structures is in $Z$.
+
+#### Approximate inference
+
+We can do approximate inference through sampling.
+
+---
+
+That is, we sample from the distribution of nodes with no predecessors, and then we use the sampled values to sample from conditional distributions.
+
+In **rejection sampling** to approximate a conditional distribution we do standard sampling as we described before and then we consider only the samples "which respect the condtion".
+
+If the evidence we are looking for is a fairly unlikely event, then we're going to reject many samples. This can become quite inefficient since we might need to generate a huge number of samples.
