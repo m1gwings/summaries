@@ -242,3 +242,13 @@ Furthermore said $V_\lambda$ the eigenspace of $A$ associated to $\lambda$ and $
 $$
 \frac{\underline{x}^T A \underline{x}}{\underline{x}^T \underline{x}} = \frac{\lambda \underline{x}^T \underline{x}}{\underline{x}^T \underline{x}} = \lambda \text{.}
 $$
+
+---
+
+18. Let $A \in \mathbb{R}^{n \times n}$ be an invertible and diagonalizable matrix. If $\lambda_1, ..., \lambda_n$ are the eigenvalues of $A$, then $\frac{1}{\lambda_1}, ..., \frac{1}{\lambda_n}$ are the eigenvalues of $A^{-1}$.
+
+> **Proof**: Let $\underline{v}$ be an eigenvector of $A$. Then $A \underline{v} = \lambda \underline{v}$, which implies $\underline{v} = A^{-1} \lambda \underline{v}$. Note that, being invertible, $\det A \neq 0$, hence $0$ is not an eigenvalue of $A$, an so $\lambda \neq 0$. Then $A^{-1} \underline{v} = \frac{1}{\lambda} \underline{v}$.
+
+19. Let $A \in \mathbb{R}^{n \times n}$ be a diagonalizable matrix. If $\lambda_1, ..., \lambda_n$ are the eigenvalues of $A$, then $\lambda_1 - \alpha$, ..., $\lambda_n - \alpha$ are the eigenvalues of $A - \alpha I_n$.
+
+> **Proof**: Let $\underline{v}$ be an eigenvector of $A$. Then $(A - \alpha I_n) \underline{v} = \lambda \underline{v} - \alpha \underline{v} = (\lambda - \alpha) \underline{v}$.
