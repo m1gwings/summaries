@@ -53,6 +53,12 @@ O_{n-j \times i-1} & \underline{0}_{n-j} & O_{n-j \times j-i-1} & \underline{0}_
 \end{bmatrix} \text{.}
 $$
 
+- Let $A \in \mathbb{R}^{m \times n}$ and $\underline{x}$ be one of its eigenvectors. We define **Rayleigh quotient** the quantity:
+
+$$
+\frac{\underline{x}^T A \underline{x}}{\underline{x}^T \underline{x}} \text{.}
+$$
+
 ---
 
 ## Some properties
@@ -227,4 +233,12 @@ $$
 16. Let $\lambda$ be an eigenvalue of $A$. Then $\lambda^n$ is an eigenvalue of $A^n$.
 Furthermore said $V_\lambda$ the eigenspace of $A$ associated to $\lambda$ and $W_{\lambda^n}$ the eigenspace of $A^n$ associated to $\lambda^n$, we have that $V_\lambda \subseteq W_{\lambda^n}$.
 
-> **Proof**: if $A \underline{v} = \lambda \underline{v}$, then $A^n \underline{v} = \lambda A^{n-1} \underline{v} = ... = \lambda^n \underline{v}$. 
+> **Proof**: if $A \underline{v} = \lambda \underline{v}$, then $A^n \underline{v} = \lambda A^{n-1} \underline{v} = ... = \lambda^n \underline{v}$.
+
+17. The Rayleigh quotient $\frac{\underline{x}^T A \underline{x}}{\underline{x}^T \underline{x}} = \lambda$ where $\lambda$ is the eigenvalue associated to $\underline{x}$.
+
+> **Proof**:
+
+$$
+\frac{\underline{x}^T A \underline{x}}{\underline{x}^T \underline{x}} = \frac{\lambda \underline{x}^T \underline{x}}{\underline{x}^T \underline{x}} = \lambda \text{.}
+$$
