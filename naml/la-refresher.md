@@ -252,3 +252,61 @@ $$
 19. Let $A \in \mathbb{R}^{n \times n}$ be a diagonalizable matrix. If $\lambda_1, ..., \lambda_n$ are the eigenvalues of $A$, then $\lambda_1 - \alpha$, ..., $\lambda_n - \alpha$ are the eigenvalues of $A - \alpha I_n$.
 
 > **Proof**: Let $\underline{v}$ be an eigenvector of $A$. Then $(A - \alpha I_n) \underline{v} = \lambda \underline{v} - \alpha \underline{v} = (\lambda - \alpha) \underline{v}$.
+
+20. **QR factorization of $A$**: we can factorize a matrix $A \in \mathbb{R}^{m \times n}$ where $m \geq n$ and $r(A) = n$ into
+$$
+A = Q \begin{bmatrix} R \\ O_{(m-n) \times n} \end{bmatrix}
+$$
+> where $Q \in \mathbb{R}^{m \times m}$ is an orthogonal matrix and $R \in \mathbb{R}^{n \times n}$ is an upper-triangular matrix.
+
+> **Proof**: we have to exploit the Gram-Schmidt othogonalization procedure (_we'll see how_).
+
+> Let $\underline{w}_1 = \underline{a}_1, \underline{w}_i = \underline{a}_i - \sum_{k=1}^{i-1} b_{i,k} \underline{w}_k \text{ for } i \in \{ 2, ..., n \}$ where
+$$
+b_{i,k} = \frac{\underline{a}_i^T \underline{w}_k}{||\underline{w}_k||^2} \text{.}
+$$
+
+> First of all we will prove that $\underline{w}_i$ is a non-trivial linear combination of $\underline{a}_1$, ..., $\underline{a}_i$ by induction. The base case is straightforward ($\underline{w}_1 = \underline{a}_1$), for the inductive step let $i > 1$: $\underline{w}_i = \underline{a}_i - \sum_{k=1}^{i-1} b_{i,k} \underline{w}_k = \underline{a}_i - \sum_{k=1}^{i-1} b_{i,k} (\alpha_{k,1} \underline{a}_1 + ... + \alpha_{k,k} \underline{a}_k)$ by induction hypothesis. The result follows since $\underline{a}_i$ never appears inside the summation and its coefficient outside of the summation is 1. Since $\underline{a}_1, ..., \underline{a}_n$ are linearly independent, we also proved that $\underline{w}_i \neq \underline{0}_m$, and so $b_{i,k}$ is well-defined.
+
+> Now let's prove that $\underline{w}_i^T \underline{w}_j = 0$ for $i \in \{ 2, ..., n \}$, for $j \in \{ 1, ..., i-1 \}$ (_by the commutativity of the scalar product, the result holds for every $i, j \in \{ 1, ..., n \}$ with $i \neq j$_). We will proceed by induction.
+> - Base case: $i = 2$, then $j = 1$.
+$$
+\underline{w}_2^T \underline{w}_1^T = (\underline{a}_2 - b_{2,1} \underline{w}_1)^T \underline{w}_1 = \underline{a}_2^T\underline{w}_1 - b_{2,1} ||\underline{w}_1||^2 = 0 \text{.}
+$$
+
+---
+
+> - Inductive step: $i > 2$. By induction hypothesis $\underline{w}_k^T \underline{w}_j = 0$ for every $k, j \in \{ 1, ..., i-1 \}$, $k > j$.
+$$
+\underline{w}_i^T\underline{w}_j = (\underline{a}_i - \sum_{k=1}^{j-1} b_{i,k} \underline{w}_k - b_{i,j} \underline{w}_j - \sum_{k=j+1}^{i-1} b_{i,k} \underline{w}_k)^T \underline{w}_j =
+$$
+
+$$
+\underline{a}_i^T \underline{w}_j - b_{i,j} ||\underline{w}_j||^2 - \sum_{k=1}^{j-1} b_{i,k} \underline{w}_j^T \underline{w}_k - \sum_{k=j+1}^{i-1} b_{i,k} \underline{w}_k^T \underline{w}_i =
+$$
+
+$$
+0 - \sum_{k=1}^{j-1} 0 - \sum_{k=j+1}^{i-1} 0 = 0 \text{.}
+$$
+
+> By the last result
+$$
+\underline{q}_i = \frac{\underline{w}_i}{||\underline{w}_i||} \text{ for } i \in \{ 1, ..., n \}
+$$
+> is a set of orthonormal vectors.
+Let $i \in \{ 1, ..., n \}$, then it is straightforward that $\underline{a}_i^T \underline{q}_i = ||\underline{w}_i||$. Furthermore, for every $j \in \{1, ..., i-1\}$ $\underline{a}_i^T \underline{w}_j = b_{i,j} || \underline{w}_j ||$.
+Then, since $||\underline{w}_k|| \underline{q}_k = \underline{w}_k$ for every $k \in \{ 1, ..., i-1 \}$, it follows that
+$$
+\underline{a}_i = ||\underline{w}_i|| \underline{q}_i + \sum_{k=1}^{i-1} b_{i,k} ||\underline{w}_k|| \underline{q}_k = \sum_{k=1}^i \underline{a}_i^T \underline{q}_k \underline{q}_k \text{.}
+$$
+
+> Not to get the remaining $m-n$ orthonormal vectors to put in $Q$ we can extend $\underline{a}_1, ..., \underline{a}_n$ to a basis of $\mathbb{R}^m$ and apply the same procedure.
+Finally, by the last result
+$$
+R = \begin{bmatrix}
+\underline{a}_1^T \underline{q}_1 & ... & ... & \underline{a}_n^T \underline{q}_1 \\
+0 & ... & ... & ... \\
+... & ... & ... & ... \\
+0 & ... & 0 & \underline{a}_n^T \underline{q}_n
+\end{bmatrix} \text{.}
+$$
