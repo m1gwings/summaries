@@ -64,4 +64,15 @@ Finally $\frac{\alpha_1 \lambda_1^k}{|\alpha_1 \lambda_1^k|} \in \{ -1, 1 \}$. N
 
 > **Remark**: by applying the power method to $(A - \alpha I)^{-1}$ we can find an eigenvector of $A$ associated with the eigenvalue closest to $\alpha$. (_Remember that the eigenvalues of $A - \alpha I$ are $\lambda - \alpha$_). This variant is known as the **power method with shift**.
 
+### QR iteration
 
+The **QR iteration** is an algorithm used to find the eigenvalues of a matrix $A \in \mathbb{R}^{n \times n}$ by repeadetly applying the QR factorization. It works as follows:
+let $A_0 = A = Q_0 R_0$, then we apply the following iteration rule:
+$$
+A_i = Q_{i-1}^T A_{i-1} Q_{i-1} \text{ where } A_{i-1} = Q_{i-1}R_{i-1} \text{.}
+$$
+
+Note that $A_i = Q_{i-1}^T Q_{i-1} R_{i-1} Q_{i-1} = R_{i-1} Q_{i-1}$.
+
+By how the iteration rule is defined (_remembering what it means for a matrix to be orthogonal_), all the $A_i$ are similar, and so they have the same eigenvalues.
+Under certain conditions the matrices $\{ A_i \}$ converge to a triangular matrix. Then it is trivial to calculate the eigenvalues of $A$ (_they correspond to the diagonal of the limit matrix_).
