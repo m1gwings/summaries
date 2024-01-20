@@ -155,3 +155,65 @@ $$
 that is, $\underline{u}_i$ is an eigenvector of $A A^T$ with eigenvalue $\lambda_i$.
 Note that all the properties 1-3 hold also for $A A^T$ since $A A^T = B^T B$ with $B = A^T$. Hence $\dim N(A A^T) = m - r(A^T) = m - r$; furthermore an orthonormal basis of $N(A A^T)$ must be orthogonal to $\underline{u}_1, ..., \underline{u}_r$ since they are eigenvectors which belong to different eigenspaces of a symmetric matrix. The converse is also true, if $\underline{u}_{r+1}, ..., \underline{u}_m$ are orthonormal and orthogonal to $\underline{u}_1, ..., \underline{u}_r$ then they must be an orthonormal basis of $N(A A^T)$, otherwise, by adding an actual orthonormal basis of $N(A A^T)$ to $\underline{u}_1, ..., \underline{u}_m$ we would have more than $m$ linear independet vectors in $\mathbb{R}^m$ (_remember that $A A^T \underline{u}_i = \lambda_i \underline{u}_i \neq \underline{0}_m$, that is $\underline{u}_i \not \in N(A A^T)$, for $i \in \{ 1, ..., r \}$_).
 
+### Proof of uniqueness of SVD
+
+We want to prove that if
+$$
+A = \sum_{i=1}^r \sigma_i \underline{u}_i \underline{v}_i^T
+$$
+then $\underline{v}_i$ is an eigenvector of $A^T A$ with eigenvalue $\sigma_i^2$.
+
+---
+
+Indeed
+$$
+A^T A = \sum_{i=1}^r \sum_{j=1}^r \sigma_i \sigma_j \underline{v}_i \underline{u}_i^T \underline{u}_j \underline{v}_j^T = \sum_{i=1}^r \sigma_i^2 \underline{v}_i \underline{v}_i^T \text{.}
+$$
+Then
+$$
+A^T A \underline{v}_i = \sum_{j=1}^r \sigma_j^2 \underline{v}_j \underline{v}_j^T \underline{v}_i = \sigma_i^2 \underline{v}_i
+$$
+as we wanted to prove.
+
+### Geometric interpretation of the SVD
+
+The SVD allows to decompose the transformation described by the matrix $A$ into two rotations/reflections realized through the orthogonal matrices $U$ and $V$ and a stretch realized by $\Sigma$.
+
+In particular:
+- in the 2D case, $A \in \mathbb{R}^{2 \times 2}$ has 4 entries which are equivalent to 4 geometric parameters: 1 for the first rotation, 2 for the stretch, and 1 for the second rotation;
+- in the 3D case, $A \in \mathbb{R}^{3 \times 3}$ has 9 entries which are equivalent to 9 geometric parameters: 3 for the first rotation (for example, we can use Euler angles), 3 for the stretch, and 3 for the second rotation.
+
+### Properties of the SVD
+
+1. If $A$ is orthogonal, then $\sigma_1 = ... \sigma_n = 1$.
+
+> **Proof (*)**: $A^T A = I_n$, the proof follows from the uniqueness of the SVD.
+
+2. $||A \underline{x}|| \leq \sigma_1 ||\underline{x}||$.
+
+> **Proof (*)**:
+$$
+||A \underline{x}||^2 = ||\sum_{i=1}^r \sigma_i \underline{u}_i \underline{v}_i^T \underline{x}||^2 = \sum_{i=1}^r \sigma_i^2 ||(\underline{v}_i^T \underline{x}) \underline{u}_i||^2 \leq \sigma_1^2 \sum_{i=1}^r (\underline{v}_i^T \underline{x})^2 \leq
+$$
+
+$$
+\leq \sigma_1^2 \sum_{i=1}^n (\underline{v}_i^T \underline{x})^2 = \sigma_1^2 \sum_{i=1}^n \underline{v}_i^T \underline{x} \underline{v}_i^T \underline{x} = \sigma_1^2 \underline{x}^T (\sum_{i=1}^n \underline{v}_i \underline{v}_i^T) \underline{x} =
+$$
+
+$$
+= \sigma_1^2 \underline{x}^T I_n \underline{x} = \sigma_1^2 ||\underline{x}||^2 \text{.}
+$$
+
+> The second last inequality follows from the fact that $\underline{e}_i = \alpha_1 \underline{v}_1 + ... + \alpha_n \underline{v}_n$, then $\sum_{i=1}^n \underline{v}_i \underline{v}_i^T \underline{e}_i = \sum_{i=1}^n \sum_{j=1}^n \alpha_j \underline{v}_i \underline{v}_i^T \underline{v}_j = \sum_{j=1}^n \alpha_i \underline{v}_i = \underline{e}_i$.
+
+---
+
+3. For every eigenvalue $\lambda$ of $A$, $|\lambda| \leq \sigma_1$.
+
+> **Proof (*)**: it follows from property 2.
+
+## Polar (QS) decomposition
+
+The SVD leads to another important decomposition for **square** matrices: $A = QS$ where $Q = U V^T$, and $S = V \Sigma V^T$. Note that $U, V \in \mathbb{R}^{n \times n}$ are orthogonal matrices, hence the same is true for $Q$.
+Furthermore $S$ is a symmetric matrix with non-negative eigenvalues (the entries on the diagonal of $\Sigma$), hence it is semi-positive. This is known as **polar** (or **QS**) **decomposition**.
+
