@@ -9,7 +9,7 @@ Cristiano Migali
 
 </div>
 
-## Singular value decomposition (SVD)
+## Singular value decomposition (SVD) introduction
 
 We want to extend the factorization provided for real symmetric matrices by the spectral theorem, that is
 $$
@@ -217,3 +217,228 @@ $$
 The SVD leads to another important decomposition for **square** matrices: $A = QS$ where $Q = U V^T$, and $S = V \Sigma V^T$. Note that $U, V \in \mathbb{R}^{n \times n}$ are orthogonal matrices, hence the same is true for $Q$.
 Furthermore $S$ is a symmetric matrix with non-negative eigenvalues (the entries on the diagonal of $\Sigma$), hence it is semi-positive. This is known as **polar** (or **QS**) **decomposition**.
 
+## Matrix norms
+
+### Frobenius norm
+
+- Let $A \in \mathbb{R}^{m \times n}$, we define the **frobenius norm of A** as $||A||_F = \sqrt{\sum_{i=1}^m\sum_{j=1}^n a_{ij}^2}$.
+
+1. $||A||_F = \text{tr}(A^T A)^{\frac{1}{2}}$.
+
+> **Proof (*)**:
+$$
+A^T A =
+\begin{bmatrix}
+\underline{a}_1^T \\
+... \\
+\underline{a}_n^T
+\end{bmatrix}
+\begin{bmatrix}
+\underline{a}_1 & ... & \underline{a}_n
+\end{bmatrix} =
+\begin{bmatrix}
+\underline{a}_1^T \underline{a}_1 & ... & \underline{a}_1^T \underline{a}_n \\
+... & ... & ... \\
+\underline{a}_n^T \underline{a}_1 & ... & \underline{a}_n^T \underline{a}_n
+\end{bmatrix} \text{.}
+$$
+
+> Then $\text{tr}(A^T A) = \sum_{j=1}^n \underline{a}_j^T \underline{a}_j = \sum_{i=1}^m \sum_{j=1}^n a_{ij}^2 = ||A||_F^2$.
+
+2. $||A||_F = \text{tr}(A A^T)^{\frac{1}{2}}$.
+
+> **Proof (*)**: it follows from the cyclic property of the trace.
+
+3. $||A||_F = ||UA||_F = ||AV||_F$ for every orthogonal matrices $U \in \mathbb{R}^{m \times n}$, $V \in \mathbb{R}^{n \times n}$.
+
+> **Proof (*)**:
+$$
+||UA||_F = \text{tr}(A^T U^T U A)^{\frac{1}{2}} = \text{tr}(A^T A)^{\frac{1}{2}} = ||A||_F\text{;}
+$$
+
+$$
+||AV||_F = \text{tr}(A V V^T A^T)^{\frac{1}{2}} = \text{tr}(A A^T)^{\frac{1}{2}} = ||A||_F \text{.}
+$$
+
+4. $||A||_F = \sqrt{\sum_{i=1}^r \sigma_i^2}$.
+
+> **Proof (*)**:
+
+$$
+||A||_F = ||U \Sigma V^T||_F = ||\Sigma||_F = \sqrt{\sum_{i=1}^r \sigma_i^2} \text{.}
+$$
+
+---
+
+### $p$-norm
+
+- Let $A \in \mathbb{R}^{m \times n}, p \in \mathbb{R}, p \geq 1$, we define the **$p$-norm of A** as
+$$
+||A||_p = \max_{\underline{x} \in \mathbb{R}^n} \frac{||A \underline{x}||_p}{||\underline{x}||_p}
+$$
+> where the $p$-norm of $\underline{x} \in \mathbb{R}^n$ is
+$$
+||\underline{x}||_p = (\sum_{i=1}^n x_i^p)^{\frac{1}{p}} \text{.}
+$$
+
+We will prove in a moment that, for $p = 2$,
+$$
+\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n \}
+$$
+admits maximum, hence $||A||_p$ is well defined.
+
+1. $\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n \} = \{ ||A \underline{u}||_p | \underline{u} \in \mathbb{R}^n, ||\underline{u}|| = 1 \}$.
+
+> **Proof**: Let $\underline{x} \in \mathbb{R}^n$, $\frac{||A \underline{x}||_p}{||\underline{x}||_p} = ||A \frac{\underline{x}_p}{||\underline{x}||_p}||$ where $||\frac{\underline{x}_p}{||\underline{x}||_p}|| = 1$.
+The converse inclusion is straightforward.
+
+2. $||A||_2 = \sigma_1$.
+
+> **Proof (*)**: By property 2 of the SVD $||A \underline{x}||_2 \leq \sigma_1 ||\underline{x}||_2$. Furthermore $||A \underline{v}_1||_2 = ||\sum_{i=1}^r \sigma_i \underline{u}_i \underline{v}_i^T \underline{v}_1||_2 = \sigma_1 || \underline{u}_1 ||_2 = \sigma_1 1 = \sigma_1 || \underline{v}_1 ||_2$.
+
+## Eckart-Young theorem
+
+- Let $A \in \mathbb{R}^{m \times n}$ with $r(A) = r$. We define the **rank $k$ approximation of $A$** for $k \leq r$ as
+$$
+A_k = \sum_{i=1}^k \sigma_i \underline{u}_i \underline{v}_i^T \text{.}
+$$
+
+- **Eckart-Young theorem**: Let $||\text{.}|| = ||\text{.}||_F$ or $||\text{.}|| = ||\text{.}||_2$, $A \in \mathbb{R}^{m \times n}$, $r = r(A)$, $k \in \{ 0, ..., r \}$. Then we have
+$$
+||A - A_k|| \leq ||A - B||
+$$
+> for every $B \in \mathbb{R}^{m \times n}$ with $r(B) = k$.
+
+---
+
+> Furthermore
+$$
+||A - A_k|| = \begin{cases}
+\sigma_{k+1} \text{ if } ||\text{.}|| = ||\text{.}||_2 \\
+\sqrt{\sum_{i=k+1}^r \sigma_i^2} \text{ if } ||\text{.}|| = ||\text{.}||_F
+\end{cases}
+$$
+
+> **1st proof in $||\text{.}||_F$**: we will prove a stronger statement: let $B \in \mathbb{R}^{m \times n}$ be a matrix s.t. $r(B) \leq k$ and $||A - B||_F \leq ||A - B'||_F$ for every matrix $B'$ with **$r(B') \leq k$**. Then $B = A_k$.
+By the SVD and from the fact that $r(B) \leq k$:
+$$
+B = U_B \begin{bmatrix}
+D & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
+\end{bmatrix} V_B^T
+$$
+> where $D \in \mathbb{R}^{k \times k}$ is a diagonal matrix. (_Since a priori we don't know $r(B)$, we can't write $D = \Sigma_B$_).
+
+> Let $M = U_B^T A V_B$. As every other matrix, we can write
+$$
+M = \begin{bmatrix}
+L + E + R & F \\
+G & H
+\end{bmatrix}
+$$
+> where $L, E, R \in \mathbb{R}^{k \times k}$, $L$ is strictly lower triangular, $E$ is diagonal, $R$ is strictly upper triangular, $F \in \mathbb{R}^{k \times n-k}$, $G \in \mathbb{R}^{m-k \times k}$, $H \in \mathbb{R}^{m-k \times n-k}$.
+Then
+$$
+A = U_B M V_B^T \text{.}
+$$
+> Let
+$$
+C_1 = U_B \begin{bmatrix}
+L+D+R & F \\
+O_{(m-k) \times k} & O_{(m-k)\times(n-k)}
+\end{bmatrix} V_B^T \text{.}
+$$
+> Observe that $r(C_1) \leq k$ since:
+> - $U_B$ and $V_B^T$ are invertible matrices which preserve the rank (_in particular it is clear that $N(P A) = N(A)$ and we proved in the linear algebra refresher that $\dim N(A P) = \dim N(A)$ for every invertible matrix $P$_);
+> - $r(C_1) = r(C_1^T)$ (_this holds for every matrix_);
+> - $C_1$ has $m-k$ rows equal to $\underline{0}_n^T$, hence $m - r(C_1) = \dim N(C_1^T) \geq m - k$.
+
+> Furthermore
+$$
+||A - B||_F^2 = ||U_B \begin{bmatrix} L+E+R-D & F \\
+G & H\end{bmatrix} V_B^T||_F^2 = ||\begin{bmatrix} L+E+R-D & F \\
+G & H\end{bmatrix}||_F^2 =
+$$
+
+---
+
+$$
+= ||\begin{bmatrix}
+E - D & O_{k \times (n -k )} \\
+G & H
+\end{bmatrix}||_F^2 + ||L||_F^2 + ||R||_F^2 + ||F||_F^2 =
+$$
+
+$$
+= ||U_B \begin{bmatrix}
+(L+E+R)-(L+D+R) & F - F \\
+G - O_{(m-k) \times k} & H - O_{(m-k) \times (n-k)}
+\end{bmatrix} V_B^T||_F^2 +
+$$
+
+$$
+||L||_F^2 + ||R||_F^2 + ||F||_F^2 = ||A - C_1||_F^2 + ||L||_F^2 + ||R||_F^2 + ||F||_F^2 \text{.}
+$$
+
+> But, by hypothesis, $||A - B||_F^2 \leq ||A - C_1||_F^2$, hence it must be $L = R = O_{k \times k}$, and $F = O_{k \times (n-k)}$.
+
+> Analogously through
+$$
+C_2 = U_B \begin{bmatrix}
+L+D+R & O_{k \times (n-k)} \\
+G & O_{(m-k) \times (n-k)}
+\end{bmatrix} V_B^T
+$$
+> we can prove that $G = O_{(m-k) \times k}$.
+Hence:
+$$
+M = \begin{bmatrix}
+E & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & H
+\end{bmatrix} \text{.}
+$$
+
+> By the SVD:
+$$
+H = U_H \Sigma_H V_H^T \text{.}
+$$
+
+> Let
+$$
+U = U_B \begin{bmatrix}
+I_k & O_{k \times (m-k)} \\
+O_{(m-k) \times k} & U_H
+\end{bmatrix}, V = V_B \begin{bmatrix}
+I_k & O_{n \times (n-k)} \\
+O_{(n-k) \times k} & V_H
+\end{bmatrix},
+$$
+
+$$
+\Sigma = \begin{bmatrix}
+E & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & \Sigma_H
+\end{bmatrix}
+\text{.}
+$$
+> Then, by straightforward block matrix multiplication:
+> - $U^T U = I_m$, $V^T V = I_n$;
+> - $U \Sigma V^T = A$;
+> - $B = U \begin{bmatrix} D & O_{k \times (n-k)} \\ O_{(m-k) \times k} & O_{(m-k) \times (n-k)} \end{bmatrix} V^T$.
+
+> Remark: we still have to prove that $U \Sigma V^T$ is the SVD decomposition of $A$, at this time we've only given names to matrices.
+
+> By the uniqueness of the SVD, on the diagonals of $E$, and $\Sigma_H$ there are the singular values of $A$, **with no guarantee on the order**.
+
+---
+
+> Since $B$ is the matrix with rank smaller or equal to $k$, closer to $A$:
+> 1. $D = E$, otherwise
+$$
+U \begin{bmatrix}
+E & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
+\end{bmatrix} V^T
+$$
+>> would be closer to $A$ than $B$;
+> 2. $E = \text{diag}\{ \sigma_1, ..., \sigma_k \}$
