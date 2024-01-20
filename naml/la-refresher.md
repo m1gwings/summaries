@@ -53,11 +53,13 @@ O_{n-j \times i-1} & \underline{0}_{n-j} & O_{n-j \times j-i-1} & \underline{0}_
 \end{bmatrix} \text{.}
 $$
 
-- Let $A \in \mathbb{R}^{m \times n}$ and $\underline{x}$ be one of its eigenvectors. We define **Rayleigh quotient** the quantity:
+- Let $A \in \mathbb{R}^{n \times n}$ and $\underline{x}$ be one of its eigenvectors. We define **Rayleigh quotient** the quantity:
 
 $$
 \frac{\underline{x}^T A \underline{x}}{\underline{x}^T \underline{x}} \text{.}
 $$
+
+- Let $S \in \mathbb{R}^{n \times n}$ be a symmetric matrix. We say that $S$ is **positivie definite** iff $\underline{v}^T S \underline{v} \geq 0$ for every $\underline{v} \in \mathbb{R}^n$ and $\underline{v}^T S \underline{v} = 0$ iff $\underline{v} = \underline{0}$. We call this characterization the **energy test**.
 
 ---
 
@@ -310,3 +312,74 @@ R = \begin{bmatrix}
 0 & ... & 0 & \underline{a}_n^T \underline{q}_n
 \end{bmatrix} \text{.}
 $$
+
+21. Let $S \in \mathbb{R}^{n \times n}$ be a symmetric matrix. Then the eigenvectors which belong to different eigenspaces of $S$ are orthogonal.
+
+> **Proof (*)**: we will prove a special case first: let $\underline{x}, \underline{y} \in \mathbb{R}^{n}$ s.t. $S \underline{x} = \lambda \underline{x}$ with $\lambda \neq 0$, and $S \underline{y} = \underline{0}$. Then:
+$$
+\underline{y}^T \underline{x} = \frac{1}{\lambda} \underline{y}^T S \underline{x} = \frac{1}{\lambda} (S \underline{y})^T \underline{x} = 0 \text{.}
+$$
+
+---
+
+> Now let $\underline{x}, \underline{y} \in \mathbb{R}^{n}$ s.t. $S \underline{x} = \lambda \underline{x}$ and $S \underline{y} = \alpha \underline{y}$ with $\lambda \neq \alpha$. Then (_see property 19_) $\underline{x}$ and $\underline{y}$ are eigenvectors of $S - \alpha I$ which satisfy the hypothesis of the "special case" proved before. Hence $\underline{y}^T \underline{x} = 0$.
+
+22. Let $S \in \mathbb{R}^{n \times n}$ be a symmetric matrix. All the eigenvalues of $S$ are real numbers.
+
+> **Proof (*)**: Let $\underline{x} \in \mathbb{C}^{n}$ s.t. $S \underline{x} = \lambda \underline{x}$ with $\lambda \in \mathbb{C}$. We want to prove that $\lambda \in \mathbb{R}$. Let $\overline{\underline{x}}$ be the vector of conjugates of $\underline{x}$.
+Since $S \underline{x} = \lambda \underline{x}$, then $\overline{\underline{x}}^T S \underline{x} = \overline{\underline{x}}^T \lambda \underline{x}$. Now observe that:
+$$
+\overline{\underline{x}}^T \underline{x} = \sum_{i=1}^n |x_i|^2 \in \mathbb{R}^+ \text{ (eigenvectors are different from 0).}
+$$
+> Furthermore:
+$$
+\overline{\underline{x}}^T S \underline{x} = \frac{1}{2}(\overline{\underline{x}}^T S \underline{x} + \overline{\underline{x}}^T S^T \underline{x}) =
+$$
+
+$$
+= \frac{1}{2}(\overline{\underline{x}}^T \begin{bmatrix} \underline{s}_1 & ... & \underline{s}_n \end{bmatrix} \begin{bmatrix} x_1 \\ ... \\ x_n \end{bmatrix} + \begin{bmatrix} \overline{x}_1 & ... & \overline{x}_n \end{bmatrix} \begin{bmatrix} \underline{s}_1^T \\ ... \\ \underline{s}_n^T \end{bmatrix} \underline{x}) =
+$$
+
+$$
+= \frac{1}{2}(x_1 \overline{\underline{x}}^T \underline{s}_1 + ... + x_n \overline{\underline{x}}^T \underline{s}_n + \overline{x}_1 \underline{s}_1^T \underline{x} + ... + \overline{x}_1 \underline{s}_n^T \underline{x}) =
+$$
+
+$$
+= \frac{1}{2}((x_1 \underline{\overline{x}}^T + \overline{x}_1 \underline{x}^T) \underline{s}_1 + ... + (x_n \underline{\overline{x}}^T + \overline{x}_n \underline{x}^T) \underline{s}_n) \text{.}
+$$
+
+> Now let $x_i = a_i + i b_i, x_j = a_j + i b_j$, it is easy to check that $x_i \overline{x}_j + \overline{x}_i x_j = 2(a_ia_j + b_ib_j) \in \mathbb{R}$, hence $x_i \underline{\overline{x}} + \overline{x}_i \underline{x} \in \mathbb{R}^n$, and so
+$$
+\overline{\underline{x}}^T S \underline{x} \in \mathbb{R} \text{.}
+$$
+> It follows that:
+$$
+\lambda = \frac{\overline{\underline{x}}^T S \underline{x}}{\overline{\underline{x}}^T \underline{x}} \in \mathbb{R} \text{.}
+$$
+
+23. A matrix is positive definite iff it has all positive eigenvalues.
+
+> **Proof (*)**: _we will just prove that a matrix with positive eigenvalues is positive definite_. Being symmetric, $S$ is orthogonally diagonalizable. Let $\underline{x} \in \mathbb{R}^n$. Then $\underline{x} = \alpha_1 \underline{v}_1 + ... + \alpha_n \underline{v}_n$ where $S \underline{v}_i = \lambda_i \underline{v}_i$ with $\lambda_i > 0$ and $\underline{v}_i^T \underline{v}_j = 0$ if $i \neq j$. Then
+$$
+\underline{x}^T S \underline{x} = (\alpha_1 \underline{v}_1^T + ... + \alpha_n \underline{v}_n^T) (\alpha_1 \lambda_1 \underline{v}_1 + ... + \alpha_n \lambda_n \underline{v}_n) = \sum_{i=1}^n \alpha_i^2 \lambda_i ||\underline{v}_i||^2 \geq 0 \text{.}
+$$
+
+---
+
+> Furthermore
+$$
+\sum_{i=1}^n \alpha_i^2 \lambda_i ||\underline{v}_i||^2 = 0 \text{ iff } \underline{x} = \underline{0} \text{.}
+$$
+
+24. A matrix is positive definite iff al its leading determinants are positive.
+
+> **Remark**: a **leading determinant** $D_i$ for $i \in \{ 1, ..., n \}$ is the determinant of the submatrix of $S$ obtained by choosing the rows $\{ 1, ..., i \}$, and the columns $\{ 1, ..., i \}$.
+
+25. A matrix $S \in \mathbb{R}^{n \times n}$ is positive definite iff $S = A^T A$ where $r(A) = n$.
+
+> **Proof (*)**: _we will just prove that if $S = A^T A$, then $S$ is positive definite_.
+Let $\underline{x} \in \mathbb{R}^n$, then $\underline{x}^T S \underline{x} = \underline{x}^T A^T A \underline{x} = ||A \underline{x}||^2 \geq 0$. Furthermore $||A \underline{x}||^2 = 0$ iff $A \underline{x} = \underline{0}$ iff $\underline{x} = \underline{0}$, since $r(A) = n$.
+
+> **Remark**: if $A$ is an upper triangular matrix, this is known as **Cholesky factorization**.
+
+26. A matrix $S$ is positive definite iff we don't need to swap rows during gaussian elimination and all the resulting (by strictly applying the algorithm) pivots are positive.
