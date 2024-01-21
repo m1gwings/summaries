@@ -327,7 +327,7 @@ D & O_{k \times (n-k)} \\
 O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
 \end{bmatrix} V_B^T
 $$
-> where $D \in \mathbb{R}^{k \times k}$ is a diagonal matrix. (_Since a priori we don't know $r(B)$, we can't write $D = \Sigma_B$_).
+> where $D \in \mathbb{R}^{k \times k}$ is a diagonal matrix. (_Since a priori we don't know $r(B)$, we don't know that all the values on the diagonal of $D$ are stricly positive_).
 
 > Let $M = U_B^T A V_B$. As every other matrix, we can write
 $$
@@ -428,7 +428,7 @@ $$
 
 > Remark: we still have to prove that $U \Sigma V^T$ is the SVD decomposition of $A$, at this time we've only given names to matrices.
 
-> By the uniqueness of the SVD, on the diagonals of $E$, and $\Sigma_H$ there are the singular values of $A$, **with no guarantee on the order**.
+> By the uniqueness of the SVD, on the diagonal of $E$, and on the pseudodiagonal of $\Sigma_H$ there are the singular values of $A$, **with no guarantee on the order**.
 
 ---
 
@@ -441,4 +441,83 @@ O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
 \end{bmatrix} V^T
 $$
 >> would be closer to $A$ than $B$;
-> 2. $E = \text{diag}\{ \sigma_1, ..., \sigma_k \}$
+> 2. $E = \text{diag}\{ \sigma_1, ..., \sigma_k \}$.
+To understand why this is true, first of all observe that
+$$
+\Sigma = \begin{bmatrix}
+E & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & \Sigma_H
+\end{bmatrix} =
+$$
+
+$$
+= \sum_{i=1}^k d_i \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T + \sum_{i=k+1}^{\min(m,n)} h_{i-k} \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T =
+$$
+
+$$
+= \sum_{i=1}^{\min(m,n)} a_i \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T
+$$
+>> where $d_1, ..., d_k$ are the values on the diagonal of $D = E$; $h_1, ..., h_{\min(m,n)-k}$ are the values on the pseudodiagonal of $\Sigma_H$;
+$$
+a_i = \begin{cases}
+d_i \text{ if } i \in \{ 1, ..., k \} \\
+h_{i-k} \text{ if } i \in \{ k+1, ..., \min(m,n) \}
+\end{cases} \text{;}
+$$
+>> $\underline{e}_i^{(j)}$ is the $i$-th "canonical vector" of $\mathbb{R}^j$.
+By what we remarked before about the values on the pseudodiagonal of $\Sigma$:
+$$
+a_i = \sigma_{f(i)}
+$$
+>> with $f(i) \in \{ 1, ..., \min(m,n) \}$, $f(i) \neq f(j)$ for every $i,j \in \{ 1, ..., \min(m,n) \}$, $i \neq j$, if we define $\sigma_{r+1} = ... = \sigma_{\min(m,n)} = 0$.
+Furthermore, since $E = D$, and both $D$ and $\Sigma_H$ have been obtained from the SVD, then $d_1 \geq ... \geq d_k$, and $h_1 \geq ... \geq h_{\min(m,n)}$, then, wlog, we can assume that $f(1) < ... < f(k)$, and $f(k+1) < ... < f(\min(m,n))$ (for, if it were $f(i) \geq f(i+1)$ for some $i \in \{1, ..., k-1\}$, then $d_i = \sigma_{f(i)} \leq \sigma_{f(i+1)} = d_{i+1}$, but $d_{i+1} \leq d_i$, hence $\sigma_{f(i)} = \sigma_{f(i+1)}$, and so we could redefine $f$ swapping the values of $f(i)$ and $f(i+1)$).
+
+>> Now assume that $d_{\hat{i}} \neq \sigma_{\hat{i}}$ for some $\hat{i} \in \{ 1, ..., k \}$.
+
+---
+
+>> First of all, since $f(1) \geq 1$, and $f(i) > f(i-1)$ for $i \in \{2, ..., k\}$, then $f(i) \geq i$ for $i \in \{ 1, ..., k \}$, hence $d_i = \sigma_{f(i)} \leq \sigma_i$. Then, $d_{\hat{i}} \neq \sigma_{\hat{i}}$ implies $d_{\hat{i}} < \sigma_{\hat{i}}$.
+Since $|\{ 1, ..., \hat{i} \}| = \hat{i}$, $|\{ f(1), ..., f(\hat{i}-1) \}| = \hat{i} - 1$, there must exist $\hat{j} \in \{ 1, ..., \hat{i} \}$ s.t. $\hat{j} \not \in \{ f(1), ..., f(\hat{i}-1) \}$.
+Furthermore, it must be $f(\hat{i}) \neq \hat{i}$ (otherwise $d_{\hat{i}} = \sigma_{\hat{i}}$), which implies $f(\hat{i}) > \hat{i}$, hence $f(i) > \hat{i} \geq \hat{j}$ for every $i \in \{ \hat{i}, ..., k \}$.
+Then $\hat{j} = f(\hat{l})$ for $\hat{l} \in \{ k+1, ..., \min(m,n) \}$ ($f$ is a bijection on $\{ 1, ..., \min(m,n) \}$).
+Finally $a_{\hat{l}} = \sigma_{f(\hat{l})} = \sigma_{\hat{j}} \geq \sigma_{\hat{i}} > d_{\hat{i}}$.
+Now consider the matrix
+$$
+J = U(\sum_{i=1}^{\hat{i}-1} d_i \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T + a_{\hat{l}} \underline{e}_{\hat{l}}^{(m)} (\underline{e}_{\hat{l}}^{(n)})^T + \sum_{i = \hat{i} + 1}^k d_i \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T ) V^T \text{.}
+$$
+>> Then
+$$
+||A - J||_F^2 = a_{k+1}^2 + ... + a_{\hat{l}-1}^2 + d_{\hat{i}}^2 + a_{\hat{l}+1}^2 + ... + a_{\min(m,n)}^2 <
+$$
+
+$$
+< a_{k+1}^2 + ... + a_{\hat{l}-1}^2 + a_{\hat{l}}^2 + a_{\hat{l}+1}^2 + ... + a_{\min(m,n)}^2 = ||A - B||_F^2 \text{,}
+$$
+>> but $J$ has rank $k$, hence this violates our hypothesis.
+So it must be $d_i = \sigma_i$ for every $i \in \{ 1, ..., k \}$ (_as we wanted to prove_).
+
+> 3. The pseudodiagonal of $\Sigma_H$ corresponds to $\sigma_{k+1}, ..., \sigma_{\min(m,n)}$ in this order.
+>> This follows from the fact that, in virtue of 2, in $\Sigma_H$ there are the values $\sigma_{k+1}, ..., \sigma_{\min(m,n)}$, and they must be in the right order since $\Sigma_H$ has been obtained from the SVD.
+
+> 1 and 2 imply that $\Sigma = \Sigma_A$, which in turn implies $U = U_A$, and $V = V_A$ (that is $U \Sigma V^T$ is the SVD decomposition of $A$).
+Finally (_remembering that $D = E = \text{diag}\{ \sigma_1, ..., \sigma_k \}$_)
+$$
+B = U \begin{bmatrix}
+D & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
+\end{bmatrix} V^T = U_A
+\begin{bmatrix}
+\begin{bmatrix}
+\sigma_1 & 0 & ... & 0 \\
+0 & ... & ... & ... \\
+... & ... & ... & 0 \\
+0 & ... & 0 & \sigma_k
+\end{bmatrix} & O_{k \times (n-k)} \\
+O_{(m-k) \times k} & O_{(m-k) \times (n-k)}
+\end{bmatrix} V_A^T = A_k
+$$
+> as we wanted to prove.
+
+---
+
+> The fact that $||A - A_k||_F = \sqrt{i=k+1}^r \sigma_i^2$ follows from the fact htat $A-A_K = \sum_{i=k+1}^r \sigma_i \underline{u}_i \underline{v}_i^T$, by the uniqueness of the SVD, and by the properties of the Frobenius norm.
