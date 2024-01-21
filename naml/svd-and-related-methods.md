@@ -274,7 +274,7 @@ $$
 
 - Let $A \in \mathbb{R}^{m \times n}, p \in \mathbb{R}, p \geq 1$, we define the **$p$-norm of A** as
 $$
-||A||_p = \max_{\underline{x} \in \mathbb{R}^n} \frac{||A \underline{x}||_p}{||\underline{x}||_p}
+||A||_p = \max_{\underline{x} \in \mathbb{R}^n, \underline{x} \neq \underline{0}_n} \frac{||A \underline{x}||_p}{||\underline{x}||_p}
 $$
 > where the $p$-norm of $\underline{x} \in \mathbb{R}^n$ is
 $$
@@ -283,11 +283,11 @@ $$
 
 We will prove in a moment that, for $p = 2$,
 $$
-\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n \}
+\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n, \underline{x} \neq \underline{0}_n \}
 $$
 admits maximum, hence $||A||_p$ is well defined.
 
-1. $\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n \} = \{ ||A \underline{u}||_p | \underline{u} \in \mathbb{R}^n, ||\underline{u}|| = 1 \}$.
+1. $\{ \frac{||A \underline{x}||_p}{||\underline{x}||_p} | \underline{x} \in \mathbb{R}^n, \underline{x} \neq \underline{0}_n \} = \{ ||A \underline{u}||_p | \underline{u} \in \mathbb{R}^n, ||\underline{u}|| = 1 \}$.
 
 > **Proof**: Let $\underline{x} \in \mathbb{R}^n$, $\frac{||A \underline{x}||_p}{||\underline{x}||_p} = ||A \frac{\underline{x}_p}{||\underline{x}||_p}||$ where $||\frac{\underline{x}_p}{||\underline{x}||_p}|| = 1$.
 The converse inclusion is straightforward.
@@ -521,3 +521,51 @@ $$
 ---
 
 > The fact that $||A - A_k||_F = \sqrt{i=k+1}^r \sigma_i^2$ follows from the fact htat $A-A_K = \sum_{i=k+1}^r \sigma_i \underline{u}_i \underline{v}_i^T$, by the uniqueness of the SVD, and by the properties of the Frobenius norm.
+
+- **Weyl's inequality**: let $X, Y \in \mathbb{R}^{m \times n}$, $\sigma_i(A)$ be the $i$-th singular value of $A$. Then:
+$$
+\sigma_{i+j-1}(X+Y) \leq \sigma_i(X) + \sigma_j(Y) \text{.}
+$$
+
+> **2nd proof in $||\text{.}||_F$ (*)**: let $X = A - B$, $Y = B$. Then, by the Weyl's inequality:
+$$
+\sigma_{i+k}(A) = \sigma_{i+k}(X+Y) \leq \sigma_i(X) + \sigma_{k+1}(Y) = \sigma_i(A-B) + \sigma_{k+1}(B) \text{.}
+$$
+> Since, $r(B) = k$, $\sigma_{k+1}(B) = 0$, hence:
+$$
+\sigma_{i+k}(A) = \sigma_i(A-B) \text{.}
+$$
+
+> Then:
+
+$$
+||A-A_k||_F^2 = \sum_{i=k+1}^r \sigma_i^2(A) = \sum_{i=1}^{r-k} \sigma_{i+k}^2(A) = \sum_{i=1}^{r-k} \sigma_i^2(A-B) \leq
+$$
+
+$$
+\leq \sum_{i=1}^{r(A-B)} \sigma_i^2(A-B) = ||A-B||_F^2 \text{.}
+$$
+
+> **Proof in $||\text{.}||_2$ (*)**: assume $k < r$ since the proof for $k = r$ is straightforward.
+It must be $\dim(\text{span}\{ \underline{v}_1, ..., \underline{v}_{k+1} \} \cap N(B)) \geq 1$ (_otherwise there would be more than $n$ linearly independent vectors in $\mathbb{R}^n$_). There there exists $\underline{w} \in \text{span}\{ \underline{v}_1, ..., \underline{v}_{k+1} \} \cap N(B)$, $\underline{w} \neq \underline{0}_n$.
+Furthermore:
+$$
+A \underline{w} = \sum_{i=1}^r \sum_{j=1}^{k+1} \sigma_i \alpha_j \underline{u}_i \underline{v}_i^T \underline{v}_j = \sum_{j=1}^{k+1} \sigma_j \alpha_j \underline{u}_j \cdot 1 \text{ since } k+1 \leq r \text{,}
+$$
+
+$$
+B \underline{w} = \underline{0}_m \text{.}
+$$
+> Hence:
+$$
+||(A-B) \underline{w}||_2^2 = ||\sum_{j=1}^{k+1} \sigma_j \alpha_j \underline{u}_j||_2^2 = \sum_{j=1}^{k+1} \sigma_j^2 \alpha_j^2 ||\underline{u}_j||_2^2 \geq \sigma_{k+1} \sum_{j=1}^{k+1} \alpha_j^2 ||\underline{v}_j||_2^2 =
+$$
+
+$$
+= \sigma_k^2 || \sum_{j=1}^{k+1} \alpha_j \underline{v}_j ||_2^2 = \sigma_k^2 ||\underline{w}||_2^2 \text{.}
+$$
+> Since $\underline{w} \neq \underline{0}_n$, this implies $||A-B||_2 \geq \sigma_k = ||A - A_k||_2$ (_as we wanted to prove_).
+
+---
+
+## Principal Component Analysis (PCA)
