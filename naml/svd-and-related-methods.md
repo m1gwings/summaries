@@ -569,3 +569,196 @@ $$
 ---
 
 ## Principal Component Analysis (PCA)
+
+Let $A \in \mathbb{R}^{p \times n}$ be a matrix which represents a dataset with $n$ samples, each of which has $p$ features. That is, the columns of $A$ are samples (it is possible to make an equivalent treatment where rows are samples).
+
+Let's derive the expression for the sample covariance matrix of the data in $A$.
+First of all we need to remove the sample mean of each feature from every sample:
+$$
+\overline{A} = \begin{bmatrix} \underline{a}_1 - \underline{\overline{a}} & ... & \underline{a}_n - \underline{\overline{a}} \end{bmatrix} = A - \underline{\overline{a}} \underline{1}_n^T = A - (\frac{1}{n}A \underline{1}_n) \underline{1}_n^T =
+$$
+
+$$
+= A (I_n - \frac{1}{n} \underline{1}_n \underline{1}_n^T) = A H
+$$
+
+where $H = I_n - \frac{1}{n} \underline{1}_n \underline{1}_n^T$.
+
+Let $\overline{F} = \overline{A}^T$, then $\underline{\overline{f}}_i$ is a vector with all the $n$ sampled values of the $i$-th feature, to which the sample mean has been subtracted, for $i \in \{ 1, ..., p \}$. Hence, the covariance matrix is:
+$$
+K = \frac{1}{n-1} \begin{bmatrix}
+\underline{\overline{f}}_1^T \underline{\overline{f}}_1 & ... & \underline{\overline{f}}_1^T \underline{\overline{f}}_p \\
+... & ... & ... \\
+\underline{\overline{f}}_p^T \underline{\overline{f}}_1 & ... & \underline{\overline{f}}_p^T \underline{\overline{f}}_p
+\end{bmatrix} = \frac{1}{n-1} \begin{bmatrix} \underline{\overline{f}}_1^T \\ ... \\ \underline{\overline{f}}_p^T \end{bmatrix} \begin{bmatrix} \underline{\overline{f}}_1 & ... & \underline{\overline{f}}_p \end{bmatrix} = \frac{1}{n-1} \overline{F}^T \overline{F} = \frac{1}{n-1} \overline{A} \overline{A}^T \text{.}
+$$
+
+On the diagonal of $K$ we find the sampled variances, the other entries of $K$ are the sampled covariances of pairs of distinct features.
+
+**PCA** consists in finding a transformation, described by the matrix $Q \in \mathbb{R}^{k \times p}$ (with $k \leq p$) such that the sampled variances of the new $k$ features are maximal while the sampled covariances of pairs of distinct new feautures are minimal. In particular we want the features to be ordered by sampled variance, from the greatest to the lowest.
+Furthermore, we impose $||Q||_2 = 1$, since, otherwise we can increase arbitrarily the variance of the dataset by multiplying $Q$ with a constant $\gamma > 1$ larger and larger.
+
+The "transformed" dataset is:
+$$
+\begin{bmatrix} Q \underline{\overline{a}}_1 & ... & Q \underline{\overline{a}}_n \end{bmatrix} = Q \overline{A} \text{,}
+$$
+hence, the corresponding covariance matrix is:
+$$
+K_Q = \frac{1}{n-1} Q \overline{A} \overline{A}^T Q^T \text{.}
+$$
+
+Observe that, the sum of the variances of the features produced by $Q$ is:
+$$
+\text{tr}(K_Q) = \frac{1}{n-1} \text{tr}(Q \overline{A} \overline{A}^T Q^T) = \frac{1}{n-1} ||Q \overline{A}||_F^2 \text{.}
+$$
+
+---
+
+Let
+$$
+Q = \begin{bmatrix}
+\underline{q}_1^T \\
+... \\
+\underline{q}_k^T
+\end{bmatrix} \text{,}
+$$
+then
+$$
+||Q \overline{A}||_F^2  = ||\begin{bmatrix}
+\underline{q}_1^T \\
+... \\
+\underline{q}_k^T
+\end{bmatrix} \sum_{i=1}^{r(\overline{A})} \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T||_F^2 =
+||\begin{bmatrix}
+\sum_{i=1}^{r(\overline{A})} \sigma_i(\overline{A}) (\underline{q}_1^T \underline{u}_i) \underline{v}_i^T \\
+... \\
+\sum_{i=1}^{r(\overline{A})} \sigma_i(\overline{A}) (\underline{q}_k^T \underline{u}_i) \underline{v}_i^T
+\end{bmatrix}||_F^2 =
+$$
+
+$$
+= ||\sum_{i=1}^{r(\overline{A})} \sigma_i(\overline{A}) (\underline{q}_1^T \underline{u}_i) \underline{v}_i||^2 + ... +
+|| \sum_{i=1}^{r(\overline{A})} \sigma_i(\overline{A}) (\underline{q}_k^T \underline{u}_i) \underline{v}_i ||^2 = 
+$$
+
+$$
+= \sum_{i=1}^{r(\overline{A})} \sigma_i^2(\overline{A}) (\underline{q}_1^T \underline{u}_i)^2 ||\underline{v}_i||^2 + ... +
+ \sum_{i=1}^{r(\overline{A})} \sigma_i^2(\overline{A}) (\underline{q}_k^T \underline{u}_i)^2 ||\underline{v}_i ||^2 =
+$$
+
+$$
+= \sum_{j=1}^k \sum_{i=1}^{r(\overline{A})} \sigma_i^2(\overline{A}) (\underline{q}_j^T \underline{u}_i)^2 = \sum_{i=1}^{r(\overline{A})} \sigma_i^2(\overline{A}) \sum_{j=1}^k (\underline{q}_j^T \underline{u}_i)^2 = \sum_{i=1}^{r(\overline{A})} \sigma_i^2(\overline{A}) ||Q \underline{u}_i||^2 \text{.}
+$$
+
+Since $||Q||_2 = 1$, then $||Q \underline{u}_i||^2 \leq 1$.
+Furthermore, it is straightforward to check from the SVD (exploiting the uniqueness) that $Q^T$ has the same singular values of $Q$, hence $||Q^T||_2 = ||Q||_2 = 1$ by property 2 of the 2-norm.
+Then
+$$
+\sum_{i=1}^{r(\overline{A})} ||Q \underline{u}_i||^2 \leq \sum_{i=1}^p ||Q \underline{u}_i||^2 = ||\begin{bmatrix} Q \underline{u}_1 & ... & Q \underline{u}_p \end{bmatrix}||_F^2 = ||QU||_F^2 = ||Q||_F^2 =
+$$
+
+$$
+= ||Q^T||_F^2 = ||Q^T \underline{e}_1||^2 + ... + ||Q^T \underline{e}_k|| \leq 1 + ... + 1 = k \text{.}
+$$
+
+The last inequality follows from the fact that $||Q^T||_2 = 1$.
+
+Let $r = r(\overline{A}), \alpha_i = \sigma_i^2(\overline{A}), \beta_i = ||Q \underline{u}_i||^2$ for $i \in \{ 1, ..., r \}$.
+Then, we have that $\beta_i \leq 1$ for $i \in \{ 1, ..., r \}$, and $\beta_1 + ... + \beta_r \leq k$.
+
+Furthermore $\alpha_1 \geq ... \geq \alpha_r$.
+Then:
+$$
+\alpha_1 + ... + \alpha_k - \beta_1 \alpha_1 - ... - \beta_r \alpha_r = (1-\beta_1) \alpha_1 + ... + (1-\beta_k) \alpha_k - \beta_{k+1} \alpha_{k+1} + ... + \beta_r \alpha_r \geq
+$$
+
+---
+
+$$
+\geq \alpha_k \sum_{i=1}^k (1-\beta_i) - \alpha_k \sum_{i=k+1}^r \beta_i \alpha_i = \alpha_k (k - \sum_{i=1}^r \beta_i) \geq 0 \text{.}
+$$
+
+Hence:
+$$
+||Q \overline{A}||_F^2 = \sum_{i=1}^{r} \alpha_i \beta_i \leq \sum_{i=1}^k \alpha_i = \sum_{i=1}^k \sigma_i^2(\overline{A}) \text{.}
+$$
+
+Now, let
+$$
+U_k = \begin{bmatrix} \underline{u}_1 & ... & \underline{u}_k \end{bmatrix} \text{.}
+$$
+
+Then
+$$
+||U_k^T \overline{A}||_F^2 = ||\begin{bmatrix} \underline{u}_1^T \\ ... \\ \underline{u}_k^T \end{bmatrix} \sum_{i=1}^r \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T||_F^2 = ||\begin{bmatrix} \sigma_1(\overline{A}) \underline{v}_1^T \\ ... \\ \sigma_k(\overline{A}) \underline{v}_k^T \end{bmatrix}||_F^2 = \sum_{i=1}^k \sigma_i^2(\overline{A}) \geq ||Q \overline{A}||_F^2
+$$
+for every matrix $Q \in \mathbb{R}^{k \times p}$ s.t. $||Q||_2 = 1$ (observe that $||U_k^T||_2 = ||U_k||_2 = 1$ since the columns of $U_k$ are orthonormal, furthermore $U_k^T \in \mathbb{R}^{k \times p}$).
+
+From the relation between $\text{tr}(K_Q)$ and $||Q \overline{A}||_F^2$, we conclude that $U_k^T$ leads to maximal variance.
+
+Finally observe that:
+$$
+K_{U_k^T} = \frac{1}{n-1} U_k^T \overline{A} \overline{A}^T U_k =
+\frac{1}{n-1} (\begin{bmatrix}
+\underline{u}_1^T \\
+... \\
+\underline{u}_k^T
+\end{bmatrix}
+\sum_{i=1}^r \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T)
+(\begin{bmatrix}
+\underline{u}_1^T \\
+... \\
+\underline{u}_k^T
+\end{bmatrix}
+\sum_{i=1}^r \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T)^T =
+$$
+
+$$
+= \frac{1}{n-1} \begin{bmatrix}
+\sigma_1(\overline{A}) \underline{v}_1^T \\
+... \\
+\sigma_k(\overline{A}) \underline{v}_k^T
+\end{bmatrix}
+\begin{bmatrix}
+\sigma_1(\overline{A}) \underline{v}_1 & ... & \sigma_k(\overline{A}) \underline{v}_k
+\end{bmatrix} = \frac{1}{n-1} \begin{bmatrix}
+\sigma_1^2(\overline{A}) & 0 & ... & 0 \\
+0 & ... & ... & ... \\
+... & ... & ... & 0 \\
+0 & ... & 0 & \sigma_k^2(\overline{A})
+\end{bmatrix} \text{.}
+$$
+
+That is, $U^T$ minimizes the sampled covariances of pairs of distinct features (they are 0). Hence, it is the matrix we were looking for.
+
+In particular, we call:
+- **principal components**: the transformed dataset $U_k^T \overline{A}$;
+- **principal directions**: $\underline{u}_1$, ... $\underline{u}_k$.
+
+**Remark**: the principal components are the coordinates (w.r.t. the principal directions) of the projections of the samples onto the space which is defined by the principal directions.
+
+---
+
+### Reconstructing the dataset
+
+The transformation derived through the PCA has also another important property: it leads to the minimum reconstruction error of the dataset from the principal components.
+In particular, we can "invert" the transformation by multiplying the principal components by $U_k$. The result is:
+$$
+U_k U_k^T \overline{A} = U_k \begin{bmatrix}
+\underline{u}_1^T \\
+... \\
+\underline{u}_k^T
+\end{bmatrix} \sum_{i=1}^r \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T = \begin{bmatrix} \underline{u}_1 & ... & \underline{u}_k \end{bmatrix} \begin{bmatrix}
+\sigma_1(\overline{A}) \underline{v}_1^T \\
+... \\
+\sigma_k(\overline{A}) \underline{v}_k^T
+\end{bmatrix} =
+$$
+
+$$
+= \sum_{i=1}^k \sigma_i(\overline{A}) \underline{u}_i \underline{v}_i^T = \overline{A}_k \text{.}
+$$
+
+Then $||\overline{A} - U_k U_k^T \overline{A}||_F = ||\overline{A} - \overline{A}_k||_F$ is minimum (if we restrict to rank $k$ matrices).
+
+**Remark**: the reconstructed dataset is the orthogonal projection of the samples onto the space which is defined by the principal directions.
