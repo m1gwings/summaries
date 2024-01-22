@@ -762,3 +762,64 @@ $$
 Then $||\overline{A} - U_k U_k^T \overline{A}||_F = ||\overline{A} - \overline{A}_k||_F$ is minimum (if we restrict to rank $k$ matrices).
 
 **Remark**: the reconstructed dataset is the orthogonal projection of the samples onto the space which is defined by the principal directions.
+
+## How to choose the value of $k$ in the truncated SVD?
+
+1. The first approach when choosing a suitable value $k$ in order to approximate $A \in \mathbb{R}^{m \times n}$ with $A_k$ is to preserve a certain fraction of the variance of $A$. In particular, the **variance of $A$** is given by
+$$
+||A||_F^2 = \sum_{i=1}^{r(A)} \sigma_i^2(A) \text{.}
+$$
+> Hence, fixed $\alpha \in (0, 1)$, we want to find the smaller $k \leq r(A)$ s.t.
+$$
+\frac{||A_k||_F^2}{||A||_F^2} = \frac{\sum_{i=1}^k\sigma_i^2(A)}{\sum_{i=1}^{r(A)} \sigma_i^2(A)} \geq \alpha \text{.}
+$$
+
+2. We can plot the singular values of $A$ and pick $k$ in the correspondance of a "jump" in the graph: that is $\sigma_k \gg \sigma_{k+1}$.
+
+3. Suppose that
+$$
+A = A_{\text{true}} + \gamma A_{\text{noise}} \text{ with } \gamma > 0 \text{,}
+$$
+> where $A_{\text{true}}$ is the underlying low rank data, to which a gaussian noise of magnitude $\gamma$ ($\gamma A_{\text{noise}}$) has been added. In particular $A_{\text{noise}}$ has mean equal to 0 and variance equal to 1. We want to find a threshold $\tau$ such that if we select $k$ which guarantees $\sigma_k > \tau$, and $\sigma_{k+1} \leq \tau$, then $A_k \approx A_{\text{true}}$.
+
+---
+
+> 3.1 If $\gamma$ is known
+>> 3.1.1 and $A \in \mathbb{R}^{n \times n}$
+>>> then
+$$
+\tau = \frac{4}{\sqrt{3}} \sqrt{n} \gamma \text{;}
+$$
+>> 3.1.2 and $A \in \mathbb{R}^{m \times n}$
+>>> 3.1.2.1 with $m \ll n$
+>>>> then
+$$
+\tau = \lambda(\beta) \sqrt{n} \gamma \text{ with } \beta = \frac{n}{m} \text{ (aspect ratio) with}
+$$
+
+$$
+\lambda(\beta) = (2(\beta + 1) + \frac{8 \beta}{(\beta+1) + (\beta^2 + 14 \beta + 1)^\frac{1}{2}})^{\frac{1}{2}} \text{;}
+$$
+
+>>> 3.1.2.2 with $n \ll m$
+$$
+\text{same as before with } \beta = \frac{m}{n} \text{;}
+$$
+
+> 3.2 If $\gamma$ is unknown
+>> then
+$$
+\tau = w(\beta) \frac{1}{r(A)}\sum_{i=1}^{r(A)} \sigma_i(A) \text{ (average singular value), and }
+$$
+
+$$
+w(\beta) = \frac{\lambda(\beta)}{\mu_\beta} \text{,} \beta = \frac{n}{m} \text{,}
+$$
+
+$$
+\lambda \text{ defined as before}, \mu_\beta \text{ such that }
+$$
+
+$$
+\int_{(1-\beta)^2}^{\mu_\beta} \frac{\{ [(1+\sqrt{\beta})^2 - t][t - (1-\sqrt{\beta})^2] \}^{\frac{1}{2}}}{2 \pi t} dt = \frac{1}{2} \text{.}
+$$
