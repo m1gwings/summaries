@@ -823,3 +823,86 @@ $$
 $$
 \int_{(1-\beta)^2}^{\mu_\beta} \frac{\{ [(1+\sqrt{\beta})^2 - t][t - (1-\sqrt{\beta})^2] \}^{\frac{1}{2}}}{2 \pi t} dt = \frac{1}{2} \text{.}
 $$
+
+---
+
+## Randomized Singular Value Decomposition (rSVD)
+
+**rSVD** is a technique for computing a good approximation of the truncated SVD of a matrix in a really fast way.
+
+Let $A \in \mathbb{R}^{m \times n}$ and suppose that we want to approximate $A_k$ for $k \leq r(A)$.
+First of all we have to sample $k$ gaussian vectors $\underline{w}_1, ..., \underline{w}_k \in \mathbb{R}^n$ (with mean 0 and variance 1) and put them into a matrix:
+$$
+\Omega = \begin{bmatrix} \underline{w}_1 & ... & \underline{w}_k \end{bmatrix} \in \mathbb{R}^{n \times k} \text{.}
+$$
+
+Now, consider the matrix:
+$$
+Y = A \Omega = A \begin{bmatrix} \underline{w}_1 & ... & \underline{w}_k \end{bmatrix} = \begin{bmatrix} A \underline{w}_1 & ... & A \underline{w}_k \end{bmatrix} \text{;}
+$$
+we can regard every column of $Y$ as a sample from $C(A)$.
+Observe the following, if $\sigma_1(A) \gg \sigma_2(A) \gg ...$, then
+$$
+A \underline{w}_1 = \sum_{i=1}^{r(A)} \sigma_i(A) \underline{u}_i \underline{v}_i^T \underline{w}_1 = \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_1) \underline{u}_i \approx \sigma_1(A) (\underline{v}_1^T \underline{w}_1) \underline{u}_1
+$$
+since we expect $\underline{v}_i^T \underline{w}_1$ to have similar magnitudes for every $i \in \{ 1, ..., r(A) \}$.
+Analogously, if we remove from $A \underline{w}_2$ the orthogonal projection onto $A \underline{w}_1$ we get:
+$$
+A \underline{w}_2 - \frac{A \underline{w}_1 A \underline{w}_1^T}{A \underline{w}_1^T A \underline{w}_1^T} A \underline{w}_2 = \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i - \frac{A \underline{w}_1 A \underline{w}_1^T}{A \underline{w}_1^T A \underline{w}_1^T} \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i \approx
+$$
+
+$$
+\approx \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i - \frac{\sigma_1^2(A) (\underline{v}_1^T \underline{w}_1)^2 \underline{u}_1 \underline{u}_1^T}{\sigma_1^2(A) (\underline{v}_1^T \underline{w}_1)^2 \underline{u}_1^T \underline{u}_1} \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i = 
+$$
+
+$$
+= \sum_{i=1}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i - \sigma_1(A) (\underline{v}_1^T \underline{w}_2) \underline{u}_1 = \sum_{i=2}^{r(A)} \sigma_i(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_i \approx \sigma_2(A) (\underline{v}_i^T \underline{w}_2) \underline{u}_2 \text{.}
+$$
+
+By iterating this process through QR factorization:
+$$
+Y = QR \text{ and } Q \approx U_k \text{ (because of what we observed).}
+$$
+
+Then:
+$$
+Q Q^T \approx U_k U_k^T = \underline{u}_1 \underline{u}_1^T  + ... + \underline{u}_k \underline{u}_k^T
+$$
+approximates the orthogonal projection matrix onto $\text{span}\{ \underline{u}_1, ..., \underline{u}_k \}$. Hence:
+$$
+Q Q^T A \approx (\underline{u}_1 \underline{u}_1^T + ... + \underline{u}_k \underline{u}_k^T ) \sum_{i=1}^{r(A)} \sigma_i(A) \underline{u}_i \underline{v}_i^T = \sum_{i=1}^k \sigma_i(A) \underline{u}_i \underline{v}_i^T = A_k \text{.}
+$$
+
+---
+
+Now let $B = Q^T A$. Note that $B \in \mathbb{R}^{k \times n}$ and usually $k$ and $n$ are both significantly smaller than $m$, hence we can compute its svd quite fast:
+$$
+B = \tilde{U} \Sigma V^T \text{.}
+$$
+Finally:
+$$
+A_k \approx Q Q^T A = Q B = (Q \tilde{U}) \Sigma V^T \text{.}
+$$
+That is: $U_k \approx Q \tilde{U}$, $V_K \approx V$, $\Sigma_k \approx \Sigma$.
+
+### Improvements to rSVD
+
+- **Power iteration** is a technique which makes the decay of the singular of $A$ faster while preserving the singular vectors. It improves the result of the rSVD, since, as we've seen, we want $\sigma_1(A) \gg \sigma_2(A) \gg ...$.
+It works as follows:
+$$
+(AA^T)^qA = (\sum_{i=1}^{r(A)} \sigma_i(A) \underline{u}_i \underline{v}_i^T \sum_{j=1}^{r(A)} \sigma_j(A) \underline{v}_j \underline{u}_j^T)^q A = (\sum_{i=1}^{r(A)} \sigma_i^2(A) \underline{u}_i \underline{u}_i^T)^q A = 
+$$
+
+$$
+= \sum_{i=1}^{r(A)} \sigma_i^{2q}(A) \underline{u}_i \underline{u}_i^T A =
+\sum_{i=1}^{r(A)} \sigma_i^{2q}(A) \underline{u}_i \underline{u}_i^T \sum_{j=1}^{r(A)} \sigma_j(A) \underline{u}_j \underline{v}_j^T = \sum_{i=1}^{r(A)} \sigma_i^{2q+1}(A) \underline{u}_i \underline{v}_i^T \text{.}
+$$
+
+> Hence, the decay of the singular values is exponential in the factor $q$.
+
+- **Oversampling** consists in sampling $k+p$ with $p \geq 0$ gaussian vectors instead of $k$. Then, after the QR factorization, we take only the first $k$ columns of $Q$.
+
+A theoretical result gurantees the goodness of the rSVD:
+$$
+E(||A_k - QQ^TA||_2) \leq (1 + \sqrt{\frac{k}{p-1}} + \frac{e \sqrt{k + p}}{p} \sqrt{n-k})^{\frac{1}{2q+1}} \sigma_{k+1}(A) \text{.}
+$$
