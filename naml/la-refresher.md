@@ -63,6 +63,12 @@ $$
 
 ---
 
+- Let $P \in \mathbb{R}^{n \times n}$. $P$ is said to be a **projection matrix** iff $P^2 = P$.
+
+- Let $P \in \mathbb{R}^{n \times n}$. $P$ is said to be an **orthogonal projection matrix** if $P$ is a projection matrix and it is symmetric.
+
+---
+
 ## Some properties
 
 1. Let $A \in \mathbb{R}^{m \times n}, \underline{b} \in \mathbb{R}^m$. The linear system $A \underline{x} = \underline{b}$ admits solution iff $\underline{b} \in C(A)$.
@@ -383,3 +389,44 @@ Let $\underline{x} \in \mathbb{R}^n$, then $\underline{x}^T S \underline{x} = \u
 > **Remark**: if $A$ is an upper triangular matrix, this is known as **Cholesky factorization**.
 
 26. A matrix $S$ is positive definite iff we don't need to swap rows during gaussian elimination and all the resulting (by strictly applying the algorithm) pivots are positive.
+
+27. A matrix $P$ is a projection matrix iff $P \underline{x} = \underline{x}$ for every $\underline{x} \in C(P)$.
+
+> **Proof**: let $P$ be a projection matrix, let $\underline{x} \in C(P)$, then $\underline{x} = P \underline{y}$, hence
+$$
+P \underline{x} = P^2 \underline{y} = P \underline{y} = \underline{x} \text{.}
+$$
+
+> Let $P$ s.t. $P \underline{x} = \underline{x}$ for every $\underline{x} \in C(P)$, hence $P \underline{p}_i = \underline{p}_i$, and so $P^2 = P$.
+
+28. A matrix $P$ is an orthogonal projection matrix iff $P = U U^T$ where the columns of $U$ are an orthonormal basis of $C(P)$.
+
+> **Proof**: let $P$ be an orthogonal projection matrix. Beign symmetric
+$$
+P = V \Lambda V^T \text{,}
+$$
+> furthermore $V \Lambda V^T = P = P^2 = V \Lambda^2 V^T$. Hence, for every eigenvalue of $\lambda$ of $P$, it must be $\lambda^2 = \lambda$ iff $\lambda = 1$ or $\lambda = 0$. Hence, we can write $P$ as:
+$$
+P = \tilde{V} \begin{bmatrix}
+I_{r(P)} & O_{r(P) \times (n-r(P))} \\
+O_{(n-r(P)) \times r(P)} & O_{(n-r(P)) \times (n-r(P))}
+\end{bmatrix} \tilde{V}^T
+$$
+> Hence $P = \begin{bmatrix} \tilde{v}_1 & ... & \tilde{v}_{r(P)} \end{bmatrix} \begin{bmatrix} \tilde{v}_1^T \\ ... \\ \tilde{v}_{r(P)}^T \end{bmatrix} = U U^T$.
+
+---
+
+> And the columns of $U$ are orthonormal. Now let $\underline{x} \in C(U)$, that is 
+$$
+\underline{x} = U \underline{y} = U I_{r(P)} \underline{y} = U U^T U \underline{y} = P U \underline{y} \in C(P)\text{;}
+$$
+> if instead $\underline{x} \in C(P)$, that is
+$$
+\underline{x} = P \underline{y} = U U^T \underline{y} \in C(U) \text{.}
+$$
+> Hence $C(U) = C(P)$ as we wanted to prove.
+
+> Now let's prove the converse: let $P = U U^T$ where the columns of $U$ are orthonormal. It is clear the $P$ is symmetric. Finally
+$$
+P^2 = U U^T U U^T = U I_{r(P)} U^T = U U^T = P \text{.}
+$$
