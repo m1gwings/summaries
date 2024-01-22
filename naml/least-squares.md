@@ -200,3 +200,105 @@ Observe that inverting $R$, which is a triangular matrix, is faster than inverti
 
 ### LS through the pseudoinverse
 
+- Let $A \in \mathbb{R}^{m \times n}$, we define **pseudoinverse** of $A$ the matrix
+$$
+A^+ = \sum_{i=1}^{r(A)}\frac{1}{\sigma_i(A)} \underline{v}_i \underline{u}_i^T \text{.}
+$$
+
+Observe that $A^+ = V \Sigma^+  U^T$. Indeed, $\Sigma = \sum_{i=1}^{r(A)} \sigma_i(A) \underline{e}_i^{(m)} (\underline{e}_i^{(n)})^T$, hence $\Sigma^+ = \sum_{i=1}^{r(A)} \frac{1}{\sigma_i(A)} \underline{e}_i^{(n)} (\underline{e}_i^{(m)})^T$, that is, we transpose $\Sigma$ and we take the reciprocal of the positive singular values on the diagonal.
+
+Furthermore, we can derive other special expressions for $A^+$ in the case $r(A) = n$ and $r(A) = m$.
+
+---
+
+Assume that $r(A) = m$, that is, the **rows** of $A$ are linearly independent, then:
+$$
+A^+ = \sum_{i=1}^m \frac{1}{\sigma_i(A)} \underline{v}_i \underline{u}_i^T = \sum_{i=1}^m \sigma_i(A) \underline{v}_i \underline{u}_i^T \sum_{j=1}^m \frac{1}{\sigma_j^2(A)} \underline{u}_j \underline{u}_j^T =
+$$
+
+$$
+= \sum_{i=1}^m \sigma_i(A) \underline{v}_i \underline{u}_i^T (\sum_{j=1}^m \sigma_j^2(A) \underline{u}_j \underline{u}_j^T)^{-1} \text{.}
+$$
+The last equality follows from the fact that
+$$
+\sum_{j=1}^m \sigma_j^2(A) \underline{u}_j \underline{u}_j^T \sum_{i=1}^m \frac{1}{\sigma_i^2(A)} \underline{u}_i \underline{u}_i^T = \sum_{j=1}^m \underline{u}_j \underline{u}_j^T \text{.}
+$$
+And we've already seen (when we proved property 2 of the SVD) that
+$$
+\sum_{j=1}^m \underline{u}_j \underline{u}_j^T = I_m \text{.}
+$$
+
+Furthermore
+$$
+\sum_{i=1}^m \sigma_i(A) \underline{v}_i \underline{u}_i^T (\sum_{j=1}^m \sigma_j^2(A) \underline{u}_j \underline{u}_j^T)^{-1} = \sum_{i=1}^m \sigma_i(A) \underline{v}_i \underline{u}_i^T (\sum_{j=1}^m \sigma_j(A) \underline{u}_j \underline{v}_j^T \sum_{k=1}^m \sigma_k(A) \underline{v}_k \underline{u}_k^T) =
+$$
+
+$$
+= A^T (AA^T)^{-1} \text{.}
+$$
+
+Analogously, assume that $r(A) = n$, that is, the **columns** of $A$ are linearly independent, then:
+
+$$
+A^+ = \sum_{i=1}^n \frac{1}{\sigma_i(A)} \underline{v}_i \underline{u}_i^T = \sum_{i=1}^n \frac{1}{\sigma_i^2(A)} \underline{v}_i \underline{v}_i^T \sum_{j=1}^n \sigma_j(A) \underline{v}_j \underline{u}_j^T =
+$$
+
+$$
+= (\sum_{i=1}^n \sigma_i^2(A) \underline{v}_i \underline{v}_i^T)^{-1} \sum_{j=1}^n \sigma_j(A) \underline{v}_j \underline{u}_j^T =
+$$
+
+$$
+= (\sum_{i=1}^n \sigma_i(A) \underline{v}_i \underline{u}_i^T \sum_{j=1}^n \sigma_j(A) \underline{u}_j \underline{v}_j^T)^{-1} \sum_{k=1}^n \sigma_i(A) \underline{v}_k \underline{u}_k^T = (A^T A)^{-1} A^T \text{.}
+$$
+
+Now let's get back to LS. We known that $||\underline{r}(\underline{w})||_2^2$ is minimum iff
+$$
+X^T X \underline{w} = X^T \underline{y} \text{.}
+$$
+
+We will prove that $\underline{\hat{w}} = X^+ \underline{y}$ satisfies the equation above:
+$$
+X^T X \underline{\hat{w}} = X^T X X^+ \underline{y} = \sum_{i=1}^{r(X)} \sigma_i^2(A) \underline{v}_i \underline{v}_i^T \sum_{j=1}^{r(X)} \frac{1}{\sigma_i(A)} \underline{v}_j \underline{u}_j^T  \underline{y} =
+$$
+
+---
+
+$$
+= \sum_{i=1}^{r(X)} \sigma_i(A) \underline{v}_i \underline{u}_i^T \underline{y} = X^T \underline{y} \text{.}
+$$
+
+Then $\underline{\hat{w}}$ solves the LS problem, no matter the rank of $X$.
+
+#### The solution found through the pseudoinverse has the least norm
+
+Let $\underline{w}$ be another ($\underline{w} \neq \underline{\hat{w}}$) solution to LS.
+
+First of all observe that:
+$$
+\sum_{i=1}^{r(X)} \sigma_i^2(X) \underline{v}_i^T \underline{w} \underline{v}_i = X^T X \underline{w} = X^T \underline{y} = X^T X \underline{\hat{w}} = \sum_{i=1}^{r(X)} \sigma_i^2(X) \underline{v}_i^T \underline{\hat{w}} \underline{v}_i \text{.}
+$$
+Since $\underline{v}_1, ..., \underline{v}_{r(X)}$ are linearly independent, it must be
+$$
+\sigma_i^2(X) \underline{v}_i^T \underline{w} = \sigma_i^2(X) \underline{v}_i^T \underline{\hat{w}} \text{ iff } \underline{v}_i^T \underline{w} = \underline{v}_i^T \underline{\hat{w}} \text{ for every } i \in \{ 1, ..., r(X) \} \text{.}
+$$
+
+Then:
+$$
+(\underline{w} - \underline{\hat{w}})^T\underline{\hat{w}} = (\underline{w} - \underline{\hat{w}})^T X^+ \underline{y} = (\underline{w} - \underline{\hat{w}})^T \sum_{i=1}^{r(X)} \frac{1}{\sigma_i(X)} \underline{v}_i \underline{u}_i^T \underline{y} =
+$$
+
+$$
+= \sum_{i=1}^{r(X)} \frac{\underline{w}^T \underline{v}_i - \underline{\hat{w}}^T \underline{v}_i}{\sigma_i(X)} \underline{u}_i^T \underline{y} = \sum_{i=1}^{r(X)} 0 \cdot \underline{u}_i^T \underline{y} = 0 \text{.}
+$$
+
+Finally:
+$$
+||\underline{w}||_2^2 = ||\underline{\hat{w}} + (\underline{w} - \underline{\hat{w}})||_2^2 = ||\underline{\hat{w}}||_2^2 + ||\underline{w} - \underline{\hat{w}}||_2^2 - 2 (\underline{w} - \underline{\hat{w}})^T \underline{\hat{w}} =  
+$$
+
+$$
+= ||\underline{\hat{w}}||_2^2 + ||\underline{w} - \underline{\hat{w}}||_2^2 > ||\underline{\hat{w}}||_2^2 \text{.}
+$$
+
+This property is useful since sometimes, if $||\underline{w}||_2^2$ is big, the noise in the measured values of the features of $\underline{\tilde{x}}$ are amplified when we compute $\tilde{y} = \underline{\tilde{x}}^T \underline{w}$.
+
