@@ -148,6 +148,55 @@ That is, we rediscovered the same equation.
 
 ## Better expressions for the LS solution
 
-We want to find expressions of $\underline{\hat{w}}$ which don't require the (expensive) computation of $X^T X$.
+We want to find expressions of $\underline{\hat{w}}$ which don't require the (expensive) computation of $(X^T X)^{-1}$.
 
 ### LS through the Gram-Schmidt process
+
+Assume that the columns of $X$ are linearly independent. We've already seen that:
+$$
+\underline{\hat{w}} = (X^T X)^{-1} X^T \underline{y} \text{,}
+$$
+and so $\underline{\hat{y}} = X \underline{\hat{w}} = X (X^T X)^{-1} X^T \underline{y} = P_X \underline{y}$ with $P_X = X(X^T X)^{-1}X^T$.
+
+---
+
+$P_X$ is a projection matrix: indeed
+$$
+P_X^2 = X(X^T X)^{-1}X^T X(X^T X)^{-1}X^T = X (X^T X)^{-1} X^T = P_X \text{.}
+$$
+
+The idea behind LS through the Gram-Schmidt process is to use an orthogonal projection matrix $Q$ to project $\underline{y}$ onto $C(X)$.
+Remember that we're assuming that the columns of $X$ are linearly independent, hence the QR factorization of $X$ is $X = QR$ where $R \in \mathbb{R}^{p \times p}$ is a full-rank upper triangular matrix. Furthermore, the columns of $Q$ form an orthonormal basis of $C(X)$, hence $Q Q^T$ is an orthogonal projection matrix onto $C(X)$.
+Now observe that:
+Let's substitute the $Q R$ factorization of $X$ into the expression of $P_X$:
+$$
+P_X = X (X^T X)^{-1} X^T = Q R (R^T Q^T Q R)^{-1} R^T Q^T = Q R (R^T R)^{-1} R^T Q^T =
+$$
+
+$$
+= Q R R^{-1} (R^T)^{-1} R^T Q ^T = Q Q^T \text{.}
+$$
+Hence:
+$$
+\underline{\hat{y}} = P_X \underline{y} = Q Q^T \underline{y} \text{.}
+$$
+
+Finally:
+$$
+\underline{\hat{y}} = X \underline{w} = Q R \underline{w} = Q \underline{\tilde{w}} \text{ with } \underline{\tilde{w}} = R \underline{w} \text{.}
+$$
+
+By left multiplying by $Q^T$, we get:
+$$
+\underline{\tilde{w}} = Q^T \underline{\hat{y}} = Q^T Q Q^T \underline{y} = Q^T \underline{y} \text{.}
+$$
+
+We can make predictions through $\underline{\tilde{w}}$ in the following way:
+$$
+\tilde{y} = \underline{\tilde{x}}^T \underline{w} = \underline{\tilde{x}}^T R^{-1} \underline{\tilde{w}} \text{.}
+$$
+
+Observe that inverting $R$, which is a triangular matrix, is faster than inverting $X^T X$.
+
+### LS through the pseudoinverse
+
