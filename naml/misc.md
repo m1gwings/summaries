@@ -1,7 +1,7 @@
 ---
 theme: summary
 ---
-# Numerical analysis miscellaneous
+# Miscellaneous
 
 <div class="author">
 
@@ -11,7 +11,7 @@ Cristiano Migali
 
 ---
 
-## Methods
+## Methods & algorithms
 
 ### Power method
 
@@ -133,3 +133,64 @@ The **Singular Value Thresholding** (**SVT**) algorithm converges to $\hat{X}$:
 
 $\tau$ is a **threshold parameter**, $\epsilon$ is a **tolerance parameter**.
 Observe that the algorithm is **non monotone** if we consider $r(\hat{X}^{(k)})$ at every iteration $k$.
+
+---
+
+### Page rank
+
+Consider $n$ websites which link one to the other. We can model them through a graph where each node represents a website and a directed edge from node $i$ to node $j$ means that the website $i$ links to the website $j$.
+We want to find the **"most important" websites** among the $n$. In particular we say that a website is important if many important websites link to it. Our problem formulation is recursive: we defined important websites in terms of important websites. We will solve this issue through the following redefinition: imagine to be at website $i$, then you select uniformly one of the websites linked by $i$ and navigate to it. By iterating this process we produce a so-called random-walk over the network. The idea is the following: we start with a certain probability of being in each of the websites, then we compute how the probabilities change after the first step and interate until convergence.
+The websites with the greatest associated probability at the end are the ones that we assume to be most important.
+In order to compute the final probability distribution we need to introduce a data structure: the adjacency matrix $\hat{A}$ of a graph, defined as:
+$$
+\hat{a}_{ij} = \begin{cases}
+1 \text{ if there is an arc from node } i \text{ to node } j \\
+0 \text{ otherwise}
+\end{cases} \text{.}
+$$
+From $\hat{A}$ we compute the matrix $A$ with columns normalized to 1 in 1-norm:
+$$
+A = \begin{bmatrix}
+\frac{\underline{\hat{a}}_1}{||\underline{\hat{a}}_1||_1} & ... &
+\frac{\underline{\hat{a}}_n}{||\underline{\hat{a}}_n||_1}
+\end{bmatrix} \text{.}
+$$
+
+Let $P(\pi_j^{(k)})$ be the probability of being at the website $j$ at the step $k$.
+Then
+$$
+a_{ij} = P(\pi_i^{(k+1)}|\pi_j^{(k)})
+$$
+since we assumed to select the next website uniformly.
+Let
+$$
+\underline{\pi}^{(k)} = \begin{bmatrix}
+P(\pi_i^{(k)}) \\
+... \\
+P(\pi_n^{(k)})
+\end{bmatrix} \text{,}
+$$
+then
+$$
+A \underline{\pi}^{(k)} = \begin{bmatrix}
+\sum_{j=1}^n P(\pi_1^{(k+1)}|\pi_j^{(k)})P(\pi_j^{(k)}) \\
+... \\
+\sum_{j=1}^n P(\pi_n^{(k+1)}|\pi_j^{(k)})P(\pi_j^{(k)})
+\end{bmatrix} = \underline{\pi}^{(k+1)} \text{.}
+$$
+Reaching convergence means finding $\underline{\pi}$ s.t. $||\underline{\pi}||_1 = 1$, and $A \underline{\pi} = \underline{\pi}$.
+
+---
+
+That is, $\underline{\pi}$ is an eigenvector of $A$ with eigenvalue 1.
+
+Observe that $A$ is a special matrix: it is a **stochastic matrix** which is a particular kind of **non-negative matrix** (that is, a matrix with non-negative entries).
+Assuming that the initial graph is strongly connected, the theory of non-negative and stochastic matrices guarantees that 1 is an eigenvalue of $A$ and any other eigenvalue of $A$ is smaller than 1 in absolute value.
+
+**Remark**: If $||\underline{x}||_1 = 1$, then $||A \underline{x}||_1 = 1$.
+For:
+$$
+||A \underline{x}||_1 = ||x_1 \underline{a}_1 + ... + x_n \underline{a}_n||_1 = x_1 ||\underline{a}_1||_1 + ... + x_n || \underline{a}_n ||_1 = x_1 \cdot 1 + ... + x_n \cdot 1 = ||\underline{x}||_1 = 1 \text{.}
+$$
+
+Then we can determine $\underline{\pi}$ through the power method. Furthermore, because of what we've just remarked, we don't need to renormalize while applying the method.
