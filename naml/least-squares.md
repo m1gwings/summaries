@@ -424,3 +424,52 @@ $$
 In conclusion:
 - if $\underline{\epsilon}$ is NOT negligible, suitable values of $\lambda$ prevent the "propagated" error to blow up in the expression of $\underline{w}_{\text{R}}$ by putting the terms $\frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \approx 0$ for small $\sigma_i(X)$;
 - if $\underline{\epsilon} \approx \underline{0}$ then, with $\lambda = 0$, assuming $r(X) = p$, we would get $\underline{w}_{\text{R}} \approx \underline{w}^*$. So the term $\lambda$ is worsening the performance of our method.
+
+## Least Absolute Shrinkage and Selection Operator (LASSO)
+
+The linear model produced by solving LS not only allows to predict a label given a sample:
+$$
+\tilde{y} = \underline{\tilde{x}}^T \underline{\hat{w}}
+$$
+but also to identify the features which are more relevant for the prediction: that is, the ones whose values are multiplied by larger coefficients in $\underline{\hat{w}}$. This process is known as **features selection** and is relevant for the explainability of the model.
+Features selection is straightforward when the model $\underline{\hat{w}}$ is sparse (that is, it has many zeros): the relevant features are the ones which are multiplied by a non-zero coefficient, and we can discard the others. For this reason we're interested in methods which provide sparse solutions to the LS problem. Neither solving LS through the pseudoinverse, nor Ridge regression has this property: we need to introduce a different kind of regularization.
+
+First of all, let's understand the impact of regularization on the "shape" of the solution.
+Remember that we want to find $\underline{w}$ s.t.
+$$
+X^T X \underline{w} = X^T \underline{y} \text{.}
+$$
+Let's assume that $r(X^T X) = r(X) < p$ ortherwise the solution to LS is unique, and there is no solution sparser than another that we can choose. If $p = 2$ (we have two features) $X^T X \underline{w} = X^T \underline{y}$ is a system of two linear equations whose unkwowns are $w_1$, and $w_2$ (with $\underline{w}^T = \begin{bmatrix} w_1 & w_2 \end{bmatrix}$). Furthermore if $r(X) = 1$, the two equations are equivalent, hence we can get rid of one. It follows that the locus of solutions to LS is a line.
+Now suppose that we add a penalty term $\lambda ||\underline{w}||_2^2$ with $\lambda > 0$. Then, among all points on the line of solutions to LS, we want to find the one with least 2-norm.
+
+---
+
+(_Observe that we're making an approximation here: if we want to minimize $F(\underline{w}) + \lambda ||\underline{w}||_2^2$ it may be convenient, depending on the value of $\lambda$, to not satisfy $F(\underline{w}) = 0$ in favor of a solution with least 2-norm_).
+Under this assumption, the point we're looking for has a peculiar property: it must have a 2-norm $c$ such that there is exactly one point on the line of solutions which has 2-norm $c$ (which is the solution we're looking for), and every other point with 2-norm less than or equal to $c$ doesn't lie on the line of solutions.
+Furthermore, the locus of points $\{ ||\underline{w}||_2^2 \leq c \}$ is a circle. Hence, we're looking for a circle which is tangent to the line of solutions, and in particular, the solution we're interested in, is the point of intersection between this circle and the line of solutions.
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/2-norm-penalty.png" width="420mm" />
+</p>
+
+The locus of points with 1-norm equal to $c$ has instead another shape (a square roatated of 45 degrees in 2d) which favors sparse solutions:
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/1-norm-penalty.png" width="420mm" />
+</p>
+
+---
+
+These observations lead to **LASSO**: a type of regression in which we introduce a penalty term on the 1-norm of the model.
+That is:
+$$
+F(\underline{w}) = ||X \underline{w} - \underline{y}||_2^2 + \lambda ||\underline{w}||_1 \text{.}
+$$
+
+## Elastic net
+
+**Elastic net** is a generalization of LASSO and Ridge regression, where we introduce a penalty term on both the 2-norm and the 1-norm of the model:
+$$
+F(\underline{w}) = ||X \underline{w} - \underline{y}||_2^2 + \lambda_1 ||\underline{w}||_1 + \lambda_2 ||\underline{w}_2||_2^2 \text{.}
+$$
+
