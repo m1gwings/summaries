@@ -1,7 +1,7 @@
 ---
 theme: summary
 ---
-# Numerical analysis basics
+# Numerical analysis miscellaneous
 
 <div class="author">
 
