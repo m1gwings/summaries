@@ -585,3 +585,92 @@ k(\underline{x}_1, \underline{\tilde{x}}) \\
 k(\underline{x}_n, \underline{\tilde{x}})
 \end{bmatrix} \text{.}
 $$
+
+## Issues of LS for binary classification
+
+Consider a binary classification problem with $n$ samples $\underline{x}_1, ..., \underline{x}_n \in \mathbb{R}^p$ and $n$ labels $y_1, ..., y_n \in \{ -1, 1 \}$.
+Imagine to a have a **perfect** linear affine model $(\underline{w}^*, b^*)$ with $\underline{w}^* \in \mathbb{R}^p, b^* \in \mathbb{R}$, which predicts the labels in the following way:
+$$
+\hat{y} = \begin{cases}
+1 \text{ if } \underline{\tilde{x}}^T \underline{w}^* + b^* \geq 0 \\
+-1 \text{ if } \underline{\tilde{x}}^T \underline{w}^* + b^* < 0
+\end{cases} \text{.}
+$$
+Now let's do the contrary w.r.t. what we usually do: instead of trying to look for the "best" model by minimizing the squared errors, let's compute the sum of the squared errors for a model we already know that is perfect:
+$$
+\sum_{i=1}^n [ y_i - (\underline{x}_i^T \underline{w}^* + b^*) ]^2 =
+\sum_{i=1}^n y_i^2 [1 - \frac{1}{y_i} (\underline{x}_i^T \underline{w}^* + b^*)]^2 = 
+\sum_{i=1}^n 1 \cdot [1 - y_i (\underline{x}_i^T \underline{w}^* + b^*)]^2 \text{.}
+$$
+The last equality follows from the fact that $y_i \in \{ -1, 1 \}$.
+Now let $\underline{x}_P \in \mathbb{R}^p$ s.t. $\underline{x}_P^T \underline{w}^* = - b^*$. Then the separation boundary of the classifier is:
+$$
+H = \{ \underline{x} \in \mathbb{R}^p | \underline{x}^T \underline{w}^* + b^* = 0 \} = \{ \underline{x}_P + \underline{p} | \underline{p} \in \mathbb{R}^p \land \underline{p}^T \underline{w}^* = 0 \} \text{.}
+$$
+$\underline{w}^*$ is the direction perpendicular to $H$.
+Hence, the distance of a generic point from $H$ is:
+$$
+|(\underline{\tilde{x}} - \underline{x}_P)^T \underline{w}^*| = |\underline{\tilde{x}}^T \underline{w}^* - \underline{x}_P^T \underline{w}^*| = |\underline{\tilde{x}}^T \underline{w}^* + b^*| \text{.}
+$$
+
+Since $\underline{w}^*$ is the model of a perfect classifier:
+$$
+y_i = -1 \text{ iff } \underline{x}_i^T \underline{w}^* + b^* < 0 \text{.}
+$$
+Then $y_i(\underline{x}_i^T \underline{w}^* + b^*) = |\underline{x}_i^T \underline{w}^* + b^*| = \text{dist}(H, \underline{x}_i)$.
+
+---
+
+If we substitute this result in the expression we found before for the sum of the squared errors we get:
+$$
+\sum_{i=1}^n [1 - \text{dist}(H, \underline{x}_i)]^2 \text{.}
+$$
+Hence, if a sample is **far away** from the separation boundary, the **squared error** of the perfect classifier **gets big**.
+This is **bad news** since we're trying to find $\underline{w}^*$ by minimizing the sum of the squared errors, but if there are samples far from the separation boundary (which is likely and desired), $\underline{w}^*$ has an high squared error in the first place.
+
+It is clear that the sum of the squared errors isn't a good loss function for classifications problems: we need to use other loss functions.
+Some alternatives are:
+- the **ideal loss**:
+$$
+\mathcal{I}(y_i, \underline{x}_i, \underline{w}, b) = \begin{cases}
+0 \text{ if } y_i (\underline{x}_i^T \underline{w} + b) > 0 \\
+1 \text{ otherwise }
+\end{cases}
+$$
+> (_it counts the number of bad predictions_);
+- the **hinge loss**:
+$$
+\mathcal{H}(y_i, \underline{x}_i, \underline{w}, b) = (1 - y_i (\underline{x}_i^T \underline{w} + b))_+
+$$
+> where
+$$
+(a)_+ = \begin{cases}
+a \text{ if } a > 0 \\
+0 \text{ otherwise}
+\end{cases} \text{ for every } a \in \mathbb{R} \text{.}
+$$
+
+<p align="center">
+    <img src="http://localhost:8080/naml/static/loss-functions.png" width="450mm" />
+</p>
+
+---
+
+In the picture, we plotted the loss functions for the $i$-th sample with respect to the variable
+$$
+d = y_i(\underline{x}_i^T \underline{w} + b) \text{.} 
+$$
+
+In particular:
+- the expression for the LS loss becomes $\mathcal{L}(d) = (1-d)^2$;
+- the expression for the ideal loss becomes $\mathcal{I}(d) = \text{step}(-d)$;
+- the expression for the hinge loss becomes $\mathcal{H}(d) = (1-d)_+$.
+
+Observe that:
+- if $d > 0$, then the sample is correctly classified (as we have seen before);
+- if $d > 1$ both $\mathcal{H}$ and $\mathcal{I}$ have value 0 (as it should be), whereas $\mathcal{L}$ increases (it is the phenomenon that we have seen before);
+- if $d < 0$, then the sample has been classified incorrectly: $\mathcal{I}$ gives a contribution of 1, $\mathcal{H}$ gives a contribution linear in $d$ and $\mathcal{L}$ gives a contribution quadratic in $d$;
+- if $d \in (0, 1)$, then $\mathcal{I}$ gives no contribution but $\mathcal{H}$ still does. Remember that, **for a perfect classifier**, $d$ is the **distance from the separation boundary**. This is very important, since it is the reason why $\mathcal{H}$ penalizes models that classify correctly the samples but where there are samples close to the separation boundary. Hence a model obtained by minimizing the hinge loss is more robust since there are no samples close to the sepration boundary: then small perturbations do not alter the classification.
+This is the idea that leads to **SVM** (Suppoer Vector Machines) (_usually in conjunction with kernel functions_).
+
+Finally, the hinge loss is usually preferred over the ideal one because the discontinuity in the ideal loss leads to problems in the minimization technique which has to be numerical.
