@@ -76,3 +76,60 @@ Note that $A_i = Q_{i-1}^T Q_{i-1} R_{i-1} Q_{i-1} = R_{i-1} Q_{i-1}$.
 
 By how the iteration rule is defined (_remembering what it means for a matrix to be orthogonal_), all the $A_i$ are similar, and so they have the same eigenvalues.
 Under certain conditions the matrices $\{ A_i \}$ converge to a triangular matrix. Then it is trivial to calculate the eigenvalues of $A$ (_they correspond to the diagonal of the limit matrix_).
+
+### Singular Value Thresholding (SVT)
+
+We will see an algorithm to solve the **matrix completion** problem, which is stated as follows: let $X \in \mathbb{R}^{n \times p}$ with $r(X) \ll \min(n,p)$. Suppose that we know only the elements $x_{ij}$ of $X$ for $(i,j) \in \Omega$. We want to reconstruct $X$ starting from the known data. Since $r(X)$ is small by hypothesis, we can try to predict the missing pieces through linear combinations of those which are known.
+An ideal estimatore of $X$ is:
+$$
+\hat{X}_{\text{id}} = {\arg\min}_{Z \in \mathbb{R}^{n \times p}, z_{ij} = x_{ij} \forall (i,j) \in \Omega} r(Z) \text{.}
+$$
+
+---
+
+Unfortunately $\hat{X}_{\text{id}}$ is very hard to compute: the **rank is not a convex function**.
+For example, let $t \in (0, 1)$:
+$$
+r(t \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} + (1-t) \begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix}) = r(\begin{bmatrix} t & 0 \\ 0 & 1-t \end{bmatrix}) = 2 > 1 = t + (1-t) =
+$$
+
+$$
+= t \cdot r(\begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}) + (1-t) \cdot r(\begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix}) \text{.}
+$$
+
+We need to introduce a "practical" estimator. For this purpose, let's define the nuclear norm of a matrix.
+
+- Let $A \in \mathbb{R}^{m \times n}$. The **nuclear norm of $A$** is:
+$$
+||A||_* = \sum_{i=1}^{r(A)} \sigma_i(A) \text{.}
+$$
+
+> **Remark**: being a norm, the **nuclear norm is convex**. (_We're omitting the proof that the nuclear norm is a norm, of course the name is not a valid argument_).
+
+The practical estimator is the following:
+$$
+\hat{X} = {\arg\min}_{Z \in \mathbb{R}^{n \times p}, z_{ij} = x_{ij} \forall (i,j) \in \Omega} ||Z||_* \text{.}
+$$
+
+The **Singular Value Thresholding** (**SVT**) algorithm converges to $\hat{X}$:
+
+<div class="algorithm">
+
+1. $\hat{X} \gets O_{n \times p}$
+1. for every $(i,j) \in \Omega$:
+1. &emsp; $\hat{x}_{ij} \gets x_{ij}$
+1. do:
+1. &emsp; $\hat{X}_{\text{old}} \gets \text{copy}(\hat{X})$
+1. &emsp; $U, \Sigma, V^T \gets \text{svd}(\hat{X})$
+1. &emsp; for $i$ from $1$ to $r(\hat{X})$:
+1. &emsp; &emsp; if $\sigma_i(\hat{X}) \leq \tau$:
+1. &emsp; &emsp; &emsp; $\sigma_i(\hat{X}) \gets 0$
+1. &emsp; $\hat{X} \gets U \Sigma V^T$
+1. &emsp; for every $(i,j) \in \Omega$:
+1. &emsp; &emsp; $\hat{x}_{ij} \gets x_{ij}$
+1. while $||\hat{X} - \hat{X}_{\text{old}}||_F < \epsilon$
+
+</div>
+
+$\tau$ is a **threshold parameter**, $\epsilon$ is a **tolerance parameter**.
+Observe that the algorithm is **non monotone** if we consider $r(\hat{X}^{(k)})$ at every iteration $k$.
