@@ -473,3 +473,115 @@ $$
 F(\underline{w}) = ||X \underline{w} - \underline{y}||_2^2 + \lambda_1 ||\underline{w}||_1 + \lambda_2 ||\underline{w}_2||_2^2 \text{.}
 $$
 
+## Non-linear models and the kernel trick
+
+The idea that we will explot in order to adapt LS to non-linear models is very simple: we enrich the features of each sample by adding new features computed starting from the old ones, through non-linear functions.
+For example, if the features of the sample $\underline{x}_i$ are $y_i$ and $z_i$, we could compute the new features $y_i^2$, $z_i^2$, and $y_i z_i$.
+In general, we will enrich a sample vector $\underline{x}_i$ (which we can also call **feature vector**) through a **feature map** $\phi : \mathbb{R}^p \rightarrow \mathbb{R}^d$ (with $d > p$). At the end this boils down to applying LS to the matrix
+$$
+\Phi = \begin{bmatrix}
+\phi(\underline{x}_1)^T \\
+... \\
+\phi(\underline{x}_n)^T
+\end{bmatrix}
+$$
+instead of $X$. (_Of course, labels are not affected_).
+Usually $d$ is huge, making the computation of $\Phi^+$ infeasible. For this reason, we will introduce the so-called **kernel trick** which will allow us to make labels predictions without having to compute $\Phi^+$.
+Before introducing the trick, we have to rewrite the expression of the Ridge regression formula (applied to $\Phi$):
+$$
+\underline{w}_{\text{R}} = \sum_{i=1}^p \frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{u}_i^T \underline{y} = \sum_{i=1}^p \sigma_i(X) \underline{v}_i \underline{u}_i^T \sum_{j=1}^p \frac{1}{\sigma_j^2(X) + \lambda} \underline{u}_j \underline{u}_j^T \underline{y} = 
+$$
+
+$$
+= \sum_{i=1}^p \sigma_i(X) \underline{v}_i \underline{u}_i^T (\sum_{j=1}^p (\sigma_j^2(X) + \lambda) \underline{u}_j \underline{u}_j^T )^{-1} \underline{y} =
+$$
+
+$$
+= \sum_{i=1}^p \sigma_i(X) \underline{v}_i \underline{u}_i^T (\sum_{j=1}^p \sigma_j^2(X) \underline{u}_j \underline{u}_j^T + \lambda \sum_{j=1}^p \underline{u}_j \underline{u}_j^T)^{-1} \underline{y} = \Phi^T (\Phi \Phi^T + \lambda I_p)^{-1} \underline{y} = \Phi^T \underline{\alpha}
+$$
+
+---
+
+where $\underline{\alpha} = (\Phi \Phi^T + \lambda I_p)^{-1} \underline{y}$.
+As we remarked before, the computation of $\Phi \Phi^T$ is often infeasible.
+Let's inspect what this matrix is like:
+$$
+\Phi \Phi^T = \begin{bmatrix}
+\phi(\underline{x}_1)^T \\
+... \\
+\phi(\underline{x}_n)^T
+\end{bmatrix} \begin{bmatrix}
+\phi(\underline{x}_1) & ... & \phi(\underline{x}_n)
+\end{bmatrix} = \begin{bmatrix}
+\phi(\underline{x}_1)^T \phi(\underline{x}_1) & ... & \phi(\underline{x}_1)^T \phi(\underline{x}_n) \\
+... & ... & ... \\
+\phi(\underline{x}_n)^T \phi(\underline{x}_1) & ... & \phi(\underline{x}_n)^T \phi(\underline{x}_n)
+\end{bmatrix} \text{.}
+$$
+We're ready to introduce the kernel trick: a **kernel function** is a function
+$$
+k(\underline{x}_i, \underline{x}_j) = f(g(\underline{x}_i, \underline{x}_j))
+$$
+where $g : \mathbb{R}^p \times \mathbb{R}^p \rightarrow \mathbb{R}$ has complexity $O(p)$, $f : \mathbb{R} \rightarrow \mathbb{R}$, and such that $k(\underline{x}_i, \underline{x}_j) = \phi(\underline{x}_i)^T \phi(\underline{x}_j)$.
+Once we've a kernel function which matches out feature map, it is easy to compute $\Phi \Phi^T$:
+$$
+\Phi \Phi^T = \begin{bmatrix}
+k(\underline{x}_1, \underline{x}_1) & ... & k(\underline{x}_1, \underline{x}_n) \\
+... & ... & ... \\
+k(\underline{x}_n, \underline{x}_1) & ... & k(\underline{x}_n, \underline{x}_n)
+\end{bmatrix} = K \text{.}
+$$
+
+Some well-known kernel functions are:
+- $k(\underline{x}_i, \underline{x}_j) = (\underline{x}_i^T \underline{x}_j)^q$ where the corresponding feature map is given by all the monomials of degree $q$ in the values of the features;
+- $k(\underline{x}_i, \underline{x}_j) = (\underline{x}_i^T \underline{x}_j + 1)^q$ where the corresponding feature map is given by all the monomials of degree $q$ or less in the values of the features;
+- $k(\underline{x}_i, \underline{x}_j) = \exp\{ -\frac{||\underline{x}_i - \underline{x}_j||_2^2}{2 \sigma} \}$, known as the gaussian kernel, whose feature map produces a vector of infinite dimension.
+
+Let's make a concrete example. Let $p = 2$,
+$$
+\phi(\begin{bmatrix} x_1 \\ x_2 \end{bmatrix}) = \begin{bmatrix}
+x_1^2 \\
+\sqrt{2} x_1 x_2 \\
+x_2^2
+\end{bmatrix} \text{.}
+$$
+
+Then
+$$
+\phi(\begin{bmatrix} x_{i1} \\ x_{i2} \end{bmatrix})^T \phi(\begin{bmatrix} x_{j1} \\ x_{j2} \end{bmatrix}) = \begin{bmatrix}
+x_{i1}^2 & \sqrt{2}x_{i1}x_{i2} & x_{i2}^2
+\end{bmatrix} \begin{bmatrix}
+x_{j1}^2 \\
+\sqrt{2}x_{j1}x_{j2} \\
+x_{j2}^2
+\end{bmatrix} =
+$$
+
+$$
+= x_{i1}^2 x_{j1}^2 + 2 x_{i1}x_{i2}x_{j1}x_{j2} + x_{i2}^2x_{j2}^2 = (x_{i1}x_{j1} + x_{i2}x_{j2})^2 = (\begin{bmatrix} x_{i1} \\ x_{i2} \end{bmatrix}^T \begin{bmatrix} x_{j1} \\ x_{j2} \end{bmatrix})^2 = k(\underline{x}_i, \underline{x}_j) \text{.}
+$$
+
+---
+
+We got rid of $\Phi$ from the expression of
+$$
+\underline{\alpha} = (K + \lambda I_p)^{-1} \underline{y}
+$$
+but it still appears in the expression of $\underline{w}_{\text{R}}$:
+$$
+\underline{w}_{\text{R}} = \Phi^T \underline{\alpha} \text{.}
+$$
+
+Fortunately, there is a way of making predictions without having to compute explicitly $\underline{w}_{\text{R}}$:
+$$
+\tilde{y} = \phi(\underline{\tilde{x}})^T \underline{w}_{\text{R}} = \underline{w}_{\text{R}}^T \phi(\underline{\tilde{x}}) = \underline{\alpha}^T \Phi \phi(\underline{\tilde{x}}) = \underline{\alpha}^T \begin{bmatrix}
+\phi(\underline{x}_1)^T \\
+... \\
+\phi(\underline{x}_n)^T
+\end{bmatrix} \phi(\underline{\tilde{x}}) =
+\underline{\alpha}^T \begin{bmatrix}
+k(\underline{x}_1, \underline{\tilde{x}}) \\
+... \\
+k(\underline{x}_n, \underline{\tilde{x}})
+\end{bmatrix} \text{.}
+$$
