@@ -302,3 +302,125 @@ $$
 
 This property is useful since sometimes, if $||\underline{w}||_2^2$ is big, the noise in the measured values of the features of $\underline{\tilde{x}}$ are amplified when we compute $\tilde{y} = \underline{\tilde{x}}^T \underline{w}$.
 
+## Ridge regression
+
+**Ridge regression** is a regularization technique useful when we want to solve the LS problem in the following scenario:
+$$
+\underline{y} = X \underline{w}^* + \underline{\epsilon}
+$$
+where $X \underline{w}^*$ are the "true" labels (thus $\underline{w}^*$ is the "true" model), and $\underline{\epsilon}$ represents the noise in the measurements.
+
+---
+
+Let's see how the noise propagates into the pseudoinverse LS solution (which we'll denote with $\underline{w}_{\text{LS}}$):
+$$
+\underline{w}_{\text{LS}} = X^+ \underline{y} = \sum_{i=1}^{r(X)} \frac{1}{\sigma_i(X)} \underline{v}_i \underline{u}_i^T (X \underline{w}^* + \underline{\epsilon}) =
+$$
+
+$$
+= \sum_{i=1}^{r(X)} \frac{1}{\sigma_i(X)} \underline{v}_i \underline{u}_i^T (\sum_{j=1}^{r(X)} \sigma_j(X) \underline{u}_i \underline{v}_i^T \underline{w}^* + \underline{\epsilon}) =
+$$
+
+$$
+= (\sum_{i=1}^{r(X)} \underline{v}_i \underline{v}_i^T) \underline{w}^* +
+\sum_{i=1}^{r(X)} \frac{\underline{u}_i^T \underline{\epsilon}}{\sigma_i(X)} \underline{v}_i \text{.}
+$$
+
+If $r(X) = p$, then $\sum_{i=1}^{r(X)} \underline{v}_i \underline{v}_i^T = \sum_{i=1}^p \underline{v}_i \underline{v}_i^T = I_p$, hence
+$$
+\underline{w}_{\text{LS}} = \underline{w}^* + \sum_{i=1}^p \frac{\underline{u}_i^T \underline{\epsilon}}{\sigma_i(X)} \underline{v}_i .
+$$
+
+Observe that $\sigma_p$ can be quite small, that is $0 \approx \sigma_p \leq ... \leq \sigma_1$. If this is the case, $\underline{u}_i^T \underline{\epsilon}$ gets amplified in $\underline{w}_{\text{LS}}$, and the norm of the "propagated" error is:
+$$
+\sqrt{\sum_{i=1}^p (\frac{\underline{u}_i^T \underline{\epsilon}}{\sigma_i(X)})^2} \gg 0 \text{.}
+$$
+
+That is $\underline{w}_{\text{LS}} \not \approx \underline{w}^*$.
+
+Ridge regression aims at solving this issue by modifying the functional that we're minimizing through the introduction of a penalty term on the 2-norm of the model:
+$$
+F_{\text{R}}(\underline{w}) = ||\underline{y} - X \underline{w}||_2^2 + \lambda ||\underline{w}||_2^2
+$$
+where $\lambda > 0$ is an hyperparameter.
+Observe that $F_{\text{R}}$ is still a quadratic functional:
+$$
+F_{\text{R}}(\underline{w}) = \underline{y}^T \underline{y} -2\underline{y}^T X \underline{w} + \underline{w}^T X^T X \underline{w} + \lambda \underline{w}^T \underline{w} =
+$$
+
+$$
+= \underline{y}^T \underline{y} - 2 \underline{y}^T X \underline{w} + \underline{w}^T (X^T X + \lambda I_p) \underline{w} \text{.}
+$$
+
+Hence $\underline{w}$ is a minimizer of $F_{\text{R}}$ iff
+$$
+\nabla_{\underline{w}} F_{\text{R}}(\underline{w}) = 2 (X^T X + \lambda I_p) \underline{w} - 2 X^T \underline{y} = \underline{0} \text{ iff }
+$$
+
+$$
+(X^T X + \lambda I_p) \underline{w} = X^T \underline{y} \text{.}
+$$
+
+---
+
+Remember that $X^T X$ has non-negative eigenvalues, hence
+
+$$
+X^TX + \lambda I_p = V (\Lambda + \lambda I_p) V^T
+$$
+
+has strictly positive eigenvalues. Thus it is invertible.
+It follows that the solution to the Ridge regression is:
+$$
+\underline{w}_{\text{R}} = (X^T X + \lambda I_p)^{-1} X^T \underline{y} \text{.}
+$$
+
+Let's see how the noise propagates into $\underline{w}_{\text{R}}$.
+First of all observe that:
+$$
+X^TX + \lambda I_p = \sum_{i=1}^{r(X)} \sigma_i^2(X) \underline{v}_i \underline{v}_i^T + \lambda \sum_{i=1}^{r(X)} \underline{v}_i \underline{v}_i^T \text{.}
+$$
+Then, if we define $\sigma_{r(X)+1}(X) = ... = \sigma_p(X) = 0$,
+$$
+X^T X + \lambda I_p = \sum_{i=1}^p (\sigma_i^2(X) + \lambda) \underline{v}_i \underline{v}_i^T \text{.}
+$$
+
+It is easy to check (by multiplying the two expressions) that
+$$
+(X^T X + \lambda I_p)^{-1} = \sum_{i=1}^p \frac{1}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{v}_i^T \text{.}
+$$
+
+Then:
+$$
+(X^T X + \lambda I_p)^{-1} X^T = \sum_{i=1}^p \frac{1}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{v}_i^T \sum_{j=1}^p \sigma_j(X) \underline{v}_j \underline{u}_j^T =
+$$
+
+$$
+= \sum_{i=1}^p \frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{u}_i^T \text{.}
+$$
+
+Observe that:
+- if $\sigma_i(X) \gg \lambda$, then
+$$
+\frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} = \frac{1}{\sigma_i(X) + \frac{\lambda}{\sigma_i(X)}} \approx \frac{1}{\sigma_i(X)} \text{;}
+$$
+- if $\sigma_i(X) \ll \lambda$, then
+$$
+\frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} = \frac{1}{\sigma_i(X) + \frac{\lambda}{\sigma_i(X)}} \approx \frac{1}{\frac{\lambda}{\sigma_i(X)}} = \frac{\sigma_i(X)}{\lambda} \approx 0 \text{.}
+$$
+
+---
+
+Finally:
+$$
+\underline{w}_{\text{R}} = \sum_{i=1}^p \frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{u}_i^T (X \underline{w}^* + \underline{\epsilon}) = 
+\sum_{i=1}^p \frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{u}_i^T (\sum_{j=1}^p \sigma_j(X) \underline{u}_j \underline{v}_j^T \underline{w}^* + \underline{\epsilon}) =
+$$
+
+$$
+= (\sum_{i=1}^p \frac{\sigma_i^2(X)}{\sigma_i^2(X) + \lambda} \underline{v}_i \underline{v}_i^T ) \underline{w}^* + \sum_{i=1}^p \frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda}(\underline{u}_i^T \underline{\epsilon}) \underline{v}_i \text{.}
+$$
+
+In conclusion:
+- if $\underline{\epsilon}$ is NOT negligible, suitable values of $\lambda$ prevent the "propagated" error to blow up in the expression of $\underline{w}_{\text{R}}$ by putting the terms $\frac{\sigma_i(X)}{\sigma_i^2(X) + \lambda} \approx 0$ for small $\sigma_i(X)$;
+- if $\underline{\epsilon} \approx \underline{0}$ then, with $\lambda = 0$, assuming $r(X) = p$, we would get $\underline{w}_{\text{R}} \approx \underline{w}^*$. So the term $\lambda$ is worsening the performance of our method.
