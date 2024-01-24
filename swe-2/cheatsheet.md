@@ -700,7 +700,7 @@ In this paragraph we will introduce some operators that are useful if we want to
 
 Let `rel1 = A1 -> A2 -> ... -> A(N-1) -> C` and `rel2 = C -> B2 -> ... -> BM` then `rel1.rel2` is the set of all tuples `(a_1, ..., a_(n-1), b_2, ..., b_m)` such that, for some `c` in `C`, `(a_1, ..., a_(n-1), c)` belongs to `rel1` and `(c, b_2, ..., b_m)` belongs to `rel2`.
 
-**Remark**: the behavior of the operator can be naturally extended to tha case in which either `rel1` or `rel2` is a "_simple_" set, that is, a relation of arity 1.
+**Remark**: the behavior of the operator can be naturally extended to the case in which either `rel1` or `rel2` is a "_simple_" set, that is, a relation of arity 1.
 
 ##### `iden`
 
@@ -764,7 +764,7 @@ let x = A + B, y = C + D | x + y
 ```
 > `let` is mostly used to simplify complex expressions and give meaningful names to intermediate computations. **If writing a boolean expression, you may use `{ ... }` instead of `|`**.
 
-- **`implies`-`else`**: when used in conjuction with `else`, `implies` acts as a conditional. `p implies A else B` returns `A` if `p` is `true` and `B` if `p` is `false`. `p` must be a boolean expression. (**`A` and `B` can also be non-boolean expressions**).
+- **`implies`-`else`**: when used in conjunction with `else`, `implies` acts as a conditional. `p implies A else B` returns `A` if `p` is `true` and `B` if `p` is `false`. `p` must be a boolean expression. (**`A` and `B` can also be non-boolean expressions**).
 
 - **paragraph expressions**: if multiple constraints are surrounded with braces, they are all `and`-ed together. The following two are equivalent:
 ```
@@ -802,7 +802,7 @@ Once defined, predicates can be used as part of boolean expressions, The followi
 ```
 sig A {}
 
-pread at_least_one_a {
+pred at_least_one_a {
     some A
 }
 
@@ -1535,7 +1535,7 @@ In this setting we want a component that drops the requests from services $B_i$ 
 
 ##### Security patterns
 
-A **security pattern** which is often applied in practive is the usage of an **API gateway**: it acts a mediator, sitting between a service client and the service being invoked. Service clients talk only to the gateway. It is a gatekeeper for all traffic to microservices and allow to easily implement authentication/authorization mechanisms. It can be a single point of failur, but this is usually solved through replication.
+A **security pattern** which is often applied in practice is the usage of an **API gateway**: it acts a mediator, sitting between a service client and the service being invoked. Service clients talk only to the gateway. It is a gatekeeper for all traffic to microservices and allow to easily implement authentication/authorization mechanisms. It can be a single point of failure, but this is usually solved through replication.
 
 ##### Communication patterns
 
@@ -1543,7 +1543,7 @@ There are two possible **communication patterns**:
 - **synchronous communication**: requires the two communicating parties to be ready to communicate at the same time;
 - **asynchronous communication**: allows each counterpart to enter in the communication at its own pace.
 
-We can implement **asynchronous communication** using an **event-driven framework**. TìIt can support **multiple communication styles**, like:
+We can implement **asynchronous communication** using an **event-driven framework**. It can support **multiple communication styles**, like:
 - **notification** (a service sends notifications to the other),
 
 </div>
@@ -1564,7 +1564,7 @@ An asynchronous communication pattern has several advantages, like **loose coupl
 The **de-facto standard framework** for developing microservices in Java is **Spring**.
 Spring offers explicit support for several key functionalities, like: **building RESTful APIs**, handling communication between microservices, user authentication, building an API gateway.
 
-Let's see a **simple example** of service built with Spring: you are taasked with developing a service that will handle HTTP GET requests on `http://localhost:8080/greeting`. The service will provide a JSON representation of a greeting response: `{"id": 1, "content": "Hello, World!"}`.
+Let's see a **simple example** of service built with Spring: you are tasked with developing a service that will handle HTTP GET requests on `http://localhost:8080/greeting`. The service will provide a JSON representation of a greeting response: `{"id": 1, "content": "Hello, World!"}`.
 You have the option to personalize the greeting by including an optional name parameter in the query string: `http://localhost:8080/greeting?name=User`. In this case the JSON will contain the following content: `{"id": 1, "content": "Hello, User!"}`. `id` is an integer number that keeps track of the number of times that we greeted a user.
 
 The OpenAPI specification is:
@@ -1887,7 +1887,7 @@ public class PayrollApplication {
     }
 }
 ```
-Furthermore, we're going to implement a simple in-memory databse in which we preload some data:
+Furthermore, we're going to implement a simple in-memory database in which we preload some data:
 ```
 @Configuration
 class LoadDatabase {
@@ -1912,7 +1912,7 @@ class LoadDatabase {
 }
 ```
 
-**Remark**: Spring Boot runs all **`CommandLineRunner`**s tagged with **`@Bean`** once the application starts. This runner needs a **copy** of the EntityRepository we created.
+**Remark**: Spring Boot runs all **`CommandLineRunner`** tagged with **`@Bean`** once the application starts. This runner needs a **copy** of the EntityRepository we created.
 
 It is time to implement the **controller**.
 ```
@@ -2044,7 +2044,7 @@ In order to measure the availability of a service we need to introduce some quan
 
 Furthermore, we call:
 - **Mean Time To Repair** (**MTTR**) the average time between the occurrence of a failure and service recovery, also known as the **downtime**;
-- **Mean Time To Failures** (**MTTF**) the average time between the recovery from one failure nad the occurrence of the next failur, also known as **uptime**;
+- **Mean Time To Failures** (**MTTF**) the average time between the recovery from one failure nad the occurrence of the next failure, also known as **uptime**;
 - **Mean Time Between Failures** (**MTBF**) the average time between the occurrences of two consecutive failures.
 
 <p align="center">
@@ -2185,7 +2185,7 @@ a = y / (x + 20)
 ...
 ```
 the code above works for any value of `x` but `-20`.
-For this reason we need to perfrom verification in severl phases during the entire development process.
+For this reason we need to perfrom verification in several phases during the entire development process.
 A model which comprehends the various verification (and validation) stages that we have to perform is the V model.
 
 </div>
@@ -2304,7 +2304,7 @@ An example is **live variable analysis**.
 
 - **Live variable analysis**
 
-Given a CFG, a variable $v$ is **live at** the exit of **block** $b$ if there is some **path** (on the CFG) from block $b$ **to a use** $c$ of $v$ taht does not redefine $v$ (that is, there is no **intermediate block** ($b$ and $c$ are excluded) in the path that redefines $v$).
+Given a CFG, a variable $v$ is **live at** the exit of **block** $b$ if there is some **path** (on the CFG) from block $b$ **to a use** $c$ of $v$ that does not redefine $v$ (that is, there is no **intermediate block** ($b$ and $c$ are excluded) in the path that redefines $v$).
 
 **Live variable analysis** determines, for each block, which variables **may be live** at the exit of that block. We say "**may**" since not every path on the CFG is a feasible path (that is, a path in the **program behavior**).
 We use $LV(b)$ to represent the **set of live variables at block $b$**. So, because of what we just remarked, if $x \notin LV(k)$ then **definetely** $x$ is not live at $k$, if $x \in LV(k)$, **still**, $x$ **may not be live at $k$**.
@@ -2524,7 +2524,7 @@ In particular, if we want to **test** in isolation the **unit B** which **uses u
 The **faults** discovered by integration testing regard:
 - **inconsistent interpretation of parameters** (for example different modules could use different measurement units (meters/yards));
 - **violations of assumptions about domains** (for example buffer overflow);
-- **side effect on parameters or resoruces** (for example conflicts on temporary files);
+- **side effect on parameters or resources** (for example conflicts on temporary files);
 - **non-functional properties** (for example unanticipated performance issues).
 
 When we want to perform integration testing, it is useful to define a **test plan**, which defines how to carry it out. It must be consistent with the **build plan**, which defines the order of implementation of units.
@@ -2547,7 +2547,7 @@ This approach is based on the **hierarchical structure of the system**. We can p
 </div>
 <div class="column">
 
-In the **top-down strategy** we work from the top level (in terms of "use" or "include" relation) toward the bottom: we **need stubs of used modules** at each step of the process. As modules are ready (following the build plan), more functionality is teastble. We replace some stubs and we need other stubs for "lower levels". When all modules are incorporated, the whole functionality can be tested.
+In the **top-down strategy** we work from the top level (in terms of "use" or "include" relation) toward the bottom: we **need stubs of used modules** at each step of the process. As modules are ready (following the build plan), more functionality is testable. We replace some stubs and we need other stubs for "lower levels". When all modules are incorporated, the whole functionality can be tested.
 
 In the **bottom-up strategy** we start from the "leaves" of the "uses" hierarchy. In this case we don't need stubs, **but drivers**. Newly developed modules may replace existing drivers, and new modules may require new drivers. In this way we could create several working subsystems, that will be eventually integrated into the final one.
 
@@ -2568,7 +2568,7 @@ In **functional** system **testing** we want to check whether the software meets
 </div>
 <div class="column">
 
-We can do so by suing the software as descibed by use cases in the RASD, checking whether the requirements are fulfilled.
+We can do so by using the software as descibed by use cases in the RASD, checking whether the requirements are fulfilled.
 
 In **performance** (non-functional) system **testing** we want to:
 - detect bottlenecks affecting response time, utilization, throughput;
@@ -2580,7 +2580,7 @@ We can do so through several types of **performance testing**:
 
 - **Load testing**
 
-In **load testing** we want to: expose bugs such as emmory leaks, mismanagement of memory, buffer overflows; identify upper limits of components, and compare alternative architectural options. We do so by **increasing the workload** until the system can support it; furthermore, we load the system for a long period.
+In **load testing** we want to: expose bugs such as memory leaks, mismanagement of memory, buffer overflows; identify upper limits of components, and compare alternative architectural options. We do so by **increasing the workload** until the system can support it; furthermore, we load the system for a long period.
 
 - **Stress testing**
 
@@ -2616,9 +2616,9 @@ Test cases can be generated ina **black box** or **white box** manner:
 - **white box** generation is based on code characteristics;
 - **black box** generation is based on specs characteristics.
 
-Furthermore, test cases can be defined **manually**, or **automatically** throguh techniques (concolic execution, fuzz testing, search-based testing) that we will introduce later.
+Furthermore, test cases can be defined **manually**, or **automatically** through techniques (concolic execution, fuzz testing, search-based testing) that we will introduce later.
 
-We can even use **symbolic execution** to **generate test cases**: given as input a target location or some paths, if the path conditions are `SAT`, we generate `N` satisfying assignments (that is, test cases); **execute**the test cases, and, for each execution, check the reached state (with an oracle).
+We can even use **symbolic execution** to **generate test cases**: given as input a target location or some paths, if the path conditions are `SAT`, we generate `N` satisfying assignments (that is, test cases); **execute** the test cases, and, for each execution, check the reached state (with an oracle).
 
 #### Concolic (concrete-symbolic) execution
 
@@ -2645,7 +2645,7 @@ When performing **concolic execution** there is an **important difference** w.r.
 At the end of the exeuction (when we reach a desired location or a `return` statement), we can **negate the path condition** and generate an **assignment for the inputs** which satisfies the negated path condition. This is the **symbolic to concrete** step, where we generate inputs to test new paths. When we explore the new path through the generated inputs, computing its path condition, we're applying the **concrete to symbolic** step instead.
 
 
-Concolyc execution **solves one of the problems of symbolic execution**: it can handle **black box** functions (that is, functions defined in other pre-compiled modules that we import, for which we don't have the source code).
+Concolic execution **solves one of the problems of symbolic execution**: it can handle **black box** functions (that is, functions defined in other pre-compiled modules that we import, for which we don't have the source code).
 Suppose that in the code to which we're applying concolic execution there is a black box function `bb`.
 If we encounter the statement `z = bb(y)`, we can put `bb(Y)` as the symbolic value of `z` (without expressing it more explicitly),
 
@@ -2958,7 +2958,7 @@ Let's introduce some **terminology**:
 - **Deliverables** are work products that are delivered to the customer.
 
 Graphical notations are normally used to illustrate the project schedule.
-**Gantt charts** are the most commonly used representations for project schedules. They show the schedule as activities or resoruces against time.
+**Gantt charts** are the most commonly used representations for project schedules. They show the schedule as activities or resources against time.
 
 <p align="center">
     <img src="http://localhost:8080/swe-2/static/gantt-chart.png"
@@ -2984,7 +2984,7 @@ Gantt diagrams often result from one or more of the following methods:
 
 #### Precedence Diagram Method (PDM)
 
-**PDM** is a technique used for constructing a schedule starting from the precedence relationships between activities. It defines which task (**predecessor** triggers the other (**successor**)).
+**PDM** is a technique used for constructing a schedule starting from the precedence relationships between activities. It defines which task (**predecessor**) triggers the other (**successor**).
 The principal **types of dependencies** are:
 - **Finish to start**:
 
@@ -3151,7 +3151,7 @@ track actual work hours or actual duration, track how much work or duration rema
 Then we can compare the **actual schedule** with the **baseline schedule**. Some warning signs are: tasks running late, tasks not started that should be, haven't completed as much work as planned.
 Also we have to compare actual costs to assigned budget.
 
-Finally we want to monitor sirks and, in case they become reality, follow the mitigation strategy defined in the risk management plan.
+Finally we want to monitor risks and, in case they become reality, follow the mitigation strategy defined in the risk management plan.
 
 ##### Earned Value Analysis
 
