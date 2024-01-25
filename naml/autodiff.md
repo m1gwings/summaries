@@ -9,6 +9,13 @@ Cristiano Migali
 
 </div>
 
+**Automatic differentiation** is a technique which allows to evaluate the **exact** partial derivative of a function specified by a computer program at **a given input**.
+In order to perform AD on a function
+$$
+f : \mathbb{R}^n \rightarrow \mathbb{R}^m
+$$
+computed by a program, $f$ has to be represented as a **wenger list**.
+
 ---
 
 ## Wengert lists

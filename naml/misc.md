@@ -194,3 +194,39 @@ $$
 $$
 
 Then we can determine $\underline{\pi}$ through the power method. Furthermore, because of what we've just remarked, we don't need to renormalize while applying the method.
+
+### Numerical derivatives
+
+#### The Decentered method
+
+Assume that we want to differentiate numerically a function $f$ at $x \in \mathbb{R}$; the **decentered method** consists in the following computation:
+$$
+D_1(h) = \frac{f(x+h)-f(x)}{h} = \frac{1}{h}[f(x) + f'(x)h + \frac{1}{2}f''(x)h^2 + \frac{1}{3!}f'''(x)h^3 + ...
+$$
+
+$$
+- f(x)] = f'(x) + \frac{1}{2}f''(x)h + \frac{1}{3!}f'''(x)h^2 + ... = f'(x) + O(h) \text{.}
+$$
+
+#### The Centered 
+
+Assume that we want to differentiate numerically a function $f$ at $x \in \mathbb{R}$; the **centered method** consists in the following computation:
+$$
+D_2(h) = \frac{f(x+h)-f(x-h)}{2h} = \frac{1}{2h}[f(x) + f'(x)h + \frac{1}{2!}f''(x)h^2 + \frac{1}{3!}f'''(x)h^3 + ... 
+$$
+
+$$
+-f(x)+f'(x)h-\frac{1}{2}f''(x)h^2 + \frac{1}{3!}f'''(x)h^3 - ...] =
+$$
+
+$$
+= \frac{1}{2h}[2f'(x)h + \frac{2}{3!}f'''(x)h^3 + ...] = f'(x)+ \frac{f'''(x)}{3!}h^2 + ... = f'(x) + O(h^2) \text{.}
+$$
+
+These methods introduce the following types of error:
+- **truncation error**: the term $O(h)$ in $D_1$ and $O(h^2)$ in $D_2$ due to the fact that both the functions are not equal to $f'$;
+- **roundoff error**: due to the fact that numbers are represented using FP arithmetic that can lead to problems when subtracting two numbers which are close to each other or when summing numbers with very dfferent order of magnitude.
+
+---
+
+Both thse errors contribute to the **approximation error**, which is the difference between the computed value and the exact one of $f'(x)$ (which can oscillate in function of $h$).
