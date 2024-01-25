@@ -14,11 +14,115 @@ In order to perform AD on a function
 $$
 f : \mathbb{R}^n \rightarrow \mathbb{R}^m
 $$
-computed by a program, $f$ has to be represented as a **wenger list**.
+computed by a program, $f$ has to be represented as a **Wengert list**.
+
+- A **Wengert list** for a function
+$$
+f : \mathbb{R}^n \rightarrow \mathbb{R}^m
+$$
+
+$$
+\begin{bmatrix} x_1 \\ ... \\ x_n \end{bmatrix} \mapsto
+\begin{bmatrix} y_1 \\ ... \\ y_m \end{bmatrix}
+$$
+> computed by a program, is a list of variables:
+$$
+(v_{-(n-1)}, ..., v_0, v_1, ..., v_l)
+$$
+> with $l \in \mathbb{N}$, $l \geq m$ s.t.
+> - $v_{i-n} = x_i$ for every $i \in \{ 1, ..., n \}$;
+> - $v_i = g_i(v_{-(n-1)}, ..., v_{i-1})$ for every $i \in \{ 1, ..., l \}$, where $g_i$ is a "simple" function for which we know the derivative;
+> - $y_i = v_{l-m+i}$ for every $i \in \{ 1, ..., m \}$.
+
+We can represent $f$ also with a **computational graph**, which is a DAG strictly related to the Wengert list where we have $l+n$ nodes, each one containing an element of the list $v_i$. There is an edge from node $v_i$ to node $v_j$ iff the expression of $v_j$ contains $v_i$.
+Given a computational graph, we can introduce the concept of **derivative on the edge**: we can associate $\frac{\partial v_j}{\partial v_i}$ to every edge from $v_i$ to $v_j$.
+
+## Forward Mode AD
+
+Fix an input variable $x_i$ with $i \in \{ 1, ..., n \}$. Then we introduce the notation $\dot{v}_j$ with the meaning of
+$$
+\dot{v}_j = \frac{\partial v_j}{\partial x_i} \text{.}
+$$
+
+The process of computing the derivatives $\dot{v}_j$ from $j = -(n-1)$ to $j=l$ is known as **Forward Mode** (**FM**) automatic differentiation.
 
 ---
 
-## Wengert lists
+By how the Wengert list is defined, $\dot{v}_j$ depends only on $v_{-(n-1)}, ..., v_{j-1}$ and $\dot{v}_{-(n-1)}$, ..., $\dot{v}_{i-1}$, which are the values already computed at the $j$-th step.
+In particular, let $P_j$ be the set of predecessors of $v_j$ in the computational graph of $f$, then
+$$
+\frac{\partial v_j}{\partial x_i} = \sum_{p \in P_j} \frac{\partial v_j}{\partial p} \frac{\partial p}{\partial x_i} \text{.}
+$$
+
+Of course to get the partial derivatives w.r.t. a different input, we have to repeat the process starting from $\dot{v}_{-(n-1)}$.
+The process of computing all the partial derivatives $\dot{v}_{-(n-1)}$, ..., $\dot{v}_{l}$ for a given input is known as a **sweep**. The computational complexity of a sweep is the same as the one of executing the function.
+
+To get the full jacobian of the function we need to perform $n$ sweeps in FM AD.
+
+## Backward Mode AD
+
+## AD Tricks
+### Matrix free computation of $J \underline{r}$ through FM AD
+
+Said $J$ the jacobian of $f$ at $\underline{x}_0 \in \mathbb{R}^n$, and $\underline{r} \in \mathbb{R}^n$ a vector, FM allows the **matrix free** (_that is, without having to explicitly compute $J$_) computation of the product $J \underline{r}$.
+Let's see how this is achieved:
+let
+$$
+f : \mathbb{R}^n \rightarrow \mathbb{R}^m
+$$
+$$
+\begin{bmatrix} x_1 \\ ... \\ x_n \end{bmatrix} \mapsto \begin{bmatrix} y_1 \\ ... \\ y_m \end{bmatrix} \text{,}
+$$
+
+$$
+\underline{x}_0 = \begin{bmatrix} x_{1,0} \\ ... \\ x_{n,0} \end{bmatrix} \in \mathbb{R}^n,
+J = \begin{bmatrix}
+\frac{\partial y_1}{\partial x_1}(\underline{x}_0) & ... & \frac{\partial y_1}{\partial x_n}(\underline{x}_0) \\
+... & ... & ... \\
+\frac{\partial y_m}{\partial x_1}(\underline{x}_0) & ... & \frac{\partial y_m}{\partial x_n}(\underline{x}_0)
+\end{bmatrix} \in \mathbb{R}^{m \times n} ,
+\underline{r} = \begin{bmatrix} r_1 \\ ... \\ r_n \end{bmatrix} \in \mathbb{R}^n \text{.}
+$$
+
+Now consider the function
+$$
+h : \mathbb{R} \rightarrow \mathbb{R}^n \text{ defined as }
+$$
+$$
+h(t) = \underline{r}t + \underline{x}_0 \text{.}
+$$
+
+Observe that
+$$
+\frac{d}{dt}h(t) = \underline{r} \text{ and } h(0) = \underline{x}_0 \text{.}
+$$
+
+---
+
+Let
+$$
+g : \mathbb{R} \rightarrow \mathbb{R}^m
+$$
+$$
+t \mapsto \begin{bmatrix} z_1 \\ ... \\ z_m \end{bmatrix} \text{ defined as }
+$$
+$$
+g(t) = f(h(t)) \text{.}
+$$
+
+As we know, since $g$ has a single input, we can compute its jacobian at $t = 0$ with **one single sweep of FM**. Furthermore, by the chain rule,
+$$
+Dg(0) = Df(h(0)) \cdot Dh(0) = Df(\underline{x}_0) \cdot \underline{r} = J \underline{r}
+$$
+which is exactly what we were looking for.
+Observe that **computing $J$ explicitly** would have required **$n$ sweeps of FM**.
+But one could say: maybe computing one sweep of FM on $g$ has the same cost of computing $n$ sweeps of FM on $f$. We will see that it is not the case, one sweep of FM on $g$ has the same cost of one sweep on $f$. Furthermore it is not necessary to compute $g$ explicitly (we used it only for proving the theoretical result): we just need to "seed" (_we will specify what we mean in a moment_) the FM on $f$ with $\underline{r}$ instead of $\underline{e}_i$.
+
+**First remark**: as the dot notation for derivatives suggests, FM is completely agnostic w.r.t. the variable by which we are differentiating.
+
+---
+
+## A more formal approach to Wengert lists
 
 (_What follows is my reinterpretation of Wengert lists with the purpose of proving the "fundamental recursive equations" of FM and BM AD [I failed with BM :D]_).
 - A **Wengert list** is a tuple $(n, m, l, \mathcal{P}, \Phi)$ where:
@@ -59,14 +163,10 @@ f_l(v_1, ..., v_n)
 \end{bmatrix} \text{.}
 $$
 
-**Remark**: the way in which the functions in the list are composed, which is described by $\mathcal{P}$, can be represented through the so-called **computational graph**. In particular, a computational graph is a DAG which represents a function as the composition of elementary functions. The nodes of the computational graph are the variables $v_1, ..., v_l$, and $v_i$ is a predecessor of $v_j$ iff $i \in P_j$.
-
 To simplify what follows in the treatment, let:
 $$
 \hat{\phi}_i(v_1, ..., v_{i-1}) = \phi_i(v_{P_i[1]}, ..., v_{P_i[|P_i|]}) \text{ for } i \in \{ n+1, ..., l \} \text{.}
 $$
-
----
 
 It follows that:
 $$
@@ -74,6 +174,8 @@ f_i(v_1, ..., v_n) = \hat{\phi}_i(f_1(v_1, ..., v_n), ..., f_{i-1}(v_1, ..., v_n
 $$
 
 We want to compute $D_i g_j(v_1, ..., v_n)$ for $i \in \{ 1, ..., n \}$, $j \in \{ 1, ..., m \}$. We will do so through a dynamic programming approach. The recursive equation that we will solve depends on the kind of AD that we'll implement.
+
+---
 
 ### Forward mode recursive equation
 
@@ -114,8 +216,6 @@ $$
 \tag{2}\label{2} \phi^*_{i,i+1}(v_1, ..., v_i) = \hat{\phi}_{i+1}(v_1, ..., v_i) \text{ for every } i \in \{ n, ..., l-1 \} \text{;}
 $$
 
----
-
 $$
 \tag{3}\label{3} \phi^*_{j,i}(v_1, ..., v_j) = \phi^*_{j+1,i}(v_1, ..., v_j, \hat{\phi}_{j+1}(v_1, ..., v_j))
 $$
@@ -123,6 +223,8 @@ $$
 $$
 \text{ for every } j \in \{ n, ..., l-1 \}, i \in \{ j+1, ..., l \} \text{.}
 $$
+
+---
 
 > **Theorem (*)**: Let $j \in \{ n, ..., l-1 \}$, $i \in \{ j+1, ..., l \}$ then
 $$
@@ -232,3 +334,4 @@ $$
 \cdot D_k \phi_{k,l}^*(v_1, ..., v_j, \phi_{j,j+1}^*(v_1, ..., v_j), \phi_{j,k-1}^*(v_1, ..., v_j)) \text{.}
 $$
 
+(_In particular what has to be proven is the first equality; I believe it holds, but I don't know how to prove it_).
