@@ -158,6 +158,120 @@ r_n
 \end{bmatrix} \text{.}
 $$
 
+## Dual numbers
+
+FM of AD can be equivalently performed by computing operations in the algebra of **dual numbers**.
+We will give only a brief introduction to this concept.
+- The **algebraic structure of dual numbers** is defined as $\mathcal{D} = (\mathbb{R}^2, +_{\mathcal{D}}, \cdot_{\mathcal{D}})$, where:
+> - $(x_1, y_1) +_{\mathcal{D}} (x_2, y_2) = (x_1 + x_2, y_1 + y_2)$;
+> - $(x_1, y_1) \cdot_{\mathcal{D}} (x_2, y_2) = (x_1 x_1, y_1x_2 + x_1y_2)$
+
+> for very $(x_1, y_1), (x_2, y_2) \in \mathbb{R}^2$.
+- Let $\epsilon = (0,1)$.
+Then
+$$
+\epsilon^2 = (0, 1) \cdot_D (0, 1) = (0, 1 \cdot 0 + 0 \cdot 1) = (0, 0) \text{.}
+$$
+As for complex numbers:
+- $(a, 0)$ is represented as $a$ for very $a \in \mathbb{R}$;
+- $(a, b)$ is represented as $a + \epsilon b$ for every $a, b \in \mathbb{R}$.
+
+Then, we can write $\epsilon^2 = 0$ (observe that $\epsilon \neq 0$).
+Now let $f : \mathbb{R} \rightarrow \mathbb{R}$ differentiable, we can extend it to $\hat{f} : \mathcal{D} \rightarrow \mathcal{D}$ as follows:
+$$
+\hat{f}(a + \epsilon b) = f(a) + \epsilon f'(a) b \text{.}
+$$
+
+This definition matches the "natural" extension of $f$ (assuming $f$ analytic) because of the following heuristic argument: being analytic
+$$
+f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n \text{,}
+$$
+
+---
+
+then
+$$
+\sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(a + \epsilon b -_{\mathcal{D}} a)^n = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(\epsilon b)^n =
+$$
+
+$$
+= \frac{f^{(0)}(a)}{0!}(\epsilon b)^0 +_{\mathcal{D}} \frac{f'(a)}{1!}(\epsilon b)^1 +_{\mathcal{D}} \sum_{n=2}^{\infty} \frac{f^{(n)}(a)}{n!} \epsilon^n b^n =
+$$
+
+$$
+= f(a) +_\mathcal{D} + \epsilon f'(a) b = f(a) + \epsilon f'(a)b = \hat{f}(a + \epsilon b) \text{.}
+$$
+
+The argument is heuristic since we have no guarantee that
+$$
+\sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(a + \epsilon b -_{\mathcal{D}} a)^n
+$$
+converges to $f_{\text{nat}}(a + \epsilon b)$, which is the function obtained by substituting in $f$ $+$ with $+_\mathcal{D}$, $\cdot$ with $\cdot_\mathcal{D}$, and every elementary function (like $\sin$, $\exp$, ...) with its extension to $\mathcal{D}$ ($\hat{\sin}$, $\hat{\exp}$, ...).
+Let's prove that $\hat{f}(a + \epsilon b) = f_{\text{nat}}(a + \epsilon b)$ without relying on the convergence of the Taylor series:
+- $\hat{(f+g)}(a + \epsilon b) =$
+$$
+= (f+g)(a) + \epsilon (f+g)'(a)b = f(a) + \epsilon f'(a)b +_{\mathcal{D}} g(a) + \epsilon g'(a)b =
+$$
+
+$$
+= \hat{f}(a + \epsilon b) +_{\mathcal{D}} \hat{g}(a + \epsilon b) = (\hat{f} +_{\mathcal{D}} \hat{g})(a + \epsilon b) \text{;}
+$$
+
+- $\hat{(f \cdot g)}(a + \epsilon b) =$
+$$
+= (f \cdot g)(a) + \epsilon (f \cdot g)'(a)b = f(a) g(a) + \epsilon (f'(a) g(a) + f(a) g'(a))b =
+$$
+
+$$
+= (f(a) + \epsilon f'(a) b) \cdot_\mathcal{D} (g(a) + \epsilon g'(a) b) = \hat{f}(a + \epsilon b) \cdot_\mathcal{D} \hat{g}(a + \epsilon b) =
+$$
+
+$$
+= (\hat{f} \cdot_\mathcal{D} \hat{g})(a + \epsilon b) \text{;}
+$$
+
+- $\hat{(\frac{1}{f})}(a + \epsilon b) =$
+
+$$
+= (\frac{1}{f})(a) + \epsilon (\frac{1}{f})'(a)b = \frac{1}{f(a)} -_\mathcal{D} \epsilon \frac{f'(a)}{f^2(a)}b =
+$$
+
+$$
+= \frac{f(a) + \epsilon (-f'(a)b)}{f^2(a)} = \frac{f(a) + \epsilon (-f'(a) b)}{(f(a) + \epsilon f'(a) b)(f(a) + \epsilon (-f'(a)b))} = \frac{1}{f(a) + \epsilon f'(a) b} =
+$$
+
+$$
+= \frac{1}{\hat{f}(a + \epsilon b)} = (\frac{1}{\hat{f}})(a + \epsilon b) \text{;}
+$$
+
+---
+
+- $\hat{(f \circ g)}(a + \epsilon b) =$
+
+$$
+= (f \circ g)(a) + \epsilon (f \circ g)'(a) b = f(g(a)) + \epsilon f'(g(a))g'(a) b = 
+$$
+
+$$
+= \hat{f}(g(a) + \epsilon g'(a) b) = \hat{f}(\hat{g}(a + \epsilon b)) = (\hat{f} \circ \hat{g})(a + \epsilon b) \text{;}
+$$
+
+- $\hat{\text{id}}_\mathbb{R}(a + \epsilon b) =$
+
+$$
+= \text{id}_\mathbb{R}(a) + \epsilon \text{id}_\mathbb{R}'(a)b = a+ \epsilon (1 \cdot b) = a + \epsilon b = \text{id}_\mathcal{D}(a + \epsilon b) \text{.}
+$$
+
+**Important remark**: this result provides a smart way of computing derivatives in the following scenario:
+1. let $g_1$, ..., $g_k$ be differentiable real functions for which we know the derivative, thenw e can compute $\hat{g}_i(a + \epsilon b)$ for every $i \in \{ 1, ..., k \}, a \in \mathbb{R}, b \in \mathbb{R}$;
+2. let $f$ be a function obtianed by the sum, product, reciprocal, and composition (applied iteratively) of $g_1$, ..., $g_k$.
+
+By what we have proved above, $\hat{f}$ is the sum, product, reciporcal, and composition (applied iteratively) in the algebra of dual numbers of $\hat{g}_1$, ..., $\hat{g}_k$: then we have an explicit way of computing $\hat{f}(a + \epsilon)$ since, by 1 we can compute $\hat{g}_1(a_1 + \epsilon b_1)$, ..., $\hat{g}_k(a_k + \epsilon b_k)$, and we can of course compute sums, products, and reciprocals of dual numbers. At the end of the process we get
+$$
+\hat{f}(a + \epsilon) = c + \epsilon d \text{.}
+$$
+Then, by definition of $\hat{f}$, $d = f'(a)$.
+
 ---
 
 ## A more formal approach to Wengert lists
