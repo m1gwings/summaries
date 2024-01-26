@@ -9,7 +9,7 @@ Cristiano Migali
 
 </div>
 
-**Automatic differentiation** is a technique which allows to evaluate the **exact** partial derivative of a function specified by a computer program at **a given input**.
+**Automatic differentiation** is a technique which allows to evaluate the **exact** partial derivatives of a function specified by a computer program at **a given input**.
 In order to perform AD on a function
 $$
 f : \mathbb{R}^n \rightarrow \mathbb{R}^m
@@ -118,7 +118,45 @@ which is exactly what we were looking for.
 Observe that **computing $J$ explicitly** would have required **$n$ sweeps of FM**.
 But one could say: maybe computing one sweep of FM on $g$ has the same cost of computing $n$ sweeps of FM on $f$. We will see that it is not the case, one sweep of FM on $g$ has the same cost of one sweep on $f$. Furthermore it is not necessary to compute $g$ explicitly (we used it only for proving the theoretical result): we just need to "seed" (_we will specify what we mean in a moment_) the FM on $f$ with $\underline{r}$ instead of $\underline{e}_i$.
 
-**First remark**: as the dot notation for derivatives suggests, FM is completely agnostic w.r.t. the variable by which we are differentiating.
+**First remark**: as the dot notation for derivatives suggests, FM is completely agnostic w.r.t. the variable by which we are differentiating. That is, assume that the variable $v_1$ is the sum of the inputs $v_{-1}$ and $v_0$. Then $\dot{v}_1 = \dot{v}_{-1} + \dot{v}_0$. Now the fact that $\dot{v}_{1} = \frac{\partial v_1}{\partial v_{-1}}$ or $\dot{v}_1 = \frac{\partial v_1}{\partial v_0}$ depends only on the values that we have previously assigned to $\dot{v}_{-1}$ and $\dot{v}_0$:
+- if $\dot{v}_{-1} = 1$ and $\dot{v}_0 = 0$, then $\dot{v}_1 = \frac{\partial v_1}{\partial v_{-1}}$;
+- otherwise, if $\dot{v}_{-1} = 0$ and $\dot{v}_0 =1$, then $\dot{v}_1 = \frac{\partial v_1}{\partial v_0}$.
+
+These values are what we call the **seed**. In the example we compared the seeds $\underline{e}_1$ and $\underline{e}_2$.
+
+**Second remark**: let $[v_{-(n-1)}, ..., v_0, v_1, ..., v_l]$ be a Wengert list for $f$. Then, since $g(t) = f(r_1 t + x_{1,0}, ..., r_n t + x_{n,0})$, the Wengert list for $g$ has:
+- one input: $w_0 = t$;
+- $l + 2n$ non-input variables:
+$$
+\begin{matrix}
+w_1 = r_1 w_0 \text{,} \\
+w_2 = w_1 + x_{1,0} = x_1 = v_{-(n-1)} \text{,} \\
+... \text{,} \\
+w_{2n-1} = r_n w_0 \text{,} \\
+w_{2n} = w_{2n-1} + x_{n,0} = x_n = v_0 \text{,} \\
+w_{2n+i} = v_i \text{ for } i \in \{ 1, ..., l \} \\
+\text{ where we substitute } v_{-(n-j)} = x_j \text{ with } w_{2j} = x_j \\
+\text{ in the expression of } v_i \text{.}
+\end{matrix}
+$$
+
+---
+
+Then, when we apply FM on $g(t)$ for $t = 0$:
+1. $w_0 = t = 0$ implies $w_{2i-1} = 0$ for $i \in \{ 1, ..., n \}$ and so $w_{2i} = x_{i,0}$;
+2. $\dot{w}_0 = 1$ implies $\dot{w}_{2i-1} = r_i$ for $i \in \{ 1, ..., n \}$, and so $\dot{w}_{2i} = \dot{w}_{2i-1} + 0 = r_i$;
+3. By how we have defined $w_{2n+i}$ for $i \in \{ 1, ..., l \}$, remembering that $w_{2i} = x_i$, the remaining part of the computation is equivalent to applying the FM of $f$ with the seed
+$$
+\dot{\underline{x}} = \begin{bmatrix}
+\dot{x}_1 \\
+... \\
+\dot{x}_n
+\end{bmatrix} = \begin{bmatrix}
+r_1 \\
+... \\
+r_n
+\end{bmatrix} \text{.}
+$$
 
 ---
 
@@ -205,7 +243,7 @@ $$
 
 I failed in the derivation of the recursive equation for BM AD. I developed a "supporting framework" which I think is inconclusive since it doesn't capture the structure of the computational graph and doesn't make it easy to prove the desired result. I will write it down here anyway. (_At the end I will put the result I wished to prove_).
 
-We will assume that the function represented by the Wengert list has just one output ($m = 1$). Since, as it will be evident, BM AD works "one output at the time", this is without loss of generality.
+We will assume that the function represented by the Wengert list has just one output ($m = 1$). Since, BM AD works "one output at the time", this is without loss of generality.
 
 Let's define a family of functions $\{ \phi^*_{i,j}(v_1, ..., v_j) \}$ with $i, j \in \{ n, ..., l \}$, $i \leq j$ with a set of recursive equations:
 $$
@@ -312,7 +350,7 @@ $$
 = \phi_{j+1,l}^*(f_1(v_1, ..., v_n), ..., f_{j+1}(v_1, ..., v_n)) =^{\text{ind. hp.}} f_l(v_1, ..., v_n) \text{.}
 $$
 
-Let $i \in \{ 1, ..., l \}$, we define the set of successors of $v_i$ as
+Let $i \in \{ 1, ..., l \}$, we define the set of **successors** of $v_i$ as
 $$
 S_i = \{ j \in \{ 1, ..., l \} | i \in P_j \} \text{.}
 $$
@@ -323,7 +361,7 @@ D_j \phi_{j,l}^*(v_1, ..., v_j) = \sum_{k=j+1}^{l-1} D_j \phi_k(v_1, ..., v_j, \
 $$
 
 $$
-\cdot D_k \phi_{k,l}^*(v_1, ..., v_j, \phi_{j,j+1}^*(v_1, ..., v_j), \phi_{j,k-1}^*(v_1, ..., v_j)) =
+\cdot D_k \phi_{k,l}^*(v_1, ..., v_j, \phi_{j,j+1}^*(v_1, ..., v_j), ..., \phi_{j,k}^*(v_1, ..., v_j)) =
 $$
 
 $$
@@ -331,7 +369,7 @@ $$
 $$
 
 $$
-\cdot D_k \phi_{k,l}^*(v_1, ..., v_j, \phi_{j,j+1}^*(v_1, ..., v_j), \phi_{j,k-1}^*(v_1, ..., v_j)) \text{.}
+\cdot D_k \phi_{k,l}^*(v_1, ..., v_j, \phi_{j,j+1}^*(v_1, ..., v_j), ..., \phi_{j,k}^*(v_1, ..., v_j)) \text{.}
 $$
 
 (_In particular what has to be proven is the first equality; I believe it holds, but I don't know how to prove it_).
