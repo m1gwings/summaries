@@ -61,6 +61,22 @@ To get the full jacobian of the function we need to perform $n$ sweeps in FM AD.
 
 ## Backward Mode AD
 
+In FM AD we compute $\frac{\partial v_j}{\partial x_i}$ (for a certain input $x_i$) iteratively for $j$ from $-(n-1)$ to $l$.
+In BM we do the opposite: we compute $\frac{\partial y_i}{\partial v_j}$ (for a certain output $y_i$) iteratively for $j$ from $l$ to $-(n-1)$. That is, in a sweep we compute all the derivatives $\frac{\partial y_i}{\partial v_l}$, ..., $\frac{\partial y_i}{\partial v_1}$, $\frac{\partial y_i}{\partial v_0}$, ..., $\frac{\partial y_i}{\partial v_{-(n-1)}}$.
+Observe that, by how the Wengert list is defined, the expression of $v_p$ does not depend on $v_q$ if $p < q$. Then, when we compute $\frac{\partial y_i}{\partial v_q}$, we know that $\frac{\partial v_p}{\partial v_q}$ for every $p < q$, $\frac{\partial v_q}{\partial v_q} = 1$, and all the $\frac{\partial v_j}{\partial v_q}$ for $j > q$ have already been computed. Hence, at every step, we have all the values needed to derive the desired result.
+In particular, let $S_j$ be the set of successor of $v_j$ in the computational graph of $f$, then
+$$
+\frac{\partial y_i}{\partial v_j} = \sum_{s \in S_j} \frac{\partial y_i}{\partial s} \frac{\partial s}{\partial v_j} \text{.}
+$$
+
+**Remark**: the quantity $\frac{\partial y_i}{\partial v_j}$ is denoted as $\overline{v}_j$.
+
+To get the full jacobian of the function we need to perform $m$ sweeps in BM AD.
+
+**Remark**: BM requires to store all the intermediate values $v_1$, .., $v_l$ for the whole computation. Conversely with FM performed for example through dual numbers, we keep a set of dual numbers and we update their values at each iteration until we end the computation. Hence BM is more memory demanding.
+
+---
+
 ## AD Tricks
 ### Matrix free computation of $J \underline{r}$ through FM AD
 
@@ -157,6 +173,67 @@ r_1 \\
 r_n
 \end{bmatrix} \text{.}
 $$
+
+### Matrix free computation of $J^T \underline{r}$ through BM AD
+
+BM AD allows the matrix free computation of $J^T \underline{r}$, let's see how: let
+$$
+f : \mathbb{R}^n \rightarrow \mathbb{R}^m
+$$
+$$
+\begin{bmatrix}
+x_1 \\
+... \\
+x_n
+\end{bmatrix} \mapsto \begin{bmatrix}
+y_1 \\ ... \\ y_m
+\end{bmatrix} \text{,}
+$$
+$$
+\underline{x}_0 \in \mathbb{R}^n, \underline{r} \in \mathbb{R}^m \text{.}
+$$
+Let $g(\underline{x}) = \underline{f}^T(\underline{x}) \underline{r} = r_1 y_1(\underline{x}) + ... + r_m y_m(\underline{x})$.
+Then
+$$
+\nabla g(\underline{x}_0) = r_1 \nabla y_1(\underline{x}_0) + ... + r_m \nabla y_m(\underline{x}_0) =
+$$
+$$
+= \begin{bmatrix} \nabla y_1(\underline{x}_0) & ... & \nabla y_m(\underline{x}_0) \end{bmatrix} \begin{bmatrix} r_1 \\ ... \\ r_m \end{bmatrix} =
+$$
+$$
+= \begin{bmatrix}
+\frac{\partial y_1}{\partial x_1}(\underline{x}_0) & ... & \frac{\partial y_m}{\partial x_1}(\underline{x}_0) \\
+... & ... & ... \\
+\frac{\partial y_1}{\partial x_n}(\underline{x}_0) & ... & \frac{\partial y_m}{\partial x_n}(\underline{x}_0)
+\end{bmatrix} \begin{bmatrix} r_1 \\ ... \\ r_m \end{bmatrix} = J^T \underline{r} \text{.}
+$$
+
+We know that with BM we can compute $\nabla g(\underline{x}_0)$ in one sweep. This is equivalent to setting the seed of BM to $\underline{\overline{y}} = \underline{r}$ (the proof is analogous to the FM case).
+
+---
+
+### Matrix free computation of $H \underline{v}$
+
+In some optimization techniques we have also to compute the product of the hessian $H$ of $f$ by a certain vector $\underline{v}$. Observe that $f$ has to be a function from $\mathbb{R}^n$ to $\mathbb{R}$ (otherwise the hessian is not defined).
+The **reverse-on-forward** is a method which allows the matrix-free computation of $H \underline{v}$.
+Here is an idea of how it works:
+1. With a kind of forward step it is possible to construct the computational graph of the function $g(\underline{x}) = \nabla f^T(\underline{x}) \underline{v}$ in linear time with the length of the Wengert list of $f$.
+2. Now we apply the BM AD to the computational graph of $g$. As we know, we get $\nabla g(\underline{x}_0)$ as a result.
+
+Finally, observe that
+$$
+\nabla g(\underline{x}_0) = \nabla(\nabla^T f(\underline{x}) \underline{v})(\underline{x}_0) = \nabla(\frac{\partial f}{\partial x_1}(\underline{x}) v_1 + ... + \frac{\partial f}{\partial x_n}(\underline{x}) v_n)(\underline{x}_0) =
+$$
+
+$$
+= \begin{bmatrix}
+\frac{\partial^2 f}{\partial x_1^2}(\underline{x}) v_1 + ... + \frac{\partial^2 f}{\partial x_1 \partial x_n}(\underline{x})v_n \\
+... \\
+\frac{\partial^2 f}{\partial x_n \partial x_1}(\underline{x})v_1 + ... + \frac{\partial^2 f}{\partial x_n^2}(\underline{x}) v_n
+\end{bmatrix} (\underline{x}_0) = H(\underline{x}_0) \underline{v} \text{.}
+$$
+
+---
 
 ## Dual numbers
 
