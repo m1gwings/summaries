@@ -509,3 +509,197 @@ which is known as the **convolution rule**.
 **Remark**: thanks to the so-called FFT (Fast Fourier Transform) algorithm, we can compute the result of the product $F \underline{a}$ in $O(n \log n)$, then:
 - computing $\underline{\lambda}(C'D')$ as $F_n (\underline{c}' \circledast \underline{d}')$ requires $O(n^2)$ operations to compute $\underline{c}' \circledast \underline{d}'$ (_see the formula that we derived at the beginning for $(\underline{c} \circledast \underline{d})_k$_), and then $O(n \log n)$ operations for the product $F_n (\underline{c}' \circledast \underline{d}')$, for a total of $O(n^2 + n \log n) = O(n^2)$ operations;
 - computing $F_n \underline{c}'$, and $F_n \underline{d}'$ requries $O(n \log n)$ for each product, then the componentwise product $F_n \underline{c}' \cdot^* \underline{d}'$ is $O(n)$, for a total of $O(n \log n)$ operations.
+
+## Generalizing linear ("standard") convolutions
+
+Let's generalize the definition of convultion to vectors of different dimensions.
+- Given two vectors
+$$
+\underline{c} = \begin{bmatrix}
+c_0 \\
+... \\
+c_{n-1}
+\end{bmatrix} \text{ and }
+\underline{d} = \begin{bmatrix}
+d_0 \\
+... \\
+d_{m-1}
+\end{bmatrix}
+$$
+> where $n, m \in \mathbb{N}^+$, the **convolution** $\underline{c} * \underline{d}$ is a vector with $n+m-1$ components whose $k$-th component is
+$$
+(\underline{c} * \underline{d})_k = \sum_{\begin{matrix}
+i + j = k \\
+i \in \{ 0, ..., n-1 \} \\
+j \in \{ 0, ..., m-1 \}
+\end{matrix}} c_i d_i 
+$$
+> with $k \in \{ 0, ..., n+m-2 \}$.
+
+Through the following lemma we will rewrite the expression for the $k$-th component of the convolution between $\underline{c}$ and $\underline{d}$.
+
+> **Lemma (1)**:
+$$
+\{ (i, j) | i \in \{ 0, ..., n-1 \}, j \in \{ 0, ..., m-1 \}, i+j=k \} =
+$$
+$$
+= \{ (i, k-i) | i \in \{ \max(0, k-m+1), ..., \min(k, n-1) \} \}
+$$
+> for every $n, m \in \mathbb{N}^+$, $k \in \{ 0, ..., n+m-2 \}$.
+
+---
+
+> **Proof**: let $i \in \{ 0, ..., n-1 \}$, $j \in \{ 0, ..., m-1 \}$ s.t. $i+j = k$. 
+Then $j = k - i$. Since $i \in \{ 0, ..., n-1 \}$, then $0 \leq i \leq n-1$. Furthermore, since $-m+1 \leq -j \leq 0$, hence $k-m+1 \leq i = k-i \leq k$.
+By joining the two chains of inequalities $\max(0, k-m+1) \leq i \leq \min(n-1, k)$.
+
+> Conversely, let $(i, k-i)$ with $i \in \{ \max(0, k-m+1), ..., \min(k, n-1) \}$. Let $j = k-i$. Clearly $i+j=k$. Since $\max(0, k-m+1) \leq i \leq \min(k, n-1)$, then $0 \leq i \leq n-1$, and $k-m+1 \leq i \leq k$, which implies $0 \leq j = k-i \leq m-1$.
+
+Lemma (1) implies that:
+$$
+(\underline{c} * \underline{d})_k = \sum_{i = \max(0, k-m+1)}^{\min(k, n-1)} c_i d_{k-i} \text{.}
+$$
+
+Let's generalize the concept of a toeplitz matrix to a $m \times n$ matrix.
+
+- Let $m, n \in \mathbb{N}^+$,
+$$
+\underline{c} = \begin{bmatrix}
+c_0 \\
+... \\
+c_{m-1}
+\end{bmatrix} \text{ and } \underline{r} = \begin{bmatrix}
+r_0 \\
+... \\
+r_{n-1}
+\end{bmatrix}
+$$
+> with $c_0 = r_0$. We say that $T \in \mathbb{R}^{m \times n}$ is a **toeplitz matrix** iff
+$$
+T(i, j) = \begin{cases}
+c_0 = r_0 \text{ if } i = j = 0 \\
+c_i \text{ if } j = 0, i \neq 0 \\
+r_j \text{ if } i = 0, j \neq 0 \\
+c_{i-j} \text{ if } i \geq j > 0 \\
+r_{j-i} \text{ if } j > i > 0
+\end{cases} \text{.}
+$$
+
+**Remark**: the definition above implies that a toeplitz matrix is defined by its first row and column since all the elements along the main and secondary diagonals are equal.
+That is:
+$$
+T = \begin{bmatrix}
+c_0 & r_1 & r_2 & ... & ... & r_{n-1} \\
+c_1 & c_0 & r_1 & r_2 & ... & ... \\
+c_2 & c_1 & c_0 & r_1 & ... & ... \\
+... & c_2 & c_1 & c_0 & ... & ... \\
+... & ... & ... & ... & ... & ... \\
+c_{m-1} & ... & ... & ... & ... & ...
+\end{bmatrix} \text{.}
+$$
+
+---
+
+Let
+$$
+\underline{k} = \begin{bmatrix}
+k_0 \\
+... \\
+k_{n-1}
+\end{bmatrix} \text{, } \underline{v} = \begin{bmatrix}
+v_0 \\
+... \\
+v_{m-1}
+\end{bmatrix} \text{ where } n \leq m \text{.}
+$$
+We want to $\underline{k} * \underline{v}$ through a toeplitz matrix.
+Let:
+$$
+\underline{c} = \begin{bmatrix}
+k_0 \\
+... \\
+k_{n-1} \\
+\underline{0}_{m-1}
+\end{bmatrix} \in \mathbb{R}^{n+m-1} \text{, }
+\underline{r} = \begin{bmatrix}
+k_0 \\
+\underline{0}_m
+\end{bmatrix} \in \mathbb{R}^m \text{.}
+$$
+
+Let $T \in \mathbb{R}^{(n+m-1) \times m}$ be the toeplitz matrix induced by $\underline{c}$, and $\underline{r}$.
+By definition of the matrix product, the $i$-th element of the vector $T \underline{v} \in \mathbb{R}^{n+m-1}$ is
+$$
+(T \underline{v})(k) = \sum_{j=0}^{m-1} T(k,j) v_j \text{.}
+$$
+
+If $k \geq m-1$, then
+$$
+\sum_{j=0}^{m-1} T(k, j) v_j= \sum_{j=0}^{m-1} c_{k-j} v_j = \sum_{i=k-m+1}^k c_i v_{k-i} = \sum_{i = \max(0, k-m+1)}^k c_i v_{k-i} =
+$$
+
+$$
+= \sum_{i = \max(0, k-m+1)}^{n-1} c_i v_{k-i} + \sum_{i = n}^k c_i v_{k-i} \text{ (since } m \geq n \text{ then } k \geq m-1 \geq n-1 \text{)} =
+$$
+
+$$
+= \sum_{\max(0, k-m+1)}^{\min(k, n-1)} c_i v_{k-i} + \sum_{i=n}^k c_i v_{k-i} = \sum_{\max(0, k-m+1)}^{\min(k, n-1)} k_i v_{k-i} + \sum_{i=n}^k 0 \cdot v_{k-i} = (\underline{k} * \underline{v})_k \text{.}
+$$
+
+If $k < m-1$, then
+$$
+\sum_{j=0}^{m-1} T(k,j) v_j = \sum_{j=0}^k T(k, j) v_j + \sum_{j=k+1}^{m-1} T(k, j) v_j = \sum_{j=0}^k c_{k-j} v_j + \sum_{j=k+1}^{m-1} r_{j-k} v_j =
+$$
+
+$$
+= \sum_{j=0}^k c_{k-j} v_j + \sum_{j=k+1}^{m-1} 0 \cdot v_j = \sum_{i=0}^k c_i v_{k-i} = \sum_{i = \max(0, k-m+1)}^{\min(k, n-1)} k_i v_{k-i} = (\underline{k} * \underline{v})_k \text{.}
+$$
+
+We proved that:
+$$
+T \underline{v} = \underline{k} * \underline{v} \text{.}
+$$
+
+---
+
+## Generalizing circular convolutions
+
+The definition of circular convolution is extended to $\underline{k} \in \mathbb{R}^n$ and $\underline{v} \in \mathbb{R}^m$ of different sizes (with $n < m$) by making $\underline{k}$ of the same size of $\underline{v}$ through zero padding:
+$$
+\underline{\tilde{k}} = \begin{bmatrix}
+\underline{k} \\
+\underline{0}_{m-n}
+\end{bmatrix} \text{.}
+$$
+
+That is:
+$$
+(\underline{k} \circledast \underline{v})_i = (\underline{\tilde{k}} \circledast \underline{v})_i \text{ for } i \in \{ 0, ..., m-1 \} \text{.}
+$$
+
+From what we've seen at the beginning:
+$$
+(\underline{\tilde{k}} \circledast \underline{v})_i = \begin{cases}
+\sum_{j=0}^i \tilde{k}_j v_{i-j} + \sum_{j = i+1}^{m-1} \tilde{k}_j v_{i+m-j} \text{ if } i \in \{ 0, ..., m-2 \} \\
+\sum_{j=0}^{m-1} \tilde{k}_j v_{i-j} \text{ if } i = m-1
+\end{cases} \text{.}
+$$
+
+Now let $i \geq n-1$, $i < m-1$, then, if $j \geq i +1 \geq n$, it follows that $\tilde{k}_j = 0$.
+Hence:
+$$
+(\underline{\tilde{k}} \circledast \underline{v})_i = \sum_{j=0}^{n-1} \tilde{k}_j v_{i-j} + \sum_{j=n}^i 0 \cdot v_{i-j} + \sum_{j=i+1}^{m-1} 0 \cdot v_{i+m-j} = \sum_{j=0}^{n-1} k_j v_{i-j} =
+$$
+
+$$
+= \sum_{j = \max(0, i-m+1)}^{\min(i, n-1)} k_j v_{i-j} = (\underline{k} * \underline{v})_i \text{.}
+$$
+
+Analogously $(\underline{\tilde{k}} \circledast \underline{v})_{m-1} = (\underline{k} * \underline{v})_{m-1}$.
+
+That is:
+$$
+(\underline{\tilde{k}} \circledast \underline{v})_i = (\underline{k} * \underline{v})_i \text{ for every } i \in \{ n-1, ..., m-1 \} \text{.}
+$$
+
+- We define **valid** this "_portion_" of the circular convolution which is equal to the linear one. The remaing portion of the circular convolution is known as **boundary layer**.
