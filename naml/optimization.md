@@ -281,3 +281,34 @@ $$
 $$
 N > \frac{2LR}{\epsilon} \text{.}
 $$
+
+### Accelerated GD
+
+There are some thoeretical results which provide a lower-bound to the number of iterations required in order to achieve error $\epsilon$ for every first order method.
+
+> **Theorem (Nemirovski & Yudin, 1979)**: every first order method needs in the worst case $\Omega(\frac{1}{\sqrt{\epsilon}})$ steps (_assuming that the objective function is $L$-smooth and convex_).
+
+It has been found a first order method which achieves the theoretical best possible performance: the **Accelereted Gradient Descent** (**AGD**) (Nesterov, 1983). We will put its pseudocode below. Let $J : \mathbb{R}^d \rightarrow \mathbb{R}$ convex, differentiable, and smooth with parameter $L$, $\underline{w}^{(0)} \in \mathbb{R}^d$, $N \in \mathbb{N}^+$.
+
+<div class="algorithm">
+
+1. $\text{AGD}(J, \underline{w}^{(0)}, N):$
+1. &emsp; $\underline{z}^{(0)} \gets \underline{w}^{(0)}$
+1. &emsp; $\underline{y}^{(0)} \gets \underline{w}^{(0)}$
+1. &emsp; **while** $k < N$:
+1. &emsp; &emsp; $\underline{y}^{(k+1)} \gets \underline{w}^{(k)} - \frac{1}{L} \nabla J (\underline{w}^{(k)})$
+1. &emsp; &emsp; $\underline{z}^{(k+1)} \gets \underline{z}^{(k)} - \frac{k+1}{2L} \nabla J(\underline{w}^{(k)})$
+1. &emsp; &emsp; $\underline{w}^{(k+1)} \gets \frac{k+1}{k+3} \underline{y}^{(k+1)} + \frac{2}{k+3} \underline{z}^{(k+1)}$
+1. &emsp; &emsp; $k \gets k + 1$
+
+</div>
+
+We can formally state the convergence result for AGD:
+> **Theorem**: let $J : \mathbb{R}^d \rightarrow \mathbb{R}$ convex, differentiable, with a global minimum $\underline{w}^*$; suppose that $J$ is smooth with parameter $L$. AGD yields:
+$$
+J(\underline{y}^{(N)}) - J(\underline{x}^*) \leq \frac{2L||\underline{z}^{(0)} - \underline{w}^*||^2}{N(N+1)}
+$$
+
+---
+
+> for every $N \in \mathbb{N}^+$.
