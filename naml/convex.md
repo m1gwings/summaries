@@ -534,4 +534,127 @@ $$
 $$
 > as we wanted to prove.
 
-**Lemma (5)**:
+> **Lemma (5) (Co-coercitivity of the gradient)**: if $f : \mathbb{R}^d \rightarrow \mathbb{R}$ is convex and smooth with parameter $L$, then
+$$
+(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T(\underline{x} - \underline{y}) \geq \frac{1}{L} ||\nabla f(\underline{x}) - \nabla f(\underline{y})||^2
+$$
+> for every $\underline{x}, \underline{y} \in \mathbb{R}^d$.
+
+---
+
+> **Proof**: Let
+$$
+f_\underline{x}(\underline{z}) = f(\underline{z}) - \nabla f^T (\underline{x}) \underline{z} \text{ and } f_\underline{y}(\underline{z}) = f(\underline{z}) - \nabla f^T(\underline{y}) \underline{z} \text{.}
+$$
+> Then
+$$
+\nabla f_\underline{x}(\underline{z}) = \nabla f(\underline{z}) - \nabla f(\underline{x}) \text{.}
+$$
+> Hence:
+$$
+f_\underline{x}(\underline{w}) = f(\underline{w}) - \nabla f^T (\underline{x}) \underline{w} \geq f(\underline{z}) + \nabla f^T(\underline{z})(\underline{w} - \underline{z}) - \nabla f^T(\underline{x})\underline{w} =
+$$
+
+$$
+= f(\underline{z}) - \nabla f^T(\underline{x}) \underline{z} + (\nabla f(\underline{z}) - \nabla f(\underline{x}))^T (\underline{w} - \underline{z}) = f_\underline{x}(\underline{z}) + \nabla f^T_\underline{x}(\underline{z})(\underline{w} - \underline{z}) \text{, }
+$$
+> that is, $f_\underline{x}$ is convex by lemma (1).
+
+> Furthermore:
+$$
+f_\underline{x}(\underline{w}) = f(\underline{w}) - \nabla f^T(\underline{x}) \underline{w} \leq
+$$
+
+$$
+\leq f(\underline{z}) + \nabla f^T(\underline{z})(\underline{w} - \underline{z}) + \frac{L}{2}||\underline{w} - \underline{z}||^2 - \nabla f^T(\underline{x}) \underline{w} =
+$$
+
+$$
+= f(\underline{z}) - \nabla f^T(\underline{x}) \underline{z} + (\nabla f(\underline{z}) - \nabla f(\underline{x}))^T (\underline{w} - \underline{z}) + \frac{L}{2}||\underline{w} - \underline{z}||^2 =
+$$
+
+$$
+= f_\underline{x}(\underline{z}) + \nabla f_\underline{x}^T(\underline{z})(\underline{w} - \underline{z}) + \frac{L}{2}||\underline{w} - \underline{z}||^2 \text{,}
+$$
+> that is, $f_\underline{x}$ is smooth with parameter $L$.
+
+> Observe that
+$$
+\nabla f_\underline{x}(\underline{x}) = \nabla f(\underline{x}) - \nabla f(\underline{x}) \text{,}
+$$
+> hence, by the convexity of $f_\underline{x}$, and by lemma (1), $\underline{x}$ is a minimizer of $f_\underline{x}$.
+
+> Then, by lemma (4):
+$$
+\frac{1}{2L}||\nabla f(\underline{z}) - \nabla f(\underline{x})||^2 = \frac{1}{2L}||\nabla f_\underline{x}(\underline{z})||^2 \leq f_\underline{x}(\underline{z}) - f_\underline{x}(\underline{x}) =
+$$
+
+$$
+= f(\underline{z}) - \nabla f^T(\underline{x}) \underline{z} - f(\underline{x}) + \nabla f^T(\underline{x}) \underline{x} =
+$$
+
+$$
+= f(\underline{z}) - f(\underline{x}) - \nabla f^T(\underline{x})(\underline{z} - \underline{x}) \text{.}
+$$
+
+> If we evaluate the inequality at $\underline{z} = \underline{y}$, we get:
+$$
+\frac{1}{2L}||\nabla f(\underline{y}) - \nabla f(\underline{x})||^2 \leq f(\underline{y}) - f(\underline{x}) - \nabla f^T(\underline{x})(\underline{y} - \underline{x}) \text{.}
+$$
+
+---
+
+> An analogous result holds for $f_\underline{y}$ (_of course_), that is:
+
+$$
+\frac{1}{2L}||\nabla f(\underline{x}) - \nabla f(\underline{y})||^2 \leq f(\underline{x}) - f(\underline{y}) - \nabla f^T(\underline{y})(\underline{x} - \underline{y}) \text{.}
+$$
+
+> If we sum the two inequalities, we get:
+$$
+(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T(\underline{x} - \underline{y}) \geq \frac{1}{L}||\nabla f(\underline{x}) - \nabla f(\underline{y})||^2
+$$
+>  as we wanted to prove.
+
+> **Lemma (6)**: let $f : \mathbb{R}^d \rightarrow \mathbb{R}$ convex and differentiable. Then the following statements are equivalent:
+>> i. $f$ is smooth with parameter $L$;
+>> ii. $||\nabla f(\underline{x}) - \nabla f(\underline{y})|| \leq L || \underline{x} - \underline{y} ||$ for every $\underline{x}, \underline{y} \in \mathbb{R}^d$ (_that is the gradient of $f$ is Lipschitz continuous_).
+
+> **Proof**: let's prove that (i) implies (ii).
+Assume that $f$ is smooth with parameter $L$. By lemma (3):
+$$
+(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T (\underline{x} - \underline{y}) \leq L || \underline{x} - \underline{y} ||^2 \text{.}
+$$
+> By lemma (5):
+$$
+(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T(\underline{x} - \underline{y}) \geq \frac{1}{L} || \nabla f(\underline{x}) - \nabla f(\underline{y}) ||^2 \text{.}
+$$
+> By joining the two inequalities
+$$
+\frac{1}{L}||\nabla f(\underline{x}) - \nabla f(\underline{y})||^2 \leq L ||\underline{x} - \underline{y} ||^2 \text{ iff }
+$$
+
+$$
+||\nabla f(\underline{x}) - \nabla f(\underline{y})||^2 \leq L^2 ||\underline{x} - \underline{y} ||^2 \text{ iff }
+$$
+
+$$
+||\nabla f(\underline{x}) - \nabla f(\underline{y})|| \leq L ||\underline{x} - \underline{y} || \text{.}
+$$
+
+> Conversely, let's prove that (ii) implies (i). Assume that
+$$
+||\nabla f(\underline{x}) - \nabla f(\underline{y})|| \leq L ||\underline{x} - \underline{y}|| \text{.}
+$$
+> Then
+$$
+(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T(\underline{x} - \underline{y}) \leq |(\nabla f(\underline{x}) - \nabla f(\underline{y}))^T(\underline{x} - \underline{y})| \leq
+$$
+
+$$
+\leq \begin{matrix}
+||\nabla f(\underline{x}) - \nabla f(\underline{y})||||\underline{x} - \underline{y}|| \\
+\text{(by Cauchy-Schwarz)}
+\end{matrix} \leq L ||\underline{x} - \underline{y}|| ||\underline{x} - \underline{y}|| = L ||\underline{x} - \underline{y}||^2 \text{.}
+$$
+> Hence, by lemma (3), $f$ is smooth.
