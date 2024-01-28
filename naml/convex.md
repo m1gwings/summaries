@@ -39,6 +39,18 @@ $$
 
 > **Remark**: the geometric interpretation of the definition above is that the function lies below a quadratic form.
 
+- Let $f : A \rightarrow \mathbb{R}$ be a convex, and differentiable function, $X \subseteq A$ be convex, and $\mu > 0$. $f$ is called **strongly convex** with parameter $\mu$ over $X$ if
+$$
+f(\underline{y}) \geq f(\underline{x}) + \nabla f^T(\underline{x}) (\underline{y} - \underline{x}) + \frac{\mu}{2}||\underline{y} - \underline{x}||^2
+$$
+> for every $\underline{x}, \underline{y} \in X$.
+
+---
+
+> **Remarks**:
+>> i. The inequality in the definition of strong convexity plus the differentiability imply the convexity of $f$ by lemma (1).
+
+>> ii. We say that $f$ is smooth if, at every point, its graph is below a "not too steep" paraboloid, while we say that $f$ is strongly convex if, at every point, its graph is above a "not too flat" paraboloid.
 
 ---
 

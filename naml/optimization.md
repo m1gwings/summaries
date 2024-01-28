@@ -282,6 +282,76 @@ $$
 N > \frac{2LR}{\epsilon} \text{.}
 $$
 
+Let's increase again the regularity of $J$. For stronglu convex functions, it holds the following convergence result for GD:
+> **Theorem**: let $J : \mathbb{R}^d \rightarrow \mathbb{R}$ convex and differentiable. Suppose that $J$ is smooth with parameter $L$, and strongly convex with parameter $\mu > 0$. Choosing GD with arbitrary $\underline{w}^{(0)}$ satisfies:
+>> i. $||\underline{w}^{(k+1)} - \underline{w}^*||^2 \leq (1 - \frac{\mu}{L}) ||\underline{w}^{(k)} - \underline{w}^*||^2$ for every $k \in \mathbb{N}$;
+>> ii. $J(\underline{x}^{(N)}) - J(\underline{x}^*) \leq \frac{L}{2}(1 - \frac{\mu}{L})^N ||\underline{w}^{(0)} - \underline{w}^*||$
+> for every $N \in \mathbb{N}^+$.
+
+> **Remark**: according to this result, assume that we desire
+$$
+J(\underline{w}^{(N)}) - J(\underline{w}^*) < \epsilon \text{,}
+$$
+> let $R \geq ||\underline{w}^{(0)} - \underline{w}^*||^2$, then we need to impose
+$$
+N > \frac{L}{\mu} \log(\frac{L R^2}{2 \epsilon}) \text{.}
+$$
+
+> **Remarks**:
+>> i. In practical applications, at least locally, we can assume strong convexity;
+>> ii. When we minimize the loss function of a NN we don't need to reach its global minimum since it would cause overfitting: the model would become too "specialized" at "sovling the problem" for the training data, and would lose the ability to generalize.
+
+> **Proof of (i)**: observe that
+$$
+J(\underline{w}^*) \leq^{\underline{w}^* \text{ is optimal }} J(\underline{w}^{(k)} - \frac{1}{L} \nabla J(\underline{w}^{(k)})) \leq 
+$$
+
+---
+
+$$
+\leq J(\underline{w}^{(k)}) + \nabla J^T(\underline{w}^{(k)}) (-\frac{1}{L} \nabla J(\underline{w}^{(k)})) + \frac{L}{2}\frac{1}{L^2} ||\nabla J(\underline{w}^{(k)})||^2 =
+$$
+
+$$
+= J(\underline{w}^{(k)}) - \frac{1}{2L}||\nabla J(\underline{w}^{(k)})||^2 \text{ iff }
+$$
+
+$$
+||\nabla J(\underline{w}^{(k)})||^2 \leq 2 L (J(\underline{w}^{(k)}) - J(\underline{w}^*)) \text{.} \tag{I}\label{I}
+$$
+
+> By strong convexity, we have
+$$
+J(\underline{w}^*) \geq J(\underline{w}^{(k)}) + \nabla J^T(\underline{w}^{(k)})(\underline{w}^* - \underline{w}^{(k)}) + \frac{\mu}{2}||\underline{w}^{(k)} - \underline{w}^*|| \text{ iff }
+$$
+
+$$
+\nabla J^T(\underline{w}^{(k)}) (\underline{w}^{(k)} - \underline{w}^*) \geq J(\underline{w}^{(k)}) - J(\underline{w}^*) + \frac{\mu}{2}||\underline{w}^{(k)} - \underline{w}^*||^2 \text{.} \tag{J}\label{J}
+$$
+
+> Then:
+$$
+||\underline{w}^{(k+1)} - \underline{w}^*||^2 = ||\underline{w}^{(k)} - \frac{1}{L} \nabla J(\underline{w}^{(k)}) - \underline{w}^*||^2 =
+$$
+
+$$
+= ||\underline{w}^{(k)} - \underline{w}^*||^2 - \frac{2}{L} \nabla J^T(\underline{w}^{(k)}) (\underline{w}^{(k)} - \underline{w}^*) + \frac{1}{L^2}||\nabla J(\underline{w}^{(k)})||^2 \leq^{\text{(J)}}
+$$
+
+$$
+\leq^{\text{(J)}} ||\underline{w}^{(k)} - \underline{w}^*||^2 - \frac{2}{L}(J(\underline{w}^{(k)}) - J(\underline{w}^*) + \frac{\mu}{2} ||\underline{w}^{(k)} - \underline{w}^*||^2) + \frac{1}{L^2} ||\nabla J(\underline{w}^{(k)})||^2 \leq^{\text{(I)}}
+$$
+
+$$
+\leq^{\text{(I)}} ||\underline{w}^{(k)} - \underline{w}^*||^2 - \frac{2}{L}(J(\underline{w}^{(k)}) - J(\underline{w}^*)) - \frac{\mu}{L} ||\underline{w}^{(k)} - \underline{w}^*|| + \frac{2}{L}(J(\underline{w}^{(k)} - J(\underline{w}^*))) =
+$$
+
+$$
+= (1 - \frac{\mu}{L})||\underline{x}^{(k)} - \underline{x}^*||^2 \text{.}
+$$
+
+---
+
 ### Accelerated GD
 
 There are some thoeretical results which provide a lower-bound to the number of iterations required in order to achieve error $\epsilon$ for every first order method.
@@ -309,6 +379,96 @@ $$
 J(\underline{y}^{(N)}) - J(\underline{x}^*) \leq \frac{2L||\underline{z}^{(0)} - \underline{w}^*||^2}{N(N+1)}
 $$
 
+> for every $N \in \mathbb{N}^+$.
+
 ---
 
-> for every $N \in \mathbb{N}^+$.
+### Stochastic GD
+
+In ML we're usually interested in minimizing functions with a peculiar shape, that is:
+$$
+J(\underline{w}) = \frac{1}{N} \sum_{i=1}^N J_i(\underline{w})
+$$
+where $N$ is the number of samples and $J_i(\underline{w})$ is the error in the prediction of the model for the $i$-th sample.
+
+For example, in LS we wanted to minimize:
+$$
+J(\underline{w}) = \frac{1}{N}||\underline{y} - X \underline{w}||^2 = \frac{1}{N} \sum_{i=1}^N (y_i - \underline{x}_i^T \underline{w})^2 \text{.}
+$$
+
+There exists a variation of GD which has been specifically designed to achieve great performance when minimizing functions with the shape of $J(\underline{w})$: the **Stochastic Gradient Descent** (**SGD**).
+
+It works as follows: at iteration $k$, we select (for example through uniform sampling), $i_k \in \{ 1, .., N \}$, and compute
+$$
+\underline{w}^{(k+1)} = \underline{w}^{(k)} - \eta \nabla J_{i_k}(\underline{w}^{(k)}) \text{.}
+$$
+
+Observe that
+$$
+\nabla J(\underline{w}) = \frac{1}{N} \sum_{i=1}^N \nabla J_i (\underline{w}) \text{,}
+$$
+hence, computing only $\nabla J_i (\underline{w})$ is $N$ times faster than computing the whole $\nabla J(\underline{w})$.
+
+> **Remark**: in ML we can describe our training data as $\{ (\underline{x}_1, \underline{y}_1), ..., (\underline{x}_N, \underline{y}_N) \}$ where $\underline{x}_j \in \mathbb{R}^d$ ($\underline{y}_i \in \mathbb{R}^1$ _usually_), and both $N$ and $d$ are large.
+
+When we observe empirically the behavior of SGD, what we usually see is the following:
+> i. at the beginning the trahectory of $\underline{w}^{(k)}$ is quite regular and approaches the minimum point $\underline{w}^*$;
+> ii. when we get close to $\underline{w}^*$, the behavior becoms cahotic: $\underline{w}^{(k)}$ oscillates back and forth around the minimizer.
+
+We will rpvoide an explanation of the observed behavior through an example in 1D.
+Let
+$$
+J(w) = \frac{1}{N} \sum_{i=1}^N (x_i w - b_i)^2 \text{.}
+$$
+
+---
+
+Each $J_i(w) = (x_i w - b_i)^2$ is a quadratic function which attains minimum at $w_i^*$ s.t. $\frac{\partial J_i(w^*)}{\partial w} = 0 \text{ iff } 2 (x_i w_i^* - b_i) x_i = 0 \text{ iff } w_i^* = \frac{b_i}{x_i}$ (we assume $x_i \neq 0$).
+
+Let's study $J(w)$:
+$$
+\frac{d J(w)}{d w} = \frac{1}{N} \sum_{i=1}^N 2(x_i w - b_i)x_i \geq 0 \text{ iff }
+$$
+
+$$
+w \sum_{i=1}^N x_i^2 \geq \sum_{i=1}^N b_i x_i \text{ iff } w \geq \frac{\sum_{i=1}^N b_i x_i}{\sum_{i=1}^N x_i^2} \geq \frac{\sum_{i=1}^N \frac{b_i}{x_i}x_i^2}{\sum_{i=1}^N x_i^2} = \frac{\sum_{i=1}^N x_i^2 w_i^*}{\sum_{i=1}^N x_i^2} \text{.}
+$$
+
+Then $J(w)$ attains its minimum at:
+$$
+w^* = \frac{\sum_{i=1}^N x_i^2 w_i^*}{\sum_{i=1}^N x_i^2} \text{,}
+$$
+which is a weighted average of $w_i^*$ (with $x_i^2$ as weights).
+Hence
+$$
+w^* \in [\min_{i \in \{ 1, ..., N \}} w_i^*, \max_{i \in \{ 1, ..., N \}} w_i^*] \text{.}
+$$
+
+By the results that we proved for GD, at the $k$-th step of SGD, $w^{(k)}$ gets closer to $w_{i_k}^*$. Then, if $w^{(k)} < \min_{i \in \{ 1, ..., N \}} w_i^*$, no matter which $i_k$ we pick, $w^{(k)}$ will "move" towards right and, since $w^* \in [\min_{i \in \{ 1, ..., N \}} w_i^*, \max_{i \in \{ 1, ..., N \}} w_i^*]$, it will get closer not only to $w_{i_k}^*$, but also to $w^*$. Analogous behavior if $w^{(k)} > \max_{i \in \{ 1, ..., N \}} w_i^*$.
+When $w^{(k)} \in [\min_{i \in \{ 1, ..., N \}} w_i^*, \max_{i \in \{ 1, ..., N \}} w_i^*]$, it will start "bouncing around", moving towards $w_{i_k}^*$ at each step.
+For this reason we call:
+- $R = [\min_{i \in \{ 1, ..., N \}} w_i^*, \max_{i \in \{ 1, ..., N \}} w_i^*]$ the **region of confusion**;
+- $\mathbb{R} \setminus R$ the **far out zone** (**FOZ**).
+
+At each iteration SGD uses an **unbiased estimator** $g$ of $\nabla J$, that is:
+$$
+\mathbb{E}[g] = \nabla J \text{.}
+$$
+$\text{var}(g)$ controls the speed of convergence (we can get an intuition on why it is so by what has been explained in the 1D example).
+
+**Reamrk**: There are two main ways of choosing $i_k$:
+> i. Randomly pick $i_k$ with replacement (_that is we can pick the same $i_k$ twice without having to pick any other $\{ 1, ..., N \} \setminus \{ i_k \}$ before the "re-pick of $i_k$"; basically we sample from $\{ 1, ..., N \}$ at every step_) (_this approach is good for proving theoretical results_);
+
+---
+
+> ii. Randomly pick $i_k$ without replacement (_the converse of (i)_) (_this approach is good in practice since we can pre-shuffle the samples and stream through them_).
+
+In order to shrink $\text{var}(g)$ we can apply the so-called **minibatch** technique:
+$$
+\underline{w}^{(k+1)} = \underline{w}^{(k)} - \frac{\eta}{|I_k|} \sum_{i \in I_k} \nabla J_i(\underline{w}^{(k)}) \text{.}
+$$
+
+
+**Remarks**:
+> i. Very large mini-batch shrinks the confusion region (reduces noise) and can create overfitting;
+> ii. We can parallelize the computation of $\nabla J(\underline{w}^{(k)})$ for every $i \in I_k$. 
