@@ -1,0 +1,7 @@
+{
+    "markdown.marp.themes": [
+        "./themes/summary-theme.css",
+        "./themes/cheatsheet-theme.css"
+    ],
+    "markdown.marp.enableHtml": true
+}

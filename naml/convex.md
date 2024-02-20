@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # Convex functions and their properties

@@ -22,9 +22,11 @@ section {
 
     padding: 1.5cm;
 
-    font-family: 'Noto Sans', sans-serif;
+    font-family: 'Noto Sans', sans-serif !important;
 
     background: var(--background);
+
+    font-size: medium;
 }
 
 /* If you'd need to change math font size:
