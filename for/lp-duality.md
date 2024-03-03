@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # Linear Programming duality

@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # Least squares (LS)

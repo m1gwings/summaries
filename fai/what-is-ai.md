@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # What is Artificial Intelligence?

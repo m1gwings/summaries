@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # Sensitivity analysis in Linear Programming

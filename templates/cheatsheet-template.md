@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: cheatsheet
 paginate: true
 ---

@@ -1,4 +1,5 @@
 ---
+marp: true
 theme: summary
 ---
 # Integer Linear Programming
