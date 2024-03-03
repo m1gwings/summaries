@@ -1004,7 +1004,7 @@ fig, axes = plt.subplots()
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/axes.png" width="250mm" />
+    <img src="static/axes.png" width="250mm" />
 </p>
 
 </div>
@@ -1018,7 +1018,7 @@ fig, axes = plt.subplots(nrows = 2, ncols = 2)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/multiple-axes.png" width="300mm" />
+    <img src="static/multiple-axes.png" width="300mm" />
 </p>
 
 > in this case, `axes` is a bidimensional NumPy array, which allows us to access the `Axes` object in a certain position.
@@ -1029,7 +1029,7 @@ fig, axes = plt.subplots(nrows = 2, ncols = 3, figsize = (8, 4))
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/figsize.png" width="350mm" />
+    <img src="static/figsize.png" width="350mm" />
 </p>
 
 </div>
@@ -1054,7 +1054,7 @@ axes.plot(y)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/plot.png" width="450mm" />
+    <img src="static/plot.png" width="450mm" />
 </p>
 
 > plots `y` using the index array `[0, ..., y.size - 1]` as `x`; while
@@ -1071,7 +1071,7 @@ axes.plot(x, y)
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/plot-y-vs-x.png" width="270mm" />
+    <img src="static/plot-y-vs-x.png" width="270mm" />
 </p>
 
 
@@ -1092,7 +1092,7 @@ axes.plot(x, y, 'v-.')
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/format-strings.png" width="300mm" />
+    <img src="static/format-strings.png" width="300mm" />
 </p>
 
 </div>
@@ -1118,7 +1118,7 @@ axes.scatter(x, y)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/scatter.png" width="330mm" />
+    <img src="static/scatter.png" width="330mm" />
 </p>
 
 > Through the `s` parameter we can change the size of the markers, `c` allows to change their color (with `cmap` we can set the color map to use):
@@ -1139,7 +1139,7 @@ axes.scatter(x, y, s = s, c = c)
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/scatter-with-size-and-color.png" width="330mm" />
+    <img src="static/scatter-with-size-and-color.png" width="330mm" />
 </p>
 
 > Finally, the `marker` parameter allows to change the style of the marker using the same syntax of `plot`'s format strings (with only the character relative to the marker) and the `c` parameter can be used also to set a color for all the markers:
@@ -1156,7 +1156,7 @@ axes.scatter(x, y, marker = 'v', c = 'r')
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/scatter-with-marker-and-color.png" width="330mm" />
+    <img src="static/scatter-with-marker-and-color.png" width="330mm" />
 </p>
 
 </div>
@@ -1178,7 +1178,7 @@ axes.semilogy(x, y)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/semilogy.png" width="290mm" />
+    <img src="static/semilogy.png" width="290mm" />
 </p>
 
 - **`loglog`**: analogous to plot, but both the x and y axis are logarithmic. For example:
@@ -1192,7 +1192,7 @@ axes.loglog(x, y)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/loglog.png" width="290mm" />
+    <img src="static/loglog.png" width="290mm" />
 </p>
 
 </div>
@@ -1211,7 +1211,7 @@ axes.set_title("My title")
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/title.png" width="260mm" />
+    <img src="static/title.png" width="260mm" />
 </p>
 
 #### Add `Axes` labels
@@ -1226,7 +1226,7 @@ axes.set_ylabel("My y label")
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/axis-label.png" width="260mm" />
+    <img src="static/axis-label.png" width="260mm" />
 </p>
 
 </div>
@@ -1261,7 +1261,7 @@ for a in axes:
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/legend.png" width="500mm" />
+    <img src="static/legend.png" width="500mm" />
 </p>
 
 </div>
@@ -1279,7 +1279,7 @@ axes.axis('off')
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/hidden-axis.png" width="400mm" />
+    <img src="static/hidden-axis.png" width="400mm" />
 </p>
 
 #### Set `Axes` aspect ratio
@@ -1306,7 +1306,7 @@ axes.axis('equal')
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/1-1-aspect-ratio.png" width="250mm" />
+    <img src="static/1-1-aspect-ratio.png" width="250mm" />
 </p>
 
 #### Adjust view limits
@@ -1319,7 +1319,7 @@ axes.set_xlim(3, 20)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/xlim.png" width="450mm" />
+    <img src="static/xlim.png" width="450mm" />
 </p>
 
 - **`set_ylim`**: it is analogous to x-lim, but for the y-axis.
@@ -1352,7 +1352,7 @@ axes.scatter(u[:, 0], u[:, 1], u[:, 2], marker = 'v',
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/3d-scatter.png" width="270mm" />
+    <img src="static/3d-scatter.png" width="270mm" />
 </p>
 
 Through the **`view_init`** method, we can move the virtual camera which produces the 3D plot: the `elev` parameter allows to specify the elevation angle in degrees which rotates the camera above the plane pierced by the vertical axis, the `azim` parameter allows to specify the angle in degrees which rotates the camera about the vertical axis, finally the `roll` parameter allows to specify the angle in degrees which rotates the camera about the viewing axis:
@@ -1373,7 +1373,7 @@ axes.view_init(45, 45, 0)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/3d-scatter-different-view.png" width="270mm" />
+    <img src="static/3d-scatter-different-view.png" width="270mm" />
 </p>
 
 #### Plot surfaces
@@ -1401,7 +1401,7 @@ axes.plot_surface(xx, yy, z, label = "Surface")
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/surface.png" width="500mm" />
+    <img src="static/surface.png" width="500mm" />
 </p>
 
 </div>
@@ -1439,7 +1439,7 @@ axes.axis('equal')
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/circles.png" width="450mm" />
+    <img src="static/circles.png" width="450mm" />
 </p>
 
 ##### Plotting vectors
@@ -1463,7 +1463,7 @@ axes.arrow(1, 0, 1, 1,
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/arrows.png" width="450mm" />
+    <img src="static/arrows.png" width="450mm" />
 </p>
 
 #### Plotting images
@@ -1494,7 +1494,7 @@ axes.axis('off')
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/image.png" width="450mm" />
+    <img src="static/image.png" width="450mm" />
 </p>
 
 </div>
@@ -1515,7 +1515,7 @@ fig.colorbar(img, ax = axes)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/colorbar.png" width="450mm" />
+    <img src="static/colorbar.png" width="450mm" />
 </p>
 
 </div>
@@ -1914,7 +1914,7 @@ axes.plot(freq, np.abs(V))
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/not-shifted-ft.png" width="240mm" />
+    <img src="static/not-shifted-ft.png" width="240mm" />
 </p>
 
 </div>
@@ -1940,7 +1940,7 @@ axes.plot(np.fft.fftshift(freq), np.fft.fftshift(np.abs(V)))
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/ft.png" width="270mm" />
+    <img src="static/ft.png" width="270mm" />
 </p>
 
 - **`ifft`**: computes the inverse DFT of the input array.
@@ -1961,7 +1961,7 @@ axes.legend()
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/idft-reconstruction.png" width="400mm" />
+    <img src="static/idft-reconstruction.png" width="400mm" />
 </p>
 
 We can also work with 2D data (for exmaple, images).
@@ -2015,7 +2015,7 @@ axes[2].axis("off")
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/2D-ft.png" width="500mm" />
+    <img src="static/2D-ft.png" width="500mm" />
 </p>
 
 
@@ -2045,7 +2045,7 @@ sns.displot(data["A"])
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/univariate-displot.png" width="230mm" />
+    <img src="static/univariate-displot.png" width="230mm" />
 </p>
 
 ```
@@ -2053,7 +2053,7 @@ sns.displot(data)
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/bivariate-displot.png" width="300mm" />
+    <img src="static/bivariate-displot.png" width="300mm" />
 </p>
 
 </div>
@@ -2077,7 +2077,7 @@ sns.scatterplot(data = data, x = "A" ,y = "B", hue = "C")
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/seaborn-scatter.png" width="300mm" />
+    <img src="static/seaborn-scatter.png" width="300mm" />
 </p>
 
 - **`heatmap`**: can be used to visualize the covariance matrix of a data set as a heat map. The parameter `annot` set to `True` adds the corresponding numeric value to every rectangle of the heat map.
@@ -2099,7 +2099,7 @@ sns.heatmap(data.corr(), annot = True)
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/correlation-heatmap.png" width="500mm" />
+    <img src="static/correlation-heatmap.png" width="500mm" />
 </p>
 
 - **violinplot**: performs a violin plot of the input data on the given `Axes`. A violin plot depicts the quartiles along with the "smoothed" distribution:
@@ -2129,7 +2129,7 @@ sns.violinplot(data = data, ax = axes)
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/violin-plot.png" width="500mm" />
+    <img src="static/violin-plot.png" width="500mm" />
 </p>
 
 - **`jointplot`**: performs a joint plot:
@@ -2149,7 +2149,7 @@ sns.jointplot(data = data, x = "Actual", y = "Predicted")
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/naml/static/joint-plot.png" width="500mm" />
+    <img src="static/joint-plot.png" width="500mm" />
 </p>
 
 </div>

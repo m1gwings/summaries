@@ -214,13 +214,13 @@ It allows to represent the set of **all use cases** and, for each one, the **act
 - We can represent **use cases** through **ellipses** with inside the use case name:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/use-case.svg" width="150mm" />
+    <img src="static/use-case-diagrams/use-case.svg" width="150mm" />
 </p>
 
 - We can represent **actors** through _stick figures_ with the actor name below:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/actor.svg"
+    <img src="static/use-case-diagrams/actor.svg"
     width="100mm" />
 </p>
 
@@ -233,21 +233,21 @@ The most important **types of associations between use cases** are:
 - **include**: a use case uses another use case:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/include.svg"
+    <img src="static/use-case-diagrams/include.svg"
     width="300mm" />
 </p>
 
 - **extend**: a use case extends another use case:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/extend.svg"
+    <img src="static/use-case-diagrams/extend.svg"
     width="300mm" />
 </p>
 
 - **generalize**: an abstract use case has several different specializations:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/generalization.svg"
+    <img src="static/use-case-diagrams/generalization.svg"
     width="300mm" />
 </p>
 
@@ -255,14 +255,14 @@ The **types of associations between an actor and a use case** are:
 - **initiate**: the use case is initiated by the actor:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/initiate.svg"
+    <img src="static/use-case-diagrams/initiate.svg"
     width="300mm" />
 </p>
 
 - **partecipate**: the actor partecipates to the use case:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/use-case-diagrams/partecipate.svg"
+    <img src="static/use-case-diagrams/partecipate.svg"
     width="300mm" />
 </p>
 
@@ -281,7 +281,7 @@ These **class diagrams** have a different semantics w.r.t. those used in OO soft
 Each **class represents an entity**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/entity.svg"
+    <img src="static/class-diagrams/entity.svg"
     width="250mm" />
 </p>
 
@@ -291,21 +291,21 @@ We can **link entities** through:
 - **association** (_undirected_ or _directed_): it represents a relationship between the two entities:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/association.svg"
+    <img src="static/class-diagrams/association.svg"
     width="300mm" />
 </p>
 
 - **generalization**: it indicates that one entity is considered to be a specialized form of the other:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/generalization.svg"
+    <img src="static/class-diagrams/generalization.svg"
     width="250mm" />
 </p>
 
 - **aggregation**: it indicates that one entity "_has_" the other:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/aggregation.svg"
+    <img src="static/class-diagrams/aggregation.svg"
     width="250mm" />
 </p>
 
@@ -315,7 +315,7 @@ We can **link entities** through:
 - **composition**: it is a stronger form of aggregation where the aggregated elements exist only as a part of the aggregate:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/composition.svg"
+    <img src="static/class-diagrams/composition.svg"
     width="250mm" />
 </p>
 
@@ -324,7 +324,7 @@ We can **link entities** through:
 - Sometime we can use _stick figures_ to represent some actors, like users:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/user.svg"
+    <img src="static/class-diagrams/user.svg"
     width="200mm" />
 </p>
 
@@ -344,7 +344,7 @@ How can we represent the **flow of events of a use case as a sequence diagram**?
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/lifeline.svg"
+    <img src="static/sequence-diagrams/lifeline.svg"
     width="200mm" />
 </p>
 
@@ -353,14 +353,14 @@ How can we represent the **flow of events of a use case as a sequence diagram**?
 - An event is represented as a **message** from the sender to the receiver; the **occurrence** of the event is represented as a rectangle on the lifelines of both actors involved, a **synchronous message arrow** starts from the occurrence of the event in the lifeline of the sender and reaches the occurrence of the event in the lifeline of the receiver; the converse happens for the **return message arrow**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/sync-message.svg"
+    <img src="static/sequence-diagrams/sync-message.svg"
     width="200mm" />
 </p>
 
 - Messages can also be asynchronous when the **sender doesn't wait for a response**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/async-message.svg"
+    <img src="static/sequence-diagrams/async-message.svg"
     width="150mm" />
 </p>
 
@@ -377,28 +377,28 @@ Furthermore, sequence diagrams provide various constructs to modify the flow of 
 - **alt** allows alternative behaviors based on the value of a condition:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/alt.png"
+    <img src="static/sequence-diagrams/alt.png"
     width="150mm" />
 </p>
 
 - **opt** allows to specify optional interactions which happen only when a condition is satisfied:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/opt.png"
+    <img src="static/sequence-diagrams/opt.png"
     width="150mm" />
 </p>
 
 - **loop** allows to interate a sequence of interactions while a condition is satisfied:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/loop.png"
+    <img src="static/sequence-diagrams/loop.png"
     width="150mm" />
 </p>
 
 - **break** allows to break out of a loop if a condition is satisfied:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/sequence-diagrams/break.png"
+    <img src="static/sequence-diagrams/break.png"
     width="100mm" />
 </p>
 
@@ -412,7 +412,7 @@ Furthermore, sequence diagrams provide various constructs to modify the flow of 
 The example below showcases part of the syntax, we won't delve deeper:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/state-machine-diagram.png"
+    <img src="static/state-machine-diagram.png"
     width="300mm" />
 </p>
 
@@ -421,7 +421,7 @@ The example below showcases part of the syntax, we won't delve deeper:
 The examples below showcase part of the syntax, we won't delve deeper:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/activity-diagrams/diagram-1.svg"
+    <img src="static/activity-diagrams/diagram-1.svg"
     width="150mm" />
 </p>
 
@@ -429,7 +429,7 @@ The examples below showcase part of the syntax, we won't delve deeper:
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/activity-diagrams/diagram-2.svg"
+    <img src="static/activity-diagrams/diagram-2.svg"
     width="300mm" />
 </p>
 
@@ -552,7 +552,7 @@ run { } for exactly 3 A
 for the simple model defined before, the tool provides the following instance:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/alloy/single-signature.png"
+    <img src="static/alloy/single-signature.png"
     width="150mm" />
 </p>
 
@@ -1005,7 +1005,7 @@ Furthermore, they allow us to study runtime properties such as availability and 
 We can represent a **simple component** as follows:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/component.svg"
+    <img src="static/component-and-connector-diagrams/component.svg"
     width="150mm" />
 </p>
 
@@ -1015,7 +1015,7 @@ We can represent a **simple component** as follows:
 Each component can **provide and require interfaces**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/interfaces.svg"
+    <img src="static/component-and-connector-diagrams/interfaces.svg"
     width="250mm" />
 </p>
 
@@ -1024,14 +1024,14 @@ Each component can **provide and require interfaces**:
 We can build **connectors** by "_matching_" a provided interface with a required interface:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/connector.svg"
+    <img src="static/component-and-connector-diagrams/connector.svg"
     width="150mm" />
 </p>
 
 We can **connect several components** into a **subsystem**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/subsystem.svg"
+    <img src="static/component-and-connector-diagrams/subsystem.svg"
     width="250mm" />
 </p>
 
@@ -1041,7 +1041,7 @@ We can **connect several components** into a **subsystem**:
 Finally, we can **connet subsystems' interfaces** through **dependency arrows**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/connecting-subsystems.svg"
+    <img src="static/component-and-connector-diagrams/connecting-subsystems.svg"
     width="250mm" />
 </p>
 
@@ -1056,7 +1056,7 @@ Finally, we can **connet subsystems' interfaces** through **dependency arrows**:
 We can represent the **interaction between components and other components** or **human actors and components** through sequence diagrams, using the following representation:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/component-and-connector-diagrams/sequence-diagram.svg"
+    <img src="static/component-and-connector-diagrams/sequence-diagram.svg"
     width="190mm" />
 </p>
 
@@ -1074,7 +1074,7 @@ An example of modular structure is the **layered architecture** where:
 A layered architecture has been used for example in the "Reference IoT Layered architecture" (RILA).
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/module-structures-diagrams/RILA.webp"
+    <img src="static/module-structures-diagrams/RILA.webp"
     width="230mm" />
 </p>
 
@@ -1087,14 +1087,14 @@ We can use:
 - **composite structure diagrams**
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/composite-structure-diagram.png"
+    <img src="static/composite-structure-diagram.png"
     width="500mm" />
 </p>
 
 - **class diagrams**
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/class-diagrams/modular-structures.png"
+    <img src="static/class-diagrams/modular-structures.png"
     width="270mm" />
 </p>
 
@@ -1109,7 +1109,7 @@ We can use:
 
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/package-diagram.png"
+    <img src="static/package-diagram.png"
     width="500mm" />
 </p>
 
@@ -1141,14 +1141,14 @@ Typical allocation structures are:
 - An example can be:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/deployment-diagrams/diagram-1.png"
+    <img src="static/deployment-diagrams/diagram-1.png"
     width="500mm" />
 </p>
 
 - or:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/deployment-diagrams/diagram-2.png"
+    <img src="static/deployment-diagrams/diagram-2.png"
     width="500mm" />
 </p>
 
@@ -2039,7 +2039,7 @@ In order to measure the availability of a service we need to introduce some quan
 - **recovery time** the time required to restore the system (re-configuration, re-initialization, ...).
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/failure-recovery.svg"
+    <img src="static/availability/failure-recovery.svg"
     width="500mm" />
 </p>
 
@@ -2049,7 +2049,7 @@ Furthermore, we call:
 - **Mean Time Between Failures** (**MTBF**) the average time between the occurrences of two consecutive failures.
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/time-between-failures.svg"
+    <img src="static/availability/time-between-failures.svg"
     width="500mm" />
 </p>
 
@@ -2076,7 +2076,7 @@ Once we have computed the availability of a single component with the formula ab
 System in **series** are represented as follows:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/series.svg"
+    <img src="static/availability/series.svg"
     width="300mm" />
 </p>
 
@@ -2089,7 +2089,7 @@ $$
 System in **parallel** are represented as follows:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/parallel.svg"
+    <img src="static/availability/parallel.svg"
     width="250mm" />
 </p>
 
@@ -2115,14 +2115,14 @@ We have 4 **replication approaches**:
 > - **hot spare**: C1 is leading, C2 is always ready to take over
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/hot-spare.svg"
+    <img src="static/availability/hot-spare.svg"
     width="200mm" />
 </p>
 
 > - **warm spare**: C1 is leading and periodically updating C2. If C1 fails, some time might be needed to fully update C2
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/warm-spare.svg"
+    <img src="static/availability/warm-spare.svg"
     width="200mm" />
 </p>
 
@@ -2132,14 +2132,14 @@ We have 4 **replication approaches**:
 > - **cold spare**: C2 is dormant and started and updated only when needed
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/cold-spare.svg"
+    <img src="static/availability/cold-spare.svg"
     width="300mm" />
 </p>
 
 > - **triple modular redundancy**: C1, C2, and C3 are all active. The produced result is the one produced by the majority
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/triple-modular-redundancy.svg"
+    <img src="static/availability/triple-modular-redundancy.svg"
     width="300mm" />
 </p>
 
@@ -2148,7 +2148,7 @@ We have 4 **replication approaches**:
 When C1 is in the failure state, a recovery mechanism moves it to the degraded state. In the degraded state, C1 continues to be available even if not fully functional.
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/availability/forward-error-recovery.svg"
+    <img src="static/availability/forward-error-recovery.svg"
     width="300mm" />
 </p>
 
@@ -2193,7 +2193,7 @@ A model which comprehends the various verification (and validation) stages that 
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/verification/v-model.png"
+    <img src="static/verification/v-model.png"
     width="500mm" />
 </p>
 
@@ -2237,7 +2237,7 @@ statement2
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/CFG/sequence.svg"
+    <img src="static/CFG/sequence.svg"
     width="120mm" />
 </p>
 
@@ -2256,7 +2256,7 @@ if (statement1) {
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/CFG/if.svg"
+    <img src="static/CFG/if.svg"
     width="200mm" />
 </p>
 
@@ -2270,7 +2270,7 @@ while (statement1) {
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/CFG/while.svg"
+    <img src="static/CFG/while.svg"
     width="160mm" />
 </p>
 
@@ -2408,7 +2408,7 @@ In particular:
 ```
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/symbolic-execution/initialization.svg"
+    <img src="static/symbolic-execution/initialization.svg"
     width="280mm" />
 </p>
 
@@ -2428,7 +2428,7 @@ In particular:
 <div class="column">
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/symbolic-execution/statement-execution.svg"
+    <img src="static/symbolic-execution/statement-execution.svg"
     width="300mm" />
 </p>
 
@@ -2445,14 +2445,14 @@ In particular:
 We can choose between:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/symbolic-execution/condition-true.svg"
+    <img src="static/symbolic-execution/condition-true.svg"
     width="300mm" />
 </p>
 
 and:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/symbolic-execution/condition-false.svg"
+    <img src="static/symbolic-execution/condition-false.svg"
     width="300mm" />
 </p>
 
@@ -2592,7 +2592,7 @@ In **stress testing** we want to make sure that the system recovers gracefully a
 The diagram below depicts the main phases of testing.
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/testing-workflow.svg"
+    <img src="static/testing-workflow.svg"
     width="300mm" />
 </p>
 
@@ -2635,7 +2635,7 @@ Furthermore, we can perform two **kinds of step**:
 We can represent the **state** of **concolic execution** as **follows**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/concolic-execution/state.svg"
+    <img src="static/concolic-execution/state.svg"
     width="300mm" />
 </p>
 
@@ -2663,7 +2663,7 @@ If we encounter the statement `z = bb(y)`, we can put `bb(Y)` as the symbolic va
 corresponds to the state:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/concolic-execution/black-box-statement.svg"
+    <img src="static/concolic-execution/black-box-statement.svg"
     width="270mm" />
 </p>
 
@@ -2675,7 +2675,7 @@ Remember that we **can evaluate conditions through the concrete values**; in the
 2:     if (z == x) {
 ```
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/concolic-execution/black-box-branch.svg"
+    <img src="static/concolic-execution/black-box-branch.svg"
     width="270mm" />
 </p>
 
@@ -2962,7 +2962,7 @@ Graphical notations are normally used to illustrate the project schedule.
 **Gantt charts** are the most commonly used representations for project schedules. They show the schedule as activities or resources against time.
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/gantt-chart.png"
+    <img src="static/gantt-chart.png"
     width="270mm" />
 </p>
 
@@ -2979,7 +2979,7 @@ Gantt diagrams often result from one or more of the following methods:
 **WBS** details the work that must be done, it **breaks down** the work into **tasks** that can be easy to **estimate**, **assign** and **track**.
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/WBS.svg"
+    <img src="static/WBS.svg"
     width="300mm" />
 </p>
 
@@ -2990,14 +2990,14 @@ The principal **types of dependencies** are:
 - **Finish to start**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/finish-to-start.svg"
+    <img src="static/precedence-diagram-method/finish-to-start.svg"
     width="250mm" />
 </p>
 
 - **Start to finish**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start-to-finish.svg"
+    <img src="static/precedence-diagram-method/start-to-finish.svg"
     width="250mm" />
 </p>
 
@@ -3012,21 +3012,21 @@ The principal **types of dependencies** are:
 - **Finish to finish**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/finish-to-finish.svg"
+    <img src="static/precedence-diagram-method/finish-to-finish.svg"
     width="130mm" />
 </p>
 
 - **Start to finish**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start-to-finish.svg"
+    <img src="static/precedence-diagram-method/start-to-finish.svg"
     width="250mm" />
 </p>
 
 We can also introduce a delay "_in the triggering_", known as **lag time**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/lag-time.svg"
+    <img src="static/precedence-diagram-method/lag-time.svg"
     width="250mm" />
 </p>
 
@@ -3034,14 +3034,14 @@ Usually in a PDM schedule there are also two special **nodes**:
 - **Start**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/start.svg"
+    <img src="static/precedence-diagram-method/start.svg"
     width="100mm" />
 </p>
 
 - and **End**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/precedence-diagram-method/end.svg"
+    <img src="static/precedence-diagram-method/end.svg"
     width="100mm" />
 </p>
 
@@ -3063,14 +3063,14 @@ The **critical path** results in a connected sequence of tasks that runs from th
 For example, this is a possible schedule network diagram:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/critical-path-method/schedule-network-diagram.png"
+    <img src="static/critical-path-method/schedule-network-diagram.png"
     width="300mm" />
 </p>
 
 On the corresponding Gantt chart, we can see the **critical path**:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/critical-path-method/corresponding-gantt-chart.png"
+    <img src="static/critical-path-method/corresponding-gantt-chart.png"
     width="300mm" />
 </p>
 
@@ -3103,12 +3103,12 @@ In particular we have an **high risk** when both the quantities above are **high
 When evaluating **risk** we can use NASA risk selector plot:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-probability-risk-sector.png"
+    <img src="static/risk-measurement/NASA-probability-risk-sector.png"
     width="300mm" />
 </p>
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-impact-risk-sector.png"
+    <img src="static/risk-measurement/NASA-impact-risk-sector.png"
     width="300mm" />
 </p>
 
@@ -3123,7 +3123,7 @@ When evaluating **risk** we can use NASA risk selector plot:
 From the values obtained for **probability** and **impact** attributes, we can compute the **risk** through the table below:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/risk-measurement/NASA-risk-table.png"
+    <img src="static/risk-measurement/NASA-risk-table.png"
     width="300mm" />
 </p>
 
@@ -3274,7 +3274,7 @@ The **function types** are:
 
 The **corresponding weights** are:
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/function-points/weights.svg"
+    <img src="static/function-points/weights.svg"
     width="200mm" />
 </p>
 
@@ -3291,7 +3291,7 @@ FPs can be used to estimate LOC depending on the average number of LOC per FP fo
 We can represent FPs in diagrams of this kind:
 
 <p align="center">
-    <img src="http://localhost:8080/swe-2/static/function-points/diagram.svg"
+    <img src="static/function-points/diagram.svg"
     width="500mm" />
 </p>
 

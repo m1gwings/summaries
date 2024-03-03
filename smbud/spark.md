@@ -207,15 +207,16 @@ We can **create a DataFrame with a subset of the columns** (with all the values)
 
 The `explode` operator can be used inside of `select` to get a **behavior analogous to `$unwind` in MongoDB**. The syntax is:
 
+---
+
 <div class="algorithm">
 
 ```
-    exploded_df = df.select(col("Column 1"), ..., explode(col("Column with array values")))
+    exploded_df = df.select(col("Column 1"), ...,
+        explode(col("Column with array values")))
 ```
 
 </div>
-
----
 
 ### Rename columns
 
@@ -275,6 +276,9 @@ Possible conditions are:
 - `col("Column Name").contains(string)`;
 - `col("Column Name").like(%something%)`;
 - `col("Column Name").rlike(regex)`;
+
+---
+
 - `array_containts(col("Array column"), value)`.
 
 We can **compose atomic conditions** into **complex conditions** using the **logical operators**: `|` (for **or**) and `&` (for **and**).

@@ -200,6 +200,8 @@ Tables can be also **deleted through** the **`DROP`** command:
 
 Rather than deleting the table, it is possible to **empty it** through the **`TRUNCATE`** command:
 
+---
+
 <div class="algorithm">
 
 ```
@@ -207,8 +209,6 @@ Rather than deleting the table, it is possible to **empty it** through the **`TR
 ```
 
 </div>
-
----
 
 ### Create and delete a secondary index
 
@@ -397,7 +397,8 @@ It is also easy to **update a collection**:
 <div class="algorithm">
 
 ```
-    UPDATE <table_name> SET <collection_column_name> = <collection_column_name> + [ ... ]
+    UPDATE <table_name> SET <collection_column_name> = <collection_column_name> +
+        [ ... ]
     WHERE ...
 ```
 
