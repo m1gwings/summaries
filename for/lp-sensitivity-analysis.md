@@ -1,6 +1,7 @@
 ---
 marp: true
 theme: summary
+math: mathjax
 ---
 # Sensitivity analysis in Linear Programming
 

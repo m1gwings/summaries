@@ -3,5 +3,22 @@
         "./themes/summary-theme.css",
         "./themes/cheatsheet-theme.css"
     ],
-    "markdown.marp.enableHtml": true
+    "markdown.marp.enableHtml": true,
+    "cSpell.words": [
+        "bmatrix",
+        "cheatsheet",
+        "Cristiano",
+        "infty",
+        "marp",
+        "mathbb",
+        "mathjax",
+        "Migali",
+        "NAML",
+        "operatorial",
+        "stationarity",
+        "Toeplitz"
+    ],
+    "cSpell.enableFiletypes": [
+        "tex"
+    ]
 }

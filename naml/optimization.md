@@ -1,6 +1,7 @@
 ---
 marp: true
 theme: summary
+math: mathjax
 ---
 # Optimization
 

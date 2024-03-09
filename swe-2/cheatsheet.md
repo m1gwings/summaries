@@ -2,6 +2,7 @@
 marp: true
 theme: cheatsheet
 paginate: true
+math: mathjax
 ---
 # SWE 2 Cheatsheet (A. Y. 2023/2024)
 
