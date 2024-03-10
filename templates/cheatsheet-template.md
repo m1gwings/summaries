@@ -2,6 +2,7 @@
 marp: true
 theme: cheatsheet
 paginate: true
+math: mathjax
 ---
 # My cheatsheet
 

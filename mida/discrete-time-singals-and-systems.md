@@ -216,3 +216,17 @@ $$
 $$
 a_0 y(t) + \cdots + a_{n-1} y(t-n+1)+a_ny(t-n) = b_0 u(t-n+m) + \cdots + b_{m-1}u(t-n+1) + b_mu(t-n) \text{.}
 $$
+
+11. Let $y_{\text{imp}}(t)$ be the response to $\text{imp}^*(t)$ of a (discrete-time) LTI system. Then, by property 2 and from the definition of $\text{imp}^*(t)$:
+$$
+y_{\text{imp}}(t) = 0 + \sum_{j=0}^{t-1} F^{t-1-j}g\text{imp}^*(j) = F^{t-1}g \text{.}
+$$ 
+> Hence, the forced motion of the system subject to a generic input signal $u(t)$ is (_again by property 2, and by what we remarked above_):
+$$
+y_{\text{forced}}(t) = \sum_{j=0}^{t-1} y_{\text{imp}}(t-j)u(j) \text{.}
+$$
+> Furthermore, by property 8, the transfer function of the system is:
+$$
+G(z) = Y_{\text{imp}}(z) = y_{\text{imp}}(0) + y_{\text{imp}}(1) z^{-1} + y_{\text{imp}}(2) z^{-2} + \ldots \text{,}
+$$
+> where the last equality comes from the definition of $\mathcal{Z}$-transform.
