@@ -230,3 +230,35 @@ $$
 G(z) = Y_{\text{imp}}(z) = y_{\text{imp}}(0) + y_{\text{imp}}(1) z^{-1} + y_{\text{imp}}(2) z^{-2} + \ldots \text{,}
 $$
 > where the last equality comes from the definition of $\mathcal{Z}$-transform.
+
+---
+
+## Other properties of the $\mathcal{Z}$-transform
+
+12. **Convolution theorem for the $\mathcal{Z}$-transform**: let $x_1(\cdot)$, $x_2(\cdot)$ be two discrete time signals. Let
+$$
+x_1 * x_2 (t) = \sum_{\tau = 0}^{+\infty} x_1(\tau) x_2(t-\tau)
+$$
+> be their convolution.
+Then:
+$$
+\mathcal{Z}[x_1 * x_2 (t)] = \mathcal{Z}[x_1(t)] \mathcal{Z}[x_2(t)] \text{.}
+$$
+
+> **Proof** (we will be a bit "_sportivi_" :D in swapping the series; a sufficient condition for doing so is absolute convergence, as shown [here](https://personal.math.ubc.ca/~feldman/m321/twosum.pdf) [it uses results that you can find in chapter 7 of _Baby Rudin_]):
+$$
+\mathcal{Z}[x_1 * x_2(t)] = \sum_{t=0}^{+\infty} \sum_{\tau = 0}^{+ \infty} x_1(\tau) x_2(t-\tau) z^{-t} = \sum_{\tau=0}^{+ \infty} x_1(\tau) \sum_{t=0}^{+ \infty} x_2(t-\tau) z^{-t} =
+$$
+$$
+= \sum_{\tau = 0}^{+ \infty} x_1(\tau) \mathcal{Z}[x_2(t-\tau)] = \left( \sum_{\tau=0}^{+\infty} x_1(\tau) z^{-\tau} \right) \mathcal{Z}[x_2(t)] = \mathcal{Z}[x_1(t)] \mathcal{Z}[x_2(t)] \text{.}
+$$
+
+13. Let $x(\cdot)$ be a discrete time signal <u>defined also for negative values</u>. Then:
+$$
+\mathcal{Z}[x_1(-t)] = W(-z) \text{, where } W(z) = \mathcal{Z}[x_1(t)] \text{.}
+$$
+
+> **Proof**:
+$$
+\mathcal{Z}[x_1(-t)] = \sum_{t = 0}^{+ \infty} x_1(-t) z^{-t} = \sum_{t=-\infty}^0 x_1(t) z^t = \sum_{t=-\infty}^0 x_1(t) (z^{-1})^{-t} = W(z^{-1}) \text{.}
+$$

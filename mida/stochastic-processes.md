@@ -171,6 +171,21 @@ $$
 
 ---
 
+#### Frequency analysis
+
+- The **spectrum** of a stationary stochastic process $v$ is the Fourier transform of the <u>correlation</u> function:
+$$
+\Gamma_{vv}(\omega) = \mathcal{F}[\tilde{\gamma}_{vv}(t)] = \sum_{\tau = - \infty}^{+ \infty} \tilde{\gamma}_{vv}(\tau) e^{-j \omega \tau}
+$$
+> where $\omega$ is the angular frequency (_measured in $\frac{\text{rad}}{\text{s}}$_).
+
+- The **complex spectrum** of a stationary stochastic process $v$ is the bilateral $\mathcal{Z}$-transform of the correlation function:
+$$
+\Phi_{vv}(z) = \sum_{\tau = - \infty}^{+ \infty} \tilde{\gamma}_{vv}(\tau) z^{-\tau} \text{.}
+$$
+
+---
+
 ## Properties
 
 1. Given a stochastic process $v$, it holds for every couple of time instants $t_1$, $t_2$ that:
@@ -503,3 +518,136 @@ $$
  > (_see property 15_), which in operatorial notation becomes $A(z) \gamma(\tau) = 0$, and is equivalent to $\gamma(\tau) = \frac{1}{A(z)} 0$. We know that the system described by $\frac{1}{A(z)}$ is asymptotically stable (remember that this is the condition that implies the stationarity of the process, _see property 12_). Hence, if we subject the system to null input, the output will be null asymptotically. Since the output is $\gamma(\tau)$, it must go to $0$.
  
  > d. For $\text{ARMA}(n_a, n_c)$ processes, the Yule-Walker equation is still valid for sufficiently large values of $\tau$ ($\tau > n_c$), and so the same consequence follows.
+
+#### Frequency analysis
+
+19. The sum of the Fourier series exists only for stationary processes whose correlation function $\tilde{\gamma}_{vv}(\tau)$ tends to $0$ sufficiently rapidly when $\tau$ tends to infinity. A sufficient condition for the existence of the Fourier transform is the absolute convergence of $\tilde{\gamma}_{vv}(\tau)$.
+
+20. Let $\Gamma_{vv}(\omega)$ be the spectrum of a stationary stochastic process $v$. The anti-transformation formula allows to retrieve the correlation function of the process and to establish a one-to-one correspondence between it and the spectrum:
+
+
+---
+
+$$
+\tilde{\gamma}_{vv}(\tau) = \mathcal{F}^{-1}[\Gamma(\omega)] = \frac{1}{2 \pi} \int_{-\pi}^{\pi} \Gamma_{vv}(\omega) e^{j \omega \tau} d \omega \text{.}
+$$
+
+21. From the definition of spectrum, remembering that $\tilde{\gamma}$ is even, it follows that:
+$$
+\Gamma(\omega) = \ldots + \tilde{\gamma}(-2) e^{j2\omega} + \tilde{\gamma}(-1) e^{j\omega} + \tilde{\gamma}(0) + \tilde{\gamma}(1)e^{-j\omega} + \tilde{\gamma}(2)e^{j2\omega} + \ldots =
+$$
+
+$$
+= \tilde{\gamma}(0) + \tilde{\gamma}(1)(e^{j\omega} + e^{-j\omega}) + \tilde{\gamma}(2)(e^{j2\omega} + e^{-j2\omega}) + \ldots =
+$$
+
+$$
+= \tilde{\gamma}(0) + 2 \tilde{\gamma}(1) \cos(\omega) + 2 \tilde{\gamma}(2) \cos(2 \omega) + \ldots \text{.}
+$$
+> Therefore, the spectrum $\Gamma(\omega)$ is:
+ a. a **real** function;
+ 
+ > b. an **even** function;
+ 
+ > c. a **periodic** function of period $2 \pi$.
+
+ > Furthermore, it can be proven that it is also:
+ d. **non-negative**.
+
+22. For a stationary stochastic processes with zero expected value, the variance of the process is proportional to the are below the spectrum curve.
+
+> **Proof**: by the anti-transformation formula:
+$$
+\gamma(0) = \tilde{\gamma}(0) = \frac{1}{2\pi} \int_{-\pi}^{\pi} \Gamma(\omega) d\omega \text{.}
+$$
+
+23. For a stationary stochastic process $v$ it holds that:
+$$
+\Phi_{vv}(e^{j \omega}) = \Gamma_{vv}(\omega), \forall \omega \text{.}
+$$
+
+> **Proof**: straightforward by comparing both definitions.
+
+
+24. The spectrum of $\eta(\cdot) \sim WN(0, \lambda^2)$ is:
+$$
+\Gamma_{\eta \eta}(\omega) = \lambda^2, \forall \omega \text{.}
+$$
+
+
+> **Proof**: follows from the definition of spectrum and from property 6.
+
+25. **Fundamental theorem of spectral analysis**: consider the process $y(\cdot)$ obtained by filtering a <u>stationary</u> input process $u(\cdot)$ through an <u>asymptotically stable</u> dynamical system described by the transfer function $W(z)$:
+$$
+y(t) = W(z) u(t) \text{,}
+$$
+> then it holds the following relationship among the spectrum of the two processes:
+$$
+\Gamma_{yy}(\omega) = |W(e^{j \omega})|^2 \Gamma_{uu}(\omega) \text{.}
+$$
+
+---
+
+> **Proof**: to compute the input-output cross-correlation function, we can exploit property 11 in _"Discrete time signals and systems"_ (_assuming that we're at steady state_):
+$$
+y(t) = \sum_{i=0}^{+ \infty} w(i) u(t-i) \text{,}
+$$
+> where $w(i)$ is the impulse response of the system (with zero initial condition).
+If we multiply both sides by $u(t-\tau)$, we get:
+$$
+y(t)u(t-\tau) = \sum_{i=0}^{+ \infty} w(i) u(t-i) u(t-\tau) \text{.}
+$$
+> If we do the same, multiplying this time by $y(t-\tau)$, we get:
+$$
+y(t)y(t - \tau) = \sum_{i=0}^{+ \infty} w(i) u(t-i) y(t - \tau) \text{.}
+$$
+> By taking expectation of both expressions, we obtain (_remember that $u(\cdot)$ is stationary by assumption, and $y(\cdot)$ is stationary since the dynamical system is asymptotically stable [we never proved nor stated this result]_):
+$$
+\tilde{\gamma}_{yu}(\tau) = \sum_{i=0}^{+ \infty} w(i) \tilde{\gamma}_{uu}(\tau-i) \text{,}
+$$
+$$
+\tilde{\gamma}_{yy}(\tau) = \sum_{i=0}^{+ \infty} w(i) \tilde{\gamma}_{uy}(\tau-i) \text{.}
+$$
+> [_Remember that $\mathbb{E}[v_1(t_1)v_2(t_2)] = \tilde{\gamma}_{v_1v_2}(t_1-t_2)$ assuming that the two processes are stationary_].
+> Let's compute the complex spectrum of these correlation functions, remembering that the $\mathcal{Z}$-transform of the convolution is the product of the $\mathcal{Z}$-transforms (see property 12 of "Discrete time signals and systems" which can be generalized to the bilateral $\mathcal{Z}$-transform):
+$$
+\Phi_{yu}(z) = \mathcal{Z}[w(i)] \Phi_{uu}(z) = W(z) \Phi_{uu}(z) \text{,}
+$$
+$$
+\Phi_{yy}(z) = W(z) \Phi_{uy}(z) \text{,}
+$$
+> where we used the fact that $\mathcal{Z}[w(i)] = W(z)$ (see property 8 of "Discrete time signals and systems").
+Observe that:
+$$
+\tilde{\gamma}_{uy}(\tau) = \mathbb{E}[u(t)y(t-\tau)] = \mathbb{E}[y(t-\tau)u(t)] = \tilde{\gamma}_{yu}(-\tau) \text{,}
+$$
+> then, by property 13 of "Discrete time signals and systems":
+$$
+\Phi_{uy}(z) = \Phi_{yu}(-z) \text{.}
+$$
+
+---
+
+> By combining the equalities we get:
+$$
+\Phi_{yy}(z) = W(z) W(z^{-1}) \Phi_{uu}(z^{-1}) = W(z) W(z^{-1}) \Phi_{uu}(z)
+$$
+> again, by property 13 of "Discrete time signals and systems", since $\tilde{\gamma}_{uu}$ is even.
+The result is now proved by making the following remarks:
+> - $\Gamma_{yy}(\omega) = \Phi_{yy}(e^{j\omega})$ (_just substitute in the definition of complex spectrum_);
+> - $(e^{j \omega})^{-1}$ is the complex conjugate of $e^{j \omega}$, and, said $z^*$ the complex conjugate of $z$, by the properties of the conjugate, it holds that for every rational function $W(z)$: $W(z^*) = W(z)^*$;
+> - $z z^* = |z|^2$.
+
+> **Important remark**: the "_Fundamental theorem of spectral analysis_" relates the spectrum of a process with the frequency response $W(e^{j \omega})$ of the dynamical system which generates it. Hence, if the value of the spectrum at a given frequency is small, it means that signals at that frequency are attenuated by the system.
+
+26. Let's list the expressions of the spectrum for some deterministic processes.
+> - The **constant process**: $v(t) = v$, $\forall t$ where $v$ is a random variable.
+>> $\tilde{\gamma}_{vv}(\tau) = \mathbb{E}[v^2]$, then $\Gamma_{vv}(\omega) = \mathbb{E}[v^2] \delta(\omega)$ (where $\delta(\omega)$ is _Dirac's delta_). Indeed:
+$$
+\mathcal{F}^{-1}[\Gamma_{vv}(\omega)] = \frac{1}{2 \pi} \int_{-\pi}^\pi \mathbb{E}[v^2] \delta(\omega) e^{j\omega} d\omega = \mathbb{E}[v^2] e^{j0} = \mathbb{E}[v^2] \text{.}
+$$
+>> _Remember that: $\frac{1}{2 \pi} \int_{-\pi}^{\pi} \delta(\omega - \omega_0) e^{j \omega} d\omega = e^{j \omega 0}$_.
+
+> - The **alternated process**: $v(t) = (-1)^t v$, where $v$ is a random variable.
+>> $\tilde{\gamma}_{vv}(\tau) = \mathbb{E}[(-1)^t v (-1)^{t-\tau} v] = (-1)^{- \tau} \mathbb{E}[v^2] = (-1)^\tau \mathbb{E}[v^2]$.
+Then $\Gamma_{vv}(\omega) = \frac{\delta(\omega + \pi) + \delta(\omega - \pi)}{2}$ (_it can be verified through the anti-transform formula_). [_I've modified the formula which was originally on the slides, since the spectrum wasn't even_].
