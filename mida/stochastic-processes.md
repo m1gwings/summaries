@@ -651,3 +651,127 @@ $$
 > - The **alternated process**: $v(t) = (-1)^t v$, where $v$ is a random variable.
 >> $\tilde{\gamma}_{vv}(\tau) = \mathbb{E}[(-1)^t v (-1)^{t-\tau} v] = (-1)^{- \tau} \mathbb{E}[v^2] = (-1)^\tau \mathbb{E}[v^2]$.
 Then $\Gamma_{vv}(\omega) = \frac{\delta(\omega + \pi) + \delta(\omega - \pi)}{2}$ (_it can be verified through the anti-transform formula_). [_I've modified the formula which was originally on the slides, since the spectrum wasn't even_].
+
+##### Spectral factorization
+
+We have addressed the problem of calculating the spectrum of a process given the transfer function, but in practice the opposite is typically more useful: we are often given a set of data with certain spectral characteristics and we are faced with the problem of describing the generator process (i.e. of finding the pair $(W(z), \eta(\cdot))$).
+
+**Observe that**:
+- Given a spectrum, there is NOT always a corresponding (_rational_) transfer function (which would allow to interpret it as the spectrum of an ARMA process). 
+
+---
+
+> Indeed, the spectrum of an ARMA process has NOT a completely arbitrary shape: for example it cannot be 0 on an entire interval $[\omega_1, \omega_2]$ (_rational functions have a finite number of zeros, if they are different from zero [at least I think that this should hold :D]_). $\Gamma(\omega)$ must be a _rational function_ in $e^{j \omega}$.
+
+- There are different pairs $(W(z), \eta(\cdot))$ which produce the same spectrum.
+
+27. Let's list some **equivalent pairs $(W(z), \eta(\cdot))$**.
+ a. **Multiplication by a constant**: let $\alpha \in \mathbb{R} \setminus \{ 0 \}$, $\tilde{W}(z) = \frac{1}{\alpha} W(z)$, $\tilde{\eta}(\cdot) = \alpha \eta(\cdot) \sim WN(0, \alpha^2 \lambda^2)$. Then:
+$$
+\tilde{\Phi}(z) = \frac{1}{\alpha} W(z) \frac{1}{\alpha} W(z^{-1}) \alpha^2 \lambda^2 = \Phi(z) \text{.}
+$$
+> Indeed, $\frac{1}{\alpha} W(z) \alpha \eta(t) = W(z) \eta(t) = v(t)$.
+
+> b. **Multiplication by $z^n$**: let $\tilde{W}(z) = z^n W(z)$, $\tilde{\eta}(t) = z^{-n} \eta(t) = \eta(t-n)$, with $n \in \mathbb{N}$. Then:
+$$
+\tilde{\Phi}(z) = z^n W(z) z^{-n} W(z^{-1}) \lambda^2 = \Phi(z) \text{.}
+$$
+> Furthermore: $z^n W(z) z^{-n} \eta(t) = W(z) \eta(t) = v(t)$. That is, a **time shift** of the process **does NOT alter its process characteristics**.
+
+> c. **Multiplication of both the numerator and the denominator by the same factor**: $\tilde{W}(z) = W(z) \frac{z-p}{z-p}$ with $p \in \mathbb{C}$, $|p| < 1$, $\tilde{\eta}(t) = \eta(t)$. Then:
+$$
+\tilde{\Phi}(z) = \Phi(z) \text{ since } W(z) = \tilde{W}(z) \text{ after the simplification.}
+$$
+> Indeed, $W(z) \frac{z-p}{z-p} \tilde{\eta}(t) = W(z) \eta(t) = v(t)$.
+
+> d. **Multiplication by an all-pass filter**: let $\tilde{W}(z) = W(z)T(z)$ where
+$$
+T(z) = \frac{1}{q} \frac{z-q}{z-\frac{1}{q}} \text{,}
+$$
+> and $\tilde{\eta}(t) = \eta(t)$. The fact that $\tilde{\Phi}(z) = \Phi(z)$ follows from:
+$$
+T(z)T(z^{-1}) = \frac{1}{q} \frac{z-q}{z-\frac{1}{q}} \frac{1}{q} \frac{z^{-1} - q}{z^{-1} - \frac{1}{q}} = \frac{z-q}{qz-1}\frac{1-z q}{q - z} = 1 \text{.}
+$$
+
+> **Important remark**: if $q$ is a pole of $W(z)$, this operation essentially substitutes the pole in $q$ with one in $\frac{1}{q}$ (a similar reasoning applies to zeroes). Stated otherwise, **if we substitute a singularity of $W(z)$ with its reciprocal, the spectrum changes only by a constant factor**.
+
+---
+
+28. If we filter a stationary stochastic process through an "_un-normalized_" asymptotically stable all-pass filter $\hat{T}$, we get a stationary stochastic process with expected value, and covariance function multiplied by a factor $\hat{T}(1)$, and $\hat{T}^2(1)$ respectively, w.r.t. the original one. (Also the correlation function gets multiplies by $\hat{T}^2(1)$).
+
+> **Proof**: let
+$$
+\hat{T}(z) = \frac{z-q}{z-\frac{1}{q}} \text{,}
+$$
+> $v_2(t) = \hat{T}(z) v_1(t)$. $v_2(\cdot)$ is stationary since $\hat{T}$ is the transfer function of an asymptotically stable system by assumption. Furthermore:
+$$
+v_2(t+1) - \frac{1}{q} v_2(t+1) = v_1(t+1) - q v_1(t+1) \text{.}
+$$
+> Hence:
+$$
+(1 - \frac{1}{q}) \mu_{v_2} = (1 - q) \mu_{v_1} \text{ iff } \mu_{v_2} = \hat{T}(1) \mu_{v_1} \text{.}
+$$
+> Observe that:
+$$
+\hat{T}(1) = \frac{1-q}{1-\frac{1}{q}} = q \frac{\frac{1}{q}-1}{1-\frac{1}{q}} = -q
+$$
+> Furthermore:
+$$
+\hat{T}(z) \hat{T}(z^{-1}) = \frac{1}{q^2} \frac{z-q}{z-\frac{1}{q}} \frac{z^{-1} - q}{z^{-1} - \frac{1}{q}} q^2 = 1 \cdot q^2 = \hat{T}^2(1) \text{.}
+$$
+> Then:
+$$
+\Gamma_{v_2 v_2}(\omega) = \left[ \hat{T}(z) \hat{T}(z^{-1}) \right]_{\vert_{z = e^{j \omega}}} \Gamma_{v_1 v_1}(\omega) = \hat{T}^2(1) \Gamma_{v_1 v_1}(\omega) \text{.}
+$$
+> Hence:
+$$
+\tilde{\gamma}_{v_2 v_2}(\tau) = \mathcal{F}^{-1}[\Gamma_{v_2 v_2}(\omega)] = \mathcal{F}^{-1}[\hat{T}^2(1) \Gamma_{v_1 v_1}(\omega)] = \hat{T}^2(1) \tilde{\gamma}_{v_1 v_1}(\tau) \text{.}
+$$
+> Finally:
+$$
+\gamma_{v_2 v_2}(\tau) = \tilde{\gamma}_{v_2 v_2}(\tau) - \mu_{v_2 v_2}^2 = \hat{T}^2(1) \tilde{\gamma}_{v_1 v_1}(\tau) - \hat{T}^2(1) \mu_{v_1}^2 = \hat{T}^2(1) \gamma_{v_1 v_1}(\tau) \text{.}
+$$
+
+Now we ask ourselves the following question: is there one representation that is more suitable than the others for solving the prediction problem?
+The following result allows to select the so called _canonical representation_, which gets rid of all the possible sources of redundancy that we listed.
+
+---
+
+29. **Spectral factorization theorem**: let $v(\cdot)$ be a stationary stochastic process with rational spectrum.
+There exist a unique pair $\left( \hat{W}(z) = \frac{C(z)}{A(z)}, \xi(t) \right)$ such that:
+> 1. **$C(z)$** and **$A(z)$** are **monic**;
+
+> 2. **$C(z)$** and **$A(z)$** have the **same degree**;
+
+> 3. **$C(z)$** and **$A(z)$** are **co-prime** (_no common roots_);
+
+> 4. **$C(z)$** and **$A(z)$** have all their **roots in the closed and open unit circle, respectively** ($|z| \leq 1$, $\forall z$ s.t. $C(z) = 0$, $|z| < 1$, $\forall z$ s.t. $A(z) = 0$).
+
+> $\hat{W}(z)$ takes the name of _canonical spectral factor_.
+
+> **Example**: consider the process
+$$
+v(t) = \eta_1(t-1) + \eta_2(t) - \eta_2(t-1)
+$$
+> where $\eta_1(\cdot) \sim WN(0, \lambda_1^2)$, and $\eta_2(\cdot) \sim WN(0, \lambda_2^2)$ are <u>independent</u> white noise processes.
+The process is constructed as the sum of two stationary processes, and therefore it is also stationary.
+It is easy to see that $\gamma_{vv}(\tau) = 0$ for $|\tau| > 1$. Then, the process can be reformulated as an $\text{MA}(1)$:
+$$
+v(t) = \xi(t) + c \xi(t-1) \text{,} \xi(t) \sim WN(0, \lambda^2)
+$$
+> provided it has the same spectral characteristics, or, which is equivalent, the same auto-covariance function.
+By property 10.b:
+$$
+\gamma_{vv}(0) = (1 + c^2) \lambda^2 \text{,}
+$$
+$$
+\gamma_{vv}(1) = c \lambda^2 \text{.}
+$$
+> If we compute the auto-covariance starting from the original expression:
+$$
+\gamma_{vv}(0) = \lambda_1^2 + 2 \lambda_2^2 \text{,}
+$$
+$$
+\gamma_{vv}(1) = \mathbb{E}[(\eta_1(t-1) + \eta_2(t) - \eta_2(t-1))(\eta_1(t-2) + \eta_2(t-1) - \eta_2(t-2))] = - \lambda_2^2 \text{.}
+$$
+> If we equate the expressions and solve the system, we get two possible solutions: $(c = -\frac{1}{2}, \lambda^2 = 1)$, and $(c = -2, \lambda^2 = \frac{1}{4})$, but only the **first one is canonical** ($-c$ is a zero of the system).
