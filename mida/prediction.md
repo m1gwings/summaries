@@ -1,0 +1,172 @@
+---
+marp: true
+theme: summary
+math: mathjax
+---
+# Prediction
+
+<div class="author">
+
+Cristiano Migali
+
+</div>
+
+Consider a process with rational spectrum:
+$$
+v(t) = W(z) \eta(t) = \frac{C(z)}{A(z)} \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+**Prediction** addresses the problem of **estimating the future** value $v(t+r)$ (with $r > 0$) from the observation of the past of the process up to time $t$: $v(t)$, $v(t-1)$, $\ldots$ (<u>assuming that we know the system</u>, that is, we know $W(z)$).
+
+- We will denote such **estimate** as $\hat{v}(t+r|t)$.
+
+- We will call $r$ the **prediction horizon**.
+
+In general, the predictor will have the following structure:
+$$
+\hat{v}(t+r|t) = f(v(t), v(t-1), \ldots).
+$$
+
+Out **objective** is to find the **_optimal_ predictor**, that perfectly blends the information coming from the model (data generation mechanism), and that associated with the available past observations.
+
+- We define the **prediction error** (or **residual**):
+$$
+\epsilon(t+r) = v(t+r) - \hat{v}(t+r|t).
+$$
+
+Notice that the **prediction error is** itself a **stochastic process**, as $\hat{v}(\cdot)$ depends on random variables.
+
+- The optimal predictor is the one that **minimizes** the **mean square prediction error** (**MSPE**), i.e. the variance of the residual:
+$$
+\mathbb{E}[\epsilon^2(t)] .
+$$
+
+Before dealing with actual optimal predictors, we need to (_it will be clear later why it is so_) build **fake predictors** which assume that we know the realization of the white noise up to time $t$: $\eta(t), \eta(t-1), \ldots$, to make predictions. This assumption is of course not satisfied in practice, since we can measure the values of $v$, but not the ones of $\eta$.
+
+Remember that we can always expand $W(z)$ in negative powers of $z$ (_take a look at long division in "Discrete time signals and systems", property 7_):
+$$
+W(z) = w_0 + w_1 z^{-1} + w_2 z^{-2} + \ldots .
+$$
+Hence:
+$$
+v(t) = w_0 \eta(t) + w_1 \eta(t-1) + w_2 \eta(t-2) + \ldots .
+$$
+
+---
+
+The last expression allows us to write:
+$$
+v(t+r) = \alpha(t) + \beta(t)
+$$
+with:
+$$
+\alpha(t) = w_0 \eta(t+r) + w_1 \eta(t+r-1) + \ldots + w_{r-1} \eta(t+1),
+$$
+$$
+\beta(t) = w_r \eta(t) + w_{r+1} \eta(t-1) + \ldots .
+$$
+
+Now, $\alpha(t)$, and $\beta(t)$ are **uncorrelated random variables** (they are linear combinations of the same white noise process over non-overlapping time ranges).
+- $\beta(t)$ can be computed once the past of $\eta(\cdot)$ (up to $t$) is known.
+- $\alpha(t)$ depends on the _future_ of $\eta(\cdot)$ (from $t+1$ to $t+r$).
+Therefore, $\alpha(t)$ is uncorrelated from the past up to time $t$. In other words, $\alpha(t)$ is unpredictable from the past, and we can only estimate its mean value, which is zero (_remember that $\eta \sim WN(0, \lambda^2)$_):
+$$
+\mathbb{E}[\alpha(t)] = w_0 \mathbb{E}[\eta(t+r)] + w_1 \mathbb{E}[\eta(t+r-1)] + \ldots + w_{r-1} \mathbb{E}[\eta(t+1)] = 0.
+$$
+
+Hence the **optimal fake predictor** is:
+$$
+\hat{v}(t+r|t) = \beta(t) = w_r \eta(t) + w_{r-1} \eta(t-1) + \ldots,
+$$
+and the **prediction error** equals:
+$$
+\epsilon(t+r) = v(t+r) - \hat{v}(t+r|t) = \alpha(t) = w_0 \eta(t+r) + w_1 \eta(t+r-1) + \ldots + w_{r-1}(t+1).
+$$
+
+Notice that **$\epsilon$ i s an MA process** (_see property 10.a,b of "Stochastic processes"_):
+- its mean value is: $0$;
+- its variance is:
+$$
+\mathbb[\epsilon^2(t+r)] = (w_0^2 + w_1^2 + \ldots + w_{r-1}^2) \lambda^2.
+$$
+
+Notice that the variance is monotonically increasing with $r$: the prediction "gets worse" (its uncertainty increases) with the prediction horizon.
+
+- For $r = 1$, the variance equals $w_0^2 \lambda^2$; if $w_0 = 1$, which occurs if e.g. $W(z)$ is canonical, then it coincides with the variance of the noise:
+$$
+\mathbb{V}\text{ar}[\epsilon(t)] = \mathbb{V}\text{ar}[\eta(t)].
+$$
+- For $r \rightarrow + \infty$ the variance becomes $(w_0^2 + w_1^2 + \ldots) \lambda^2$, i.e. the variance of the whole process $v(t)$, expressed as a $\text{MA}(\infty)$:
+$$
+\mathbb{V}\text{ar}[\epsilon(t)] = \mathbb{V}\text{ar}[v(t)].
+$$
+
+Indeed, prediction gets increasingly difficult with $r$, since the variable to be estimated refers to a time point at large distance ahead than the available data.
+
+---
+
+In the long run ($r \rightarrow + \infty$), the information brought by the past data is of no utility, so that the only reasonable estimate is the trivial one, i.e. the mean variable of the variable $\mathbb{E}[v(t+r)] = 0$.
+
+The **optimal predictor** can be expressed in **operatorial notation**:
+$$
+\hat{v}(t+r|t) = (w_r + w_{r+1}z^{-1} + w_{r+2} z^{-2} + \ldots) \eta(t) = \hat{W}_r(z) \eta(t).
+$$
+
+## Computing $\hat{W}_r(z)$
+
+To determine $\hat{W}_r(z)$ observe that the transfer function can be expressed as:
+$$
+W(z) = w_0 + w_1 z^{-1} + \ldots + w_{r-1} z^{-(r-1)} + w_r z^{-r} + w_{r+1} z^{-(r+1)} + \ldots =
+$$
+$$
+= (w_0 + w_1 z^{-1} + \ldots + w_{r-1} z^{-(r-1)}) + z^{-r} (w_r + w_{r+1} z^{-1} + \ldots) = E(z) + z^{-r} \hat{W}_r(z).
+$$
+Observe that:
+- $E(z)$ is a polynomial of degree $r-1$ in $z^{-1}$;
+- $\hat{W}_r(z)$ is a power series in $z^{-1}$.
+
+Hence we can determine $\hat{W}_r(z)$ by operating long division of $C(z)$ by $A(z)$.
+In particular, after $r$ steps of long division of $C(z)$ by $A(z)$, we get:
+$$
+C(z) = E(z) A(z) + z^{-r} F_r(z)
+$$
+where:
+- $E(z)$ is the quotient of the division, and is a polynomial of degree $r-1$;
+- $z^{-r} F_r(z)$ is the remainder of the division.
+Then:
+$$
+E(z) + z^{-r} \hat{W}_r(z) = W(z) = \frac{C(z)}{A(z)} = E(z) + z^{-r} \frac{F_r(z)}{A(z)} \text{ iff }
+$$
+$$
+\hat{W}_r(z) = \frac{F_r(z)}{A(z)}.
+$$
+
+Observe that, by multiplying one of the equations above by $z^r$, we get:
+$$
+z^r C(z) = E(z) z^r A(z) + F_r(z) .
+$$
+Hence we can directly compute $F_r(z)$ as the remainder of the long division between $z^r C(z)$ by $z^r A(z)$.
+
+---
+
+### $\hat{W}_r(z)$ for a $\text{AR}(1)$ process
+
+Consider the $\text{AR}(1)$ process:
+$$
+v(t) = a v(t-1) + \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+
+Let's prove that $E(z) = \sum_{i=0}^{r-1} a^i z^{-i}$, $F_r(z) = a^r$.
+Indeed:
+$$
+E(z) A(z) + z^{-r} F_r(z) = \sum_{i=0}^{r-1} a^i z^{-i} (1 - a z^{-1}) + z^{-r} a^r = \sum_{i=0}^{r-1} a^i z^{-i} - \sum_{i=0}^{r-1} a^{i+1}z^{-(i+1)} + z^{-r} a^r =
+$$
+$$
+= \sum_{i=0}^r a^i z^{-i} - \sum_{i=1}^r a^i z^{-i} = a^0 z^0 = 1 = C(z).
+$$
+
+Hence, for a $\text{AR}(1)$ process, the optimal $r$-steps fake predictor is:
+$$
+\hat{W}_r(z) = \frac{F_r(z)}{A(z)} = \frac{a^r}{1-az^{-1}}.
+$$
+
+Resume from 8.14...
