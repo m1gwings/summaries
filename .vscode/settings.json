@@ -22,8 +22,11 @@
         "monic",
         "NAML",
         "operatorial",
+        "periodogram",
+        "stackrel",
         "stationarity",
-        "Toeplitz"
+        "Toeplitz",
+        "WLOG"
     ],
     "cSpell.enableFiletypes": [
         "tex"
