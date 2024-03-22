@@ -26,18 +26,18 @@ $$
 \hat{v}(t+r|t) = f(v(t), v(t-1), \ldots).
 $$
 
-Out **objective** is to find the **_optimal_ predictor**, that perfectly blends the information coming from the model (data generation mechanism), and that associated with the available past observations.
+Our **objective** is to find the **_optimal_ predictor**, that perfectly blends the information coming from the model (data generation mechanism), and that associated with the available past observations.
 
 - We define the **prediction error** (or **residual**):
 $$
-\epsilon(t+r) = v(t+r) - \hat{v}(t+r|t).
+\varepsilon(t+r) = v(t+r) - \hat{v}(t+r|t).
 $$
 
 Notice that the **prediction error is** itself a **stochastic process**, as $\hat{v}(\cdot)$ depends on random variables.
 
 - The optimal predictor is the one that **minimizes** the **mean square prediction error** (**MSPE**), i.e. the variance of the residual:
 $$
-\mathbb{E}[\epsilon^2(t)] .
+\mathbb{E}[\varepsilon^2(t)] .
 $$
 
 Before dealing with actual optimal predictors, we need to (_it will be clear later why it is so_) build **fake predictors** which assume that we know the realization of the white noise up to time $t$: $\eta(t), \eta(t-1), \ldots$, to make predictions. This assumption is of course not satisfied in practice, since we can measure the values of $v$, but not the ones of $\eta$.
@@ -79,25 +79,25 @@ $$
 $$
 and the **prediction error** equals:
 $$
-\epsilon(t+r) = v(t+r) - \hat{v}(t+r|t) = \alpha(t) = w_0 \eta(t+r) + w_1 \eta(t+r-1) + \ldots + w_{r-1}(t+1).
+\varepsilon(t+r) = v(t+r) - \hat{v}(t+r|t) = \alpha(t) = w_0 \eta(t+r) + w_1 \eta(t+r-1) + \ldots + w_{r-1}(t+1).
 $$
 
-Notice that **$\epsilon$ i s an MA process** (_see property 10.a,b of "Stochastic processes"_):
+Notice that **$\varepsilon$ i s an MA process** (_see property 10.a,b of "Stochastic processes"_):
 - its mean value is: $0$;
 - its variance is:
 $$
-\mathbb[\epsilon^2(t+r)] = (w_0^2 + w_1^2 + \ldots + w_{r-1}^2) \lambda^2.
+\mathbb[\varepsilon^2(t+r)] = (w_0^2 + w_1^2 + \ldots + w_{r-1}^2) \lambda^2.
 $$
 
 Notice that the variance is monotonically increasing with $r$: the prediction "gets worse" (its uncertainty increases) with the prediction horizon.
 
 - For $r = 1$, the variance equals $w_0^2 \lambda^2$; if $w_0 = 1$, which occurs if e.g. $W(z)$ is canonical, then it coincides with the variance of the noise:
 $$
-\mathbb{V}\text{ar}[\epsilon(t)] = \mathbb{V}\text{ar}[\eta(t)].
+\mathbb{V}\text{ar}[\varepsilon(t)] = \mathbb{V}\text{ar}[\eta(t)].
 $$
 - For $r \rightarrow + \infty$ the variance becomes $(w_0^2 + w_1^2 + \ldots) \lambda^2$, i.e. the variance of the whole process $v(t)$, expressed as a $\text{MA}(\infty)$:
 $$
-\mathbb{V}\text{ar}[\epsilon(t)] = \mathbb{V}\text{ar}[v(t)].
+\mathbb{V}\text{ar}[\varepsilon(t)] = \mathbb{V}\text{ar}[v(t)].
 $$
 
 Indeed, prediction gets increasingly difficult with $r$, since the variable to be estimated refers to a time point at large distance ahead than the available data.
@@ -169,4 +169,88 @@ $$
 \hat{W}_r(z) = \frac{F_r(z)}{A(z)} = \frac{a^r}{1-az^{-1}}.
 $$
 
-Resume from 8.14...
+## From _fake_ to _actual_ predictor
+
+As we have already remarked, the optimal fake predictor depends on **past values of the white noise** process which **are not available**.
+
+Can we find a link between the past of $\eta(\cdot)$ and the past of $v(\cdot)$?
+
+Assume that:
+- $(W(z), \eta(t))$ is a **canonical representation** of $v(t)$ (that is, $\hat{W}(z) = W(z), \xi(t) = \eta(t)$);
+- furthermore **$W(z)$ has no zeros on the unit circle boundary**.
+
+Then we can **recover $\eta(t)$ using a _whitening filter_** (with transfer function $W^{-1}(z)$):
+$$
+\eta(t) = \check{W}(z) v(t) = W^{-1}(z) v(t) = \frac{A(z)}{C(z)} v(t).
+$$
+
+**Remark**: the whitening filter provides a well-defined representation of $\eta(t)$, since polynomials $A(z)$, and $C(z)$ have the same degree, and therefore $\check{W}(z) = W^{-1}(z)$ can rightfully be interpreted as a transfer function, and, besides, $C(z)$ is a Schur polynomial, which guarantees the stationarity of the process.
+
+**Combining the whitening filter with the optimal fake predictor, we obtain the optimal predictor from the process data**. Its transfer function is calculated as follows:
+$$
+W_r(z) = \check{W}(z)\hat{W}_r(z) = \frac{A(z)}{C(z)}\frac{F_r(z)}{A(z)} = \frac{F_r(z)}{C(z)}.
+$$
+
+---
+
+**Remark**:
+$$
+\varepsilon(t) = v(t) - \hat{v}(t|t-r) = E(z) \eta(t).
+$$
+
+**Proof**: Remember that:
+$$
+C(z) = E(z) A(z) + z^{-r} F_r(z).
+$$
+Then:
+$$
+\varepsilon(t) = v(t) - \hat{v}(t|t-r) = \frac{C(z)}{A(z)} \eta(t) - \frac{F_r(z)}{C(z)} v(t-r) = \frac{C(z)}{A(z)} \eta(t) - \frac{F_r(z)}{A(z)} \check{W}(z) v(t-r) =
+$$
+
+$$
+= \frac{C(z)}{A(z)}\eta(t) - \frac{z^{-r} F_r(z)}{A(z)} \eta(t) = \frac{C(z) - z^{-r}F_r(z)}{A(z)} \eta(t) = \frac{E(z)A(z)}{A(z)} \eta(t) = E(z) \eta(t) \text{.}
+$$
+
+### $W_r(z)$ for a $\text{AR}(1)$ process
+
+We already shown that, for an $\text{AR}(1)$, $F_r(z) = a^r$; furthermore, $C(z) = 1$. Hence, the optimal $r$-steps predictor from data is:
+$$
+\hat{y}(t|t-r) = \frac{F_r(z)}{C(z)} y(t-r) = a^r y(t-r).
+$$
+
+## Predictor initialization
+
+Unless $C(z)$ is trivially $1$, the optimal predictor from data has the form of a _recursive equation_:
+$$
+\hat{v}(t|t-r) = -c_1 \hat{v}(t-1|t-r-1) - c_2 \hat{v}(t-2|t-r-2) - \ldots \ .
+$$
+The problem is that we have data only down to a certain instant (e.g. $t_0 = 1$).
+We can employ the following solution: **we initialize $\hat{v}$ to $\mathbb{E}[v]$** (the _trivial predictor_), **when data are not available**, Thanks to the asymptotic stability of the filter $W_r(z)$, the effect of the initialization will vanish in the long run (_it will become negligible provided $t$ is large enough_).
+
+## 1-step ahead predictor of ARMA processes
+
+It is possible to derive the expression for the optimal 1-step ahead predictor for a generic ARMA process **without performing long division**.
+Indeed, it is easy to see that:
+$$
+C(z) = 1 \cdot A(z) + (C(z) - A(z)).
+$$
+It follows that, **assuming that the representation is canonical**:
+- $E(z) = 1$;
+- $F_1(z) = z (C(z) - A(z))$.
+
+---
+
+Indeed, since $C(z)$ and $A(z)$ are both monic, $C(z) - A(z)$ has no "constant term" (the ones cancel out).
+
+Then, the **optimal fake predictor** is:
+$$
+\hat{v}(t|t-1) = \frac{F_1(z)}{A(z)} \eta(t-1) = \frac{z(C(z) - A(z))}{A(z)} \eta(t-1) = \frac{C(z) - A(z)}{A(z)} \eta(t).
+$$
+And so, the **optimal predictor** is:
+$$
+\hat{v}(t|t-1) = \frac{C(z) - A(z)}{C(z)} \eta(t).
+$$
+
+**Remark**: the stability of the predictor only depends on the roots of $C(z)$.
+
+Resume from 8.37...

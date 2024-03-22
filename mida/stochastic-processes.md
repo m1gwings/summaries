@@ -775,3 +775,28 @@ $$
 \gamma_{vv}(1) = \mathbb{E}[(\eta_1(t-1) + \eta_2(t) - \eta_2(t-1))(\eta_1(t-2) + \eta_2(t-1) - \eta_2(t-2))] = - \lambda_2^2 \text{.}
 $$
 > If we equate the expressions and solve the system, we get two possible solutions: $(c = -\frac{1}{2}, \lambda^2 = 1)$, and $(c = -2, \lambda^2 = \frac{1}{4})$, but only the **first one is canonical** ($-c$ is a zero of the system).
+
+> **Important remark**: suppose that
+$$
+v(t) = \frac{(1- c z^{-1}) C'(z)}{A(z)} \eta(t) \text{ with } |c|>1, \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+
+---
+
+> Hence, $\left(W(z) = \frac{(1- c z^{-1}) C'(z)}{A(z)}, \eta(t)\right)$ **is NOT a canonical representation of the process**. We can bring it in canonical form as follows:
+$$
+v(t) = \frac{(1- c z^{-1}) C'(z)}{A(z)} \frac{1-\frac{1}{c}z^{-1}}{1-\frac{1}{c}z^{-1}} \eta(t) = \frac{(1- \frac{1}{c} z^{-1}) C'(z)}{A(z)} T(z) \eta(t),
+$$
+> where
+$$
+T(z) = \frac{1-cz^{-1}}{1-\frac{1}{c}z^{-1}} \text{ is an all-pass filter}.
+$$
+> Observe that, since $|c|>1$, then $|\frac{1}{c}| = \frac{1}{|c|} < 1$. This implies that $T(z)$ is an "asymptotically stable all-pass filter". Then, by property 28,
+$$
+\eta'(t) = T(z) \eta(t) \sim WN(0, T^2(1) \lambda^2) = WN(0, c^2 \lambda^2),
+$$
+> and
+$$
+W'(z) = \frac{(1- \frac{1}{c} z^{-1}) C'(z)}{A(z)}
+$$
+> has one less zero outside of the unit circle. We can iterate the process until we remove all the zeros outside of the unit circle from $W(z)$. At the end we will reach $\left( \hat{W}(z), \xi(t) \right)$ with $\hat{W}(z)$ with no zeros or poles outside of the unit circle.
