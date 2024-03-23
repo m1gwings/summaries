@@ -71,7 +71,7 @@ $$
 $$
 
 Clearly $\frac{1}{N} \gamma_{vv}(0) \rightarrow 0$, as $N \rightarrow + \infty$. We need to prove that the same holds for $\sum_{\tau=1}^{N-1} (1-\frac{\tau}{N}) \gamma_{vv}(\tau)$.
-Let $\epsilon > 0$. Since, as we showed in property 18 of "_Stochastic processes_" for ARMA processes holds the vanishing covariance property, then there exists $T$ s.t. if $\tau \geq T$, then $|\gamma_{vv}(\tau)| < \frac{\epsilon}{2}$.
+Let $\epsilon > 0$. Since, as we showed in property 19 of "_Stochastic processes_" for ARMA processes holds the vanishing covariance property, then there exists $T$ s.t. if $\tau \geq T$, then $|\gamma_{vv}(\tau)| < \frac{\epsilon}{2}$.
 Once $T$ is fixed, we can choose $\hat{N}$ big enough that $\frac{T-1}{\hat{N}} \gamma_{vv}(0) < \frac{\epsilon}{2}$, and $\hat{N} > T$ (_so that, as we will see later, we can split the sum_). Then:
 $$
 |\frac{1}{\hat{N}} \sum_{\tau = 1}^{\hat{N}-1}(1-\frac{\tau}{\hat{N}}) \gamma_{vv}(\tau) | \leq \frac{1}{\hat{N}} \sum_{\tau = 1}^{\hat{N}-1} (1 - \frac{\tau}{\hat{N}}) |\gamma_{vv}(\tau)| < \frac{1}{\hat{N}} \sum_{\tau=1}^{\hat{N}-1} |\gamma_{vv}(\tau)| =

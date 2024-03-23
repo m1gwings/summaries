@@ -253,4 +253,53 @@ $$
 
 **Remark**: the stability of the predictor only depends on the roots of $C(z)$.
 
-Resume from 8.37...
+**Important remark**: when we have to do prediction for an ARMA model **with expected value different from $0$** we have to **de-bias the process** first (_see property 18 of "Stochastic processes"_), then we can apply the usual techniques to the unbiased process and, at the end, retrieve a predictor for the biased process by adding the expected value.
+
+## Prediction of an ARMAX process
+
+Consider a generic ARMAX process:
+$$
+A(z) y(t) = B(z) u(t-k) + C(z) \xi(t).
+$$
+We want to derive the optimal $k$-steps predictor. We will do it in complete analogy with what we did previously. Through long division we can write:
+$$
+C(z) = E(z) A(z) + z^{-k} F_k(z)
+$$
+where $E(z) = e_0 + e_1 z^{-1} + \ldots + e_{k-1} z^{-(k-1)}$.
+Let's plug this into the expression of the process:
+$$
+A(z) y(t) = B(z) u(t-k) + E(z) A(z) \xi(t) + z^{-k} F_k(z) \xi(t) \text{ iff}
+$$
+$$
+y(t) = E(z) \xi(t) + \frac{B(z)}{A(z)} u(t-k) + \frac{F_k(z)}{A(z)} \xi(t-k).
+$$
+- Since $E(z) \xi(t) = e_0 \xi(t) + e_1 \xi(t-1) + \ldots + e_{k-1} \xi(t-(k-1))$ depends only on "the noise of the future", it is unpredictable.
+- $\frac{B(z)}{A(z)}u(t-k)$ and $\frac{F_k(z)}{A(z)} \xi(t-k)$ both depend on information up to time $t-k$, which we have at disposal.
+
+Hence the **optimal $k$-steps fake predictor** is:
+$$
+\hat{y}(t|t-k) = \frac{B(z)}{A(z)} u(t-k) + \frac{F_k(z)}{A(z)} \xi(t-k).
+$$
+
+---
+
+Observe that, for ARMAX processes the expression of the whitening filter is different; by rearranging the expression of the process we get:
+$$
+\xi(t) = \frac{A(z)}{C(z)} y(t) - \frac{B(z)}{C(z)} u(t-k) = \frac{A(z)}{C(z)} y(t) - \frac{z^{-k} B(z)}{C(z)} u(t).
+$$
+Then:
+$$
+\hat{y}(t|t-k) = \frac{B(z)}{A(z)}u(t-k) + \frac{F_k(z)}{C(z)} y(t-k) - \frac{z^{-k} F_k(z) B(z)}{A(z) C(z)} u(t-k) =
+$$
+$$
+= \frac{B(z)}{A(z)} \frac{C(z) - z^{-k} F_k(z)}{C(z)} u(t-k) + \frac{F_k(z)}{C(z)}y(t-k) =
+$$
+$$
+= \frac{B(z)}{A(z)} \frac{E(z) A(z)}{C(z)}u(t-k) + \frac{F_k(z)}{C(z)} y(t-k) = \frac{B(z) E(z)}{C(z)} u(t-k) + \frac{F_k(z)}{C(z)} y(t-k).
+$$
+
+In particular, if $k = 1$, we already showed that $E(z) = 1$, $F_1(z) = C(z) - A(z)$.
+Then, the expression of the predictor becomes:
+$$
+\hat{y}(t|t-1) = \frac{B(z)}{C(z)}u(t-1) + \frac{C(z) - A(z)}{C(z)}y(t-1).
+$$
