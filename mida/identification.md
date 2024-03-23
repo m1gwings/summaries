@@ -189,3 +189,172 @@ $$
 $$
 
 > **Proof**: _see ML summary on "Linear regression"_.
+
+## Dynamic modeling
+
+The identification of dynamical models presents some additional difficulties and pitfalls, which we must be aware of:
+- the identification algorithm $\mathcal{I}$ depends on the considered model class: for some classes we will still be able to apply a method as simple as least squares, but for some other classes we will need to develop new tools;
+- the role of the noise model is crucial;
+- model selection and validation are crucial to avoid under- or over-parameterization;
+- the identifiability issue is more complicated.
+
+### Model families
+
+We can distinguish 2 different types of data-generating mechanisms, depending on the presence or absence of _exogenous_ variables:
+- **time series** (no exogenous variables);
+- **input-output systems** (with exogenous variables).
+
+#### Time series
+
+When dealing with time series, we are given a set of observations of a variable over a time range, and we are faced with the task of building a model that describes its evolution, and explains how the past history affects the current value of the variable.
+We can represent time series through the following expression:
+$$
+v(t) = W(z) \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+
+---
+
+#### Input-output systems
+
+When dealing with input-output systems, we are given a set of observations of both the input and the output of a given system over a time range, and we want to determine a dynamical model that describes how the input influences the output.
+We can represent input-output systems through the following expression:
+$$
+y(t) = G(z) u(t-k) + W(z) \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+
+Another classification is based on the disturbance model. We distinguish between:
+- **output error models**;
+- equation error models (**AR**/**ARX**);
+- **ARMA**/**ARMAX** models;
+- **ARXAR** models;
+- **ARIMA**/**ARIMAX** models (a.k.a. **CARMA**/**CARMAX**);
+- **FIR** models.
+
+#### Output error models
+
+We assume that the output is given by the sum of the variable that describes the direct influence of the input ($G(z) u(t-k)$) plus a white noise ($W(z) = 1$).
+This amounts to attributing all the model error to the uncertainty in the measurement of the output.
+We can describe output error models with the following expression:
+$$
+y(t) = G(z) u(t-k) + \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+
+#### Equation error models (AR/ARX)
+
+We can describe AR models with the following expression (_as usual_):
+$$
+A(z) y(t) = \eta(t),
+$$
+where:
+$$
+G(z) = 0, W(z) = \frac{1}{A(z)}.
+$$
+
+We can describe ARX models with the following expression:
+$$
+A(z)y(t) = B(z)u(t-k) + \eta(t),
+$$
+where:
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{1}{A(z)}.
+$$
+
+---
+
+**Recall** that $A(z)$ must be a Schur stable polynomial for process stationarity.
+The noise $\eta(\cdot)$ is sometimes called **equation residual**.
+
+#### ARMA/ARMAX models
+
+Assuming that the equation residual is just a white noise may turn out to be a simplistic hypothesis; this is why we often introduce an MA process to account for this term.
+We can describe ARMA models with the following expression (_as usual_):
+$$
+A(z)y(t) = C(z) \eta(t),
+$$
+where:
+$$
+G(z) = 0, W(z) = \frac{C(z)}{A(z)}.
+$$
+We can describe ARMAX models with the following expression:
+$$
+A(z) y(t) = B(z) u(t-k) + C(z) \eta(t),
+$$
+where:
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{C(z)}{A(z)}.
+$$
+Again, $A(z)$ must be a Schur stable polynomial for the process stationarity.
+Without loss of generality we can assume that the roots of $C(z)$ are all in the unit circle (_see spectral factorization in "Stochastic processes" summary_).
+
+#### ARXAR models
+
+Alternatively, the residual can be represented as an auto-regressive model.
+In particular, we can describe ARXAR models with the following expression:
+$$
+A(z) y(t) = B(z) u(t-k) + \frac{1}{D(z)} \eta(t),
+$$
+where:
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{1}{A(z) D(z)}.
+$$
+Observe that $D(z) = 1 + d_1 z^{-1} + \ldots + d_{n_d} z^{-n_d}$ must be a Schur polynomial in order for the noise term to be a stationary process.
+
+---
+
+#### ARIMA/ARIMAX models (a.k.a. CARMA/CARMAX)
+
+It is sometimes of interest to model a non-stationary residual to describe a drift phenomenon:
+$$
+w(t) = w(t-1) + \eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+Observe that we can write the drift expression as:
+$$
+(1-z^{-1}) w(t) = \eta(t)
+$$
+where $1-z^{-1}$ is NOT a Schur stable polynomial. Indeed $\frac{1}{1-z^{-1}}$ is an **integral factor**.
+Process $w(\cdot)$ takes the name of **random walk**. Observe that its variance is not constant, indeed, since $w(t-1)$ and $\eta(t)$ are uncorrelated:
+$$
+\mathbb{V}\text{ar}[w(t)] = \mathbb{V}\text{ar}[w(t-1)] + \mathbb{V}\text{ar}[\eta(t)] = \mathbb{V}\text{ar}[w(t-1)] + \lambda^2.
+$$
+Then, assuming that $\mathbb{V}\text{ar}[w(0)] = 0$, it is easy to see by induction that:
+$$
+\mathbb{V}\text{ar}[w(t)] = t\lambda^2.
+$$
+
+In the model equations, the noise term becomes:
+$$
+C(z) = \frac{C(z)}{1-z^{-1}} \eta(t)
+$$
+In particular, we can describe ARIMA models with the following expression:
+$$
+(1-z^{-1}) A(z) y(t) = C(z) \eta(t),
+$$
+where:
+$$
+G(z) = 0, W(z) = \frac{C(z)}{(1-z^{-1}) A(z)}.
+$$
+
+We can describe ARIMAX models with the following expression:
+$$
+(1-z^{-1}) A(z) y(t) = (1-z^{-1}) B(z) u(t-k) + C(z) \eta(t),
+$$
+where:
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{C(z)}{(1-z^{-1}) A(z)}.
+$$
+
+#### FIR models
+
+An ARX model with $n_a = 0$ is characterized by the following input-output equation:
+$$
+y(t) = B(z) u(t-1) + \eta(t).
+$$
+
+---
+
+The output is a linear combination of a finite number of past input data (_plus noise_):
+$$
+G(z) = B(z) = b_0 + b_1 z^{-1} + \ldots + b_{n_b} z^{-n_b}.
+$$
+Since the transfer function can be interpreted as the $\mathcal{Z}$-transform of the deterministic part of the system's impulse response (_see "Discrete time signals and systems", property 11_), the $b_i$ coefficients are actually the values of the impulse response.
+Only $n_b + 1$ coefficients are present, which amounts to assuming that the system's impulse response goes to 0 after a finite time, hence the name FIR (**Finite Impulse Response**).
