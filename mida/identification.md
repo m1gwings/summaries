@@ -643,3 +643,181 @@ Similarly, we can estimate $\mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)]$ u
 $$
 \frac{1}{N} \sum_{t=1}^N \varepsilon^2(t; \hat{\theta}_N).
 $$
+
+#### PEM identification of ARX models
+
+As already observed, we can do PEM identification of ARX models through least squares, where:
+$$
+\phi(t) = \begin{bmatrix} y(t-1) & \ldots & y(t-n_a) & u(t-k) & u(t-k-1) & \ldots & u(t-k-n_b) \end{bmatrix}^T,
+$$
+$$
+\theta = \begin{bmatrix} a_1 & \ldots & a_{n_a} & b_0 & b_1 & \ldots & b_{n_b} \end{bmatrix}^T.
+$$
+Since the results from the asymptotic theory of PEM methods apply, the LS estimate asymptotically converges to the set $\Delta$ of the minimal points of
+$$
+\overline{J}(\theta) = \mathbb{E}[\varepsilon^2(t; \theta)].
+$$
+Hence, it is of interest to study the shape of $\overline{J}(\theta)$ in this particular case.
+
+Suppose that the system belongs ot the considered model family (_the ideal case_):
+$$
+\mathcal{S} : y(t) = A^\circ y(t) + B^\circ u(t-k) + v(t) = \phi^T(t) \theta + v(t) \text{, with } v(\cdot) \sim WN(0, \lambda^2).
+$$
+Now, if $\mathcal{S}$ is a stable system and the input $u(\cdot)$ is a stationary process, then the output will also be a stationary process (at steady state).
+We're ready to calculate $\overline{J}(\theta)$:
+$$
+\overline{J}(\theta) = \mathbb{E}[\varepsilon^2(t; \theta)] = \mathbb{E}[(y(t) - \hat{y}(t|t-1; \theta))^2] = \mathbb{E}[(\phi^T(t)(\theta^\circ - \theta) + v(t))^2] =
+$$
+$$
+= \mathbb{E}[(\phi^T(t)(\theta^\circ - \theta))^2] + \mathbb{E}[v^2(t)] + 2\mathbb{E}[\phi^T(t)(\theta^\circ - \theta)v(t)] =
+$$
+$$
+= (\theta - \theta^\circ)^T \mathbb{E}[\phi(t)\phi^T(t)] (\theta - \theta^\circ) + \lambda^2 + 2(\theta^\circ - \theta)^T \mathbb{E}[\phi(t)v(t)].
+$$
+(_Observe that $\theta$, and $\theta^\circ$ are not aleatory (they are fixed), but this is not true for $\phi(t)$ which contains the realization of the process_).
+
+Since $v(\cdot)$ is a white noise with zero mean, and $\phi(\cdot)$ and $v(\cdot)$ are uncorrelated, it holds that:
+$$
+\mathbb{E}[\phi(t)v(t)] = \mathbb{E}[\phi(t)] \mathbb{E}[v(t)] = 0.
+$$
+
+---
+
+Therefore it follows that:
+$$
+\overline{J}(\theta) = (\theta^\circ - \theta)^T \mathbb{E}[\phi(t) \phi^T(t)] (\theta^\circ - \theta) + \lambda^2.
+$$
+The first term is a quadratic expression in $\theta$, with the square matrix $\mathbb[E][\phi(t)\phi^T(t)]$ as kernel. Since matrix $[E][\phi(t)\phi^T(t)]$ is positive semi-definite (_see NAML summaries_), then $\theta^\circ$ is necessarily a global minimum of $\overline{J}(\theta)$.
+There are **two possible cases**:
+- **$\mathbb{E}[\phi(t)\phi^T(t)]$** is **non-singular**
+Then $\overline{J}(\theta)$ has a unique global minimum $\theta^\circ$ (_and so we have identifiability_).
+
+- **$\mathbb{E}[\phi(t)\phi^T(t)]$** is **singular**
+Then $\overline{J}(\theta)$ has infinite global minima (_including $\theta^\circ$_) (_and so we DO NOT have identifiability_).
+
+In conclusion, if $\mathcal{S} \in \mathcal{M}(\theta)$ and $\mathbb{E}[\phi(t)\phi^T(t)]$ is non-singular, then the estimate provided by the least squares method will asymptotically converge to the true system parameters.
+
+Furthermore, remember that the variance of the PEM estimator (under our assumptions: $\Delta$ is a singleton, $\mathcal{S} \in \mathcal{M}(\theta)$) is given by:
+$$
+\mathbb{V}\text{ar}[\hat{\theta}_N] = \frac{1}{N} \mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)] \left[ \mathbb{E}[\psi(t; \theta^\circ) \psi^T(t; \theta^\circ)] \right]^{-1}.
+$$
+In this case:
+- $\varepsilon(t; \theta^\circ) = v(t)$;
+- $\psi(t; \theta) = -\left[ \frac{\partial \varepsilon(t; \theta)}{\partial \theta} \right]^T = - \left[ \frac{\partial}{\partial \theta} \left( \phi^T(t) \theta^\circ + v(t) - \phi^T(t) \theta \right) \right]^T = \phi(t)$.
+
+Then, the variance of the parameters estimates can be estimated as:
+$$
+\hat{\mathbb{V}\text{ar}}[\hat{\theta}_N] = \frac{1}{N}\hat{\lambda}^2 \left[ \frac{1}{N} \sum_{t=1}^N\phi(t) \phi^T(t) \right]^{-1} = \hat{\lambda}^2 S^{-1}(N),
+$$
+where $S(N) = \sum_{t=1}^N \phi(t) \phi^T(t)$ and $\hat{\lambda}^2$ is a sample estimate of the variance of $v(t)$.
+
+##### What happens if $\mathcal{S} \not \in \mathcal{M}(\theta)$
+
+We can model the fact that $\mathcal{S} \not \in \mathcal{M}(\theta)$ by making $v(\cdot)$ NOT a white noise.
+In this case, since $v(t)$ will be correlated with $v(t-1), v(t-2), \ldots$, and $\phi(t)$ depends of $v(\cdot)$ up to time $t-1$, then $\phi(t)$ and $v(t)$ won't be uncorrelated anymore.
+This introduces a bias in the prediction, indeed:
+$$
+\hat{\theta}_N - \theta^\circ = \left(\sum_{t=1}^N \phi(t) \phi^T(t)\right)^{-1} \sum_{t=1}^N \phi(t) y(t) - \theta^\circ =
+$$
+
+---
+
+$$
+= \left(\sum_{t=1}^N \phi(t) \phi^T(t)\right)^{-1} \left[\sum_{t=1}^N \phi(t) y(t) - \sum_{t=1}^N \phi(t) \phi^T(t) \theta^\circ \right] =
+$$
+
+$$
+= \left(\sum_{t=1}^N \phi(t) \phi^T(t)\right)^{-1} \sum_{t=1}^N \phi(t) (y(t) - \phi^T(t) \theta^\circ) = \left(\frac{1}{N} \sum_{t=1}^N \phi(t) \phi^T(t)\right)^{-1} \frac{1}{N} \sum_{t=1}^N \phi(t) v(t).
+$$
+
+Therefore, since $\mathbb{E}[\phi(t)v(t)] \neq 0$, the least squares estimator is not consistent.
+(_This follows form the fact that, assuming the processes ergodic, as $N$ increases, $\hat{\theta}_N - \theta^\circ$ will tend to $\mathbb{E}\left[ \phi(t) \phi^T(t) \right]^{-1} \mathbb{E}[\phi(t)v(t)]$ (since the product of the limits is the limit of the product, matrix inversion is a continuos function, $\frac{1}{N} \sum_{t=1}^N \phi(t) \phi^T(t)$ tends to $\mathbb{E}\left[ \phi(t) \phi^T(t) \right]$, and $\frac{1}{N} \sum_{t=1}^N \phi(t) v(t)$ tends to $\mathbb{E}[\phi(t)v(t)]$), which is different from 0 since $\mathbb{E}[\phi(t)v(t)] \neq 0$, being the two signals correlated, and $\mathbb{E}[\phi(t)\phi^T(t)]^{-1}$ is invertible_).
+
+##### Experimental identifiability
+
+Remember that the identifiability of the system depends on the fact that $\overline{R} = \mathbb{E}[\phi(t)\phi^T(t)]$ is non-singular.
+
+Observe that the vector $\phi(t)$ contains both samples of the input and of the output of the system over a time window; but just $u(\cdot)$ is under our control.
+Can we derive an identifiability condition (_i.e. a condition for the invertibility of $\overline{R}$_) based only on $u(\cdot)$?
+It turns out that a condition based only on $u(\cdot)$ is not sufficient to guarantee identifiability, but we can at least define a _necessary_ condition.
+
+By splitting
+$$
+\phi(t) = \begin{bmatrix}
+\begin{bmatrix}
+u(t-1) \\
+\cdots \\
+u(t-n_b)
+\end{bmatrix} \\
+\begin{bmatrix}
+y(t-1) \\
+\cdots \\
+y(t-n_a)
+\end{bmatrix}
+\end{bmatrix}
+$$
+it follows that:
+$$
+\overline{R} = \begin{bmatrix}
+\overline{R}_{yy} & \overline{R}_{yu} \\
+\overline{R}_{uy} & \overline{R}_{uu}
+\end{bmatrix} \text{, where}
+$$
+- $\overline{R}_{uu} = \mathbb{E}\left[ \begin{bmatrix} u(t-1) \\ \cdots \\ u(t-n_b) \end{bmatrix} \begin{bmatrix} u(t-1) & \cdots & u(t-n_b) \end{bmatrix} \right]$ is an $n_b \times n_b$ matrix;
+
+---
+
+- $\overline{R}_{yy} = \mathbb{E}\left[ \begin{bmatrix} y(t-1) \\ \cdots \\ y(t-n_a) \end{bmatrix} \begin{bmatrix} y(t-1) & \cdots & y(t-n_a) \end{bmatrix} \right]$ is an $n_a \times n_a$ matrix;
+- $\overline{R}_{uy}$ and $\overline{R}_{yu}$ are $n_b \times n_a$ and $n_a \times n_b$ matrices, respectively.
+
+Now, $\overline{R}$ is positive semi-definite by construction.
+Therefore, for it to be invertible, it suffices to prove that it is also positive definite.
+A necessary condition for this is that $\overline{R}_{uu}$ is positive definite (and hence invertible). This follows from the fact that (for every $x \neq 0$):
+$$
+0 < \begin{bmatrix}
+0^T & x^T
+\end{bmatrix} \begin{bmatrix}
+S_1 & S_2 \\
+S^T_2 & S_3
+\end{bmatrix} \begin{bmatrix}
+0 \\
+x
+\end{bmatrix} = x^T S_3 x.
+$$
+This is a condition on $u(\cdot)$, i.e. on the identification experiment.
+
+- A signal $u(\cdot)$ is **persistently exciting** (**PE**) **of order $n$** (briefly, $\text{PE}(n)$) if the following matrix is invertible:
+$$
+\overline{R}_{uu}^{(n)} = \begin{bmatrix}
+\tilde{\gamma}_{uu}(0) & \tilde{\gamma}_{uu}(1) & \cdots & \tilde{\gamma}_{uu}(n-1) \\
+\tilde{\gamma}_{uu}(1) & \tilde{\gamma}_{uu}(0) & \cdots & \tilde{\gamma}_{uu}(n-2) \\
+\vdots & \vdots & \ddots & \vdots \\
+\tilde{\gamma}_{uu}(n-1) & \tilde{\gamma}_{uu}(n-2) & \cdots & \tilde{\gamma}_{uu}(0)
+\end{bmatrix}.
+$$
+
+$\overline{R}_{uu}^{(n)}$ is a Toeplitz matrix, having the variance of process $u(\cdot)$ on the main diagonal, then the $1$-step auto-correlation on the first diagonals above and below the main one, and so on... .
+
+**To uniquely estimate the parameters of an $\text{ARX}$(n_a, n_b), the input $u(\cdot)$ must be $\text{PE}(n)$ with $n \geq n_b$**.
+
+Notice that if an $n \times n$ matrix is non-singular, then also the square matrix obtained by removing the last row and column is non-singular (see Sylvester criterion). This implies that a process that is $\text{PE}(n)$ is also persistently exciting of any order smaller than $n$ (whereas nothing can be said about higher orders).
+
+Let's list some persistently exciting signals.
+- If $u(\cdot) \sim WN(0, \lambda^2)$, then $\overline{R}_{uu}^{(n)} = \lambda^2 I$ which is invertible. Hence a $WN$ is $\text{PE}(n)$ for any $n$.
+- The step signals is $\text{PE}(1)$.
+- The impulse signals is $\text{PE}(0)$.
+
+This is why white processes are often employed to excite systems and generate data for identification purposes (_no problems related to experimental identifiability_). A wite noise excites equally all the frequencies of the system. In some cases we may want to design an input signal with an uneven distribution in frequency, to concentrate the informative content of the data at specific frequencies.
+
+---
+
+Notice that $\overline{R}$ may turn out to be singular even if the input is PE of sufficient order. Then we are facing a _structural_ identifiability issue: the model is over-parameterized and there exist infinite models that explain the data equally well.
+With reference to an $\text{ARX}(n_a, n_b)$ model, if:
+- the input is $\text{PE}(n_b)$ (_which guarantees experimental identifiability_);
+- the dta generation mechanism is indeed an $\text{ARX}(n_a, n_b)$ (_structural identifiability_)
+
+then $\overline{R}$ is _non-singular_ amd the LS estimates asymptotically converge to the true parameters.
+
+**Remarks**:
+- If the estimates fluctuate even for large values of $N$, then presumably the model is _over-parameterized_.
+- If the estimate converge, but the residual is not white, then presumably the model is _under-parameterized_.
