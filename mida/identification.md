@@ -358,3 +358,288 @@ G(z) = B(z) = b_0 + b_1 z^{-1} + \ldots + b_{n_b} z^{-n_b}.
 $$
 Since the transfer function can be interpreted as the $\mathcal{Z}$-transform of the deterministic part of the system's impulse response (_see "Discrete time signals and systems", property 11_), the $b_i$ coefficients are actually the values of the impulse response.
 Only $n_b + 1$ coefficients are present, which amounts to assuming that the system's impulse response goes to 0 after a finite time, hence the name FIR (**Finite Impulse Response**).
+
+### Uniqueness
+
+Assume that the true system falls exactly in the considered model class:
+$$
+\mathcal{S} : y(t) = G^\circ u(t-k)+ W^\circ (z) \eta^\circ(t), \eta^\circ(\cdot) \sim WN(0, {\lambda^\circ}^2); \mathcal{S} \in \mathcal{M}(\theta).
+$$
+Even so, it is not granted that the identification is successful.
+Let
+$$
+\mathcal{D}(\mathcal{S}, \mathcal{M}) = \{ \theta | G^\circ(z) = G(z, \theta), W^\circ(z) = W(z, \theta), {\lambda^\circ}^2 = \lambda^2(\theta) \}
+$$
+be the set of parameterizations for which $\mathcal{M}(\theta)$ provides a perfect description of $\mathcal{S}$.
+Three things can occur:
+- $\mathcal{D}(\mathcal{S}, \mathcal{M}) = \emptyset$ (_under-parameterized model_);
+- $\mathcal{D}(\mathcal{S}, \mathcal{M}) = \{ \theta^\circ \}$ where $\theta^\circ$ is the "true" parameter vector (_ideal case_);
+- $\mathcal{D}(\mathcal{S}, \mathcal{M}) = \{ \theta', \theta'', \ldots \}$ (_over-parameterized model, there are multiple models in $\mathcal{M}(\theta)$ that provide a perfect description of $\mathcal{S}$_).
+
+**For example**: for an ARMAX model we are in the 3rd case if $A(z) = A^\circ(z)D(z)$, $B(z) = B^\circ(z)D(z)$, $C(z) = C^\circ(z)D(z)$, for any Schur stable polynomial $D(z)$.
+
+### Prediction Error Minimization (PEM)
+
+In the _predictive approach_, a model is "good" if it provides accurate (1-step ahead) predictions. Given a model family $\mathcal{M}(\theta)$, we represent the family of predictors a.k.a. **prediction form model** as:
+$$
+\hat{\mathcal{M}}(\theta): \begin{cases}
+    \hat{y}(t+1|t) = f(y(t), y(t-1), \ldots; \theta) \text{ for time series} \\
+    \hat{y}(t+1|t) = f(u(t), u(t-1), \ldots, y(t), y(t-1), \ldots; \theta) \text{ for I/O systems}
+\end{cases}.
+$$
+Fixed the parameters $\theta$, we can compute the prediction error at any time:
+$$
+\varepsilon(t; \theta) = y(t) - \hat{y}(t|t-1; \theta).
+$$
+
+---
+
+Given the sequence $\varepsilon(\cdot)$ we can evaluate the average size of the error, _e.g._ with the quadratic criterion:
+$$
+J_N(\theta) = \frac{1}{N} \sum_{t=\tau}^N \varepsilon^2(t; \theta),
+$$
+where $\tau > 1$ is the smallest integer for which $\varepsilon(t)$ can be computed.
+The **optimal** mode in the considered model family has parameters $\theta$ that minimize $J_N(\theta)$ over the set $\Theta$ of admissible parameterizations.
+**Important remark**: notice that this quadratic cost is a very partial indicator of the quality of the model; it does not emphasize the dynamic characteristics of $\varepsilon(\cdot)$. Therefore, besides the value of $J_N(\theta)$, one must also check the whiteness of $\varepsilon(\cdot)$, so that it does not contain any predictable dynamics. Only in that case we can be sure all the dynamics contained in the data are explained by the model.
+
+#### General expression of the 1-step predictor from $G(z)$, $W(z)$
+
+All the model families that we listed can be expressed as:
+$$
+\mathcal{M}(\theta): y(t) = G(z)u(t-k) + W(z)\eta(t), \eta(\cdot) \sim WN(0, \lambda^2).
+$$
+Suppose that **$W(z)$ is a canonical factor, with no zeros on the unit circle**.
+Then it is the ratio between two monic polynomials and so it must be: $W(z) = 1 + w_1 z^{-1} + \ldots$ (it easy to see this with a proof by contradiction; it it were $W(z) = w_0 + w_1 z^{-1} + \ldots$ with $w_0 \neq 1$ then, calling $N(z)$ the numerator and $D(z)$ the denominator of $W(z)$, since $D(z)$ is monic, $N(z) = W(z)D(z) = w_0 + n_1 z^{-1} + \ldots$ which is not monic).
+Hence we can decompose $W(z) = 1 + (W(z) - 1)$. Let's plug this in the expression of the model:
+$$
+y(t) = G(z)u(t-k) + \eta(t) + (W(z)-1)\eta(t).
+$$
+Because of what we remarked, $(W(z)-1)\eta(t)$ depends only on the "past" noise, hence we can write the expression of the optimal one-step fake predictor:
+$$
+\hat{y}(t|t-1) = G(z)u(t-k) + (W(z)-1)\eta(t).
+$$
+Because of our assumption, $W(z)$ is invertible, hence we can derive the _whitening filter_:
+$$
+\eta(t) = \frac{1}{W(z)}\left[ y(t) - G(z)u(t-k) \right].
+$$
+Then, the expression of the optimal predictor from data is:
+$$
+\hat{y}(t|t-1) = G(z)u(t-k) + \left( 1-\frac{1}{W(z)} \right) y(t) - \left( 1-\frac{1}{W(z)} \right) G(z)u(t-k) =
+$$
+$$
+= \frac{G(z)}{W(z)} u(t-k) + \left( 1 - \frac{1}{W(z)} \right)y(t).
+$$
+
+---
+
+Let's see **some examples**.
+
+- ARX
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{1}{A(z)}.
+$$
+> Then:
+$$
+\hat{y}(t|t-1) = B(z) u(t-k) + (1-A(z))y(t).
+$$
+> The prediction is a linear combination of past values of $u(\cdot)$ and $y(\cdot)$ and does not depends from past predictions: the predictor is always stable!
+
+- ARMAX
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{C(z)}{A(z)}
+$$
+> Then:
+$$
+\hat{y}(t|t-1) = \frac{B(z)}{C(z)}u(t-k) + \left(1-\frac{A(z)}{C(z)}\right)y(t).
+$$
+> In this case the stability depends on $C(z)$.
+
+- ARXAR
+$$
+G(z) = \frac{B(z)}{A(z)}, W(z) = \frac{1}{A(z)D(z)}.
+$$
+> Then:
+$$
+\hat{y}(t|t-1) = B(z)D(z)u(t-k) + \left(1-A(z)D(z)\right)y(t).
+$$
+> As with ARX models, the stability of the prediction is guaranteed.
+
+There is an important difference in the _prediction form model_ for ARX, ARXAR, and ARMAX models, which impacts on the complexity of the algorithms that we have to use to solve the identification task:
+- In ARX models:
+$$
+\hat{y}(t|t-1) = a_1 y(t-1) + \ldots + a_{n_a} y(t-n_a) + b_0 u(t-k) +
+$$
+$$
++ b_1 u(t-k-1) + \ldots + b_{n_b} u(t-k-n_b).
+$$
+> $\hat{y}(t|t-1)$ depends _linearly_ on the parameters $a_i$, and $b_i$, so that the predictor equation is actually a _linear regression_:
+$$
+\hat{y}(t|t-1) = \phi^T(t) \theta
+$$
+
+---
+
+> where
+$$
+\phi(t) = \begin{bmatrix} y(t-1) & \ldots & y(t-n_a) & u(t-k) & u(t-k-1) & \ldots & u(t-k-n_b) \end{bmatrix}^T,
+$$
+$$
+\theta = \begin{bmatrix} a_1 & \ldots & a_{n_a} & b_0 & b_1 & \ldots & b_{n_b} \end{bmatrix}^T.
+$$
+> Hence, **we can use least squares**.
+
+- In ARXAR models the predictor contains the products $A(z)B(z)$, and $B(z)D(z)$ which are **bilinear in the parameters**. Thus, if one fixes $D(z)$, then $\hat{y}(t|t-1)$ depends _linearly_ on the $a_i$, and $b_i$ parameters. Conversely, if $A(z)$, and $B(z)$ are fixed, $\hat{y}(t|t-1)$ depends _linearly_ on the $d_i$ parameters.
+One can still employ least squares, alternating between the $a_i$, $b_i$ parameters, and the $d_i$ parameters (it is possible to show that, under certain hypotheses, this converges).
+
+- In ARMAX models $\hat{y}(t|t-1)$ depends on the parameters in a _nonlinear_ fashion.
+Consider _e.g._ an $\text{ARMAX}(1, 0, 1)$, with polynomials $A(z) = 1 - az^{-1}$, $B(z) = b$, $C(z) = 1+cz^{-1}$.
+It can be proven that:
+$$
+\frac{1}{C(z)} = 1-cz^{-1}+c^2z^{-2}-c^{3}z^{-3} + \ldots.
+$$
+> For, let $N^{(k)}$, and $Q^{(k)}$ be respectively the numerator and the quotient at the $k$-th step of long division between $1$, and $C(z)$.
+We want to prove by induction that $Q^{(k)} = (-c)^kz^{-k}$.
+Base case: $N^{(0)} = 1$, $Q^{(0)} = 1$ (_trivial_).
+Inductive step: suppose that $N^{(k)}(z) = (-c)^k z^{-k}$, $Q^{(k)} = (-c)^kz^{-k}$.
+Then:
+$$
+N^{(k+1)}(z) = N^{(k)}(z) - Q^{(k)}(1+cz^{-1}) = (-c)^{k+1}z^{-(k+1)}.
+$$
+> Hence, if we want to divide $N^{(k+1)}(z)$ by $C(z)$, $Q^{(k+1)}(z)$ must be:
+$$
+Q^{(k+1)}(z) = (-c)^{k+1}z^{-(k+1)}.
+$$
+
+> Another way to see that
+$$
+\frac{1}{C(z)} = 1-cz^{-1}+c^2z^{-2}-c^3z^{-3} + \ldots
+$$
+> is to observe that $1-cz^{-1}+c^2z^{-2}-c^{3}z^{-3} + \ldots$ is the geometric series of $-cz^{-1}$.
+
+> Then:
+$$
+\frac{C(z) - A(z)}{C(z)} = \frac{1}{C(z)}(C(z) - A(z)) = (1-cz^{-1}+c^2z^{-2}-c^3z^{-3})(1+cz^{-1}-1+az^{-1}) =
+$$
+
+---
+
+$$
+= (a+c)z^{-1} - c(a+c)z^{-2} + c^2(a+c)z^{-3} - c^3(a+c)z^{-4} + \ldots \ .
+$$
+
+> Analogously:
+$$
+\frac{B(z)}{C(z)} = b -cbz^{-1} + c^2bz^{-2} - c^3bz^{-3} + \ldots \ .
+$$
+
+> **We cannot use a simple algorithm as least squares anymore**.
+
+#### Asymptotic analysis of PEM methods
+
+Let $\hat{\theta}_N$ be the minimum point of the cost function $J_N(\theta)$.
+Now, since $\varepsilon(t)$ depends on the data, which are described as stochastic processes, then $\hat{\theta}_N$ is also a random variable, for each value of $N$.
+We want to ask ourselves:
+- what are the characteristics of the sequence $\hat{\theta}_N$ for increasing $N$?
+- what happens _asymptotically_, _i.e._ for $N \rightarrow + \infty$?
+- how good is the system estimate in those ideal conditions?
+
+Assuming that the predictor is stable and that $u(\cdot)$ and $y(\cdot)$ are stationary processes (_remember that, if we are in control of the identification experiment $\mathcal{E}$, we can choose $u$ to be stationary_), then $\hat{y}(\cdot)$ will also be a stationary process.
+Consequently, the residual $\varepsilon(t) = y(t) - \hat{y}(t)$ will be a stationary process as well, and the same applies to the sequence $\varepsilon^2(\cdot)$ (_I think that it can be proven, under certain additional hypotheses, that if $v(\cdot)$ is stationary, then $v^2(\cdot)$ is also stationary_).
+
+Therefore, $J_N$ is the sample mean value of a stationary process.
+If the process is ergodic (_things that holds for stationary processes, under mild assumptions_), then the sample mean will tend to the expected value:
+$$
+J_N(\theta) = \frac{1}{N} \sum_{t=\tau}^N \varepsilon^2(t; \theta) \stackrel{N \rightarrow + \infty}{\rightarrow} \overline{J}(\theta) = \mathbb{E}[\varepsilon^2(t; \theta)].
+$$
+If the convergence of $J_N$ is sufficiently regular (_I think that uniform convergence should be enough_), then the minimum of $J_N$ will converge to the minimum of $\overline{J}$ as well.
+Accordingly, if we denote as $\Delta = \{ \overline{\theta} | \overline{J}(\overline{\theta}) \leq \overline{J}(\theta), \forall \theta \in \Theta \}$ the _set of minima_ of $\overline{J}$, we expect $\hat{\theta}_N$ to tend to $\Delta$.
+
+Suppose that we are in the very fortunate case where $\mathcal{S} = M(\theta^\circ)$ for some $\theta^\circ$ (_that is, $\mathcal{S} \in \mathcal{M}(\theta)$_).
+Does the fact that $\hat{\theta}_N \rightarrow \Delta$ for $N \rightarrow +\infty$ also imply that $\hat{\theta}_N \rightarrow \theta^\circ$, at least asymptotically?
+
+To answer this question we need to decompose the expression of the residual:
+$$
+\varepsilon(t; \theta) = y(t) - \hat{y}(t; \theta) = \left[ y(t) - \hat{y}(t; \theta^\circ) \right] + \left[ \hat{y}(t; \theta^\circ) - \hat{y}(t; \theta) \right].
+$$
+
+---
+
+- The first term in the RHS: $e(t) = y(t) - \hat{y}(t; \theta^\circ)$ is called **innovation**. It represents the error committed by the optimal predictor that we could calculate if we knew the true system ($e(t) = \varepsilon(t; \theta^\circ)$).
+
+- The second term in the RHS: $\hat{y}(t; \theta^\circ) - \hat{y}(t; \theta)$ is the combination of two variables that both depend on the past of $u(\cdot)$, and $y(\cdot)$.
+
+By what we have seen in "Prediction", for the optimal predictor, $\varepsilon(t; \theta^\circ)$ is uncorrelated with the past (_the optimal predictor exploits all the available information_). Hence the two terms in the RHS are uncorrelated.
+In view of this, it holds that:
+$$
+\overline{J}(\theta) = \mathbb{V}\text{ar}[\varepsilon(t; \theta)] = \mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)] + \mathbb{V}\text{ar}[\hat{y}(t; \theta^\circ) - \hat{y}(t; \theta)] \geq \mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)] = \overline{J}(\theta^\circ).
+$$
+This means that **$\theta^\circ$ is certainly a minimum of $\overline{J}$**, _i.e._ it belongs to $\Delta$.
+Then, if $\Delta$ is a singleton ($\overline{J}$ has a unique minimum), we can conclude that a PEM method will lead to a model that asymptotically tends to the true system.
+However, in practice, it is very rarely the case that $\mathcal{S} \in \mathcal{M}(\theta)$. If this doesn't holds, then the models in the set $\Delta$ are the _best approximants_ of $\mathcal{S}$ within $\mathcal{M}(\theta)$.
+
+In particular, we can distinguish between $4$ cases:
+- $\mathcal{S} \in \mathcal{M}(\theta)$, and $\Delta$ is a singleton
+In this case the only element of $\Delta$ is $\theta^\circ$, then $\hat{\theta}_N \rightarrow \theta^\circ$.
+
+- $\mathcal{S} \in \mathcal{M}(\theta)$, and $\Delta$ is NOT a singleton
+Now $\Delta$ contains other points besides $\theta^\circ$. These correspond to models which are equivalent to $\theta^\circ$ in terms of predictive performance.
+The estimate $\hat{\theta}_N$ tends to a point in $\Delta$ (_not necessarily $\theta^\circ$_), **or enters in $\Delta$ without converging to a point**.
+
+- $\mathcal{S} \not \in \mathcal{M}(\theta)$, and $\Delta$ is a singleton
+There is only one optimal models in $\mathcal{M}(\theta)$, say $\overline{\theta}$, but it does not coincide with the true system: $\overline{\theta}$ is the best approximant of the true system in $\mathcal{M}(\theta)$.
+
+- $\mathcal{S} \not \in \mathcal{M}(\theta)$, and $\Delta$ is NOT a singleton
+$\Delta$ contains the best approximants of the true system in $\mathcal{M}(\theta)$. Then, $\hat{\theta}_N$ tends to a point in $\Delta$ (not necessarily $\theta^\circ$), **or asymptotically wands in $\Delta$**.
+
+#### Experimental vs Structural identifiability
+
+- If it is possible to _unambiguously estimate all the parameters_ (_i.e._ $\Delta$ is a singleton), we say that the system is _identifiable_.
+
+Identifiability depends on:
+- the _identification experiment_ $\mathcal{E}$ (since $\hat{y}$ depends onto $u$, the choice of $u$ affects the expression of $\overline{J}$);
+
+---
+
+- the _model family_ $\mathcal{M}(\theta)$.
+
+The input should be sufficiently "_rich_" of information content to allow the unambiguous estimation of all parameters.
+If the experiment cannot be designed ad hoc, we should employ a model family with few parameters (_i.e. such that the unambiguous estimation of all parameters is indeed possible_).
+
+- **Experimental identifiability** refers to the uniqueness of the parameter values compatibly with the information contained in the data.
+
+- **Structural identifiability** refers to the property that the best approximant of $\mathcal{S}$ in $\mathcal{M}(\theta)$ is unique.
+
+> If, for example, $\mathcal{S}$ is an $\text{ARMAX}(1, 1, 1)$, and $\mathcal{M}$ is the family of $\text{ARMAX}(2, 2, 2)$, however we design $\mathcal{E}$, the set $\Delta$ will be infinite (_as we already saw in the "Uniqueness" paragraph, if the $\text{ARMAX}(1, 1, 1)$ has polynomials $A_1(z)$, $B_1(z)$, $C_1(z)$, we can build an  $\text{ARMAX}(2, 2, 2)$ with polynomials $A_2(z) = A_1(z)D(z)$, $B_2(z) = B_1(z)D(z)$, $C_2(z) = C_1(z)D(z)$ for every Schur stable polynomial $D(z) = 1 + d_1 z^{-1}$, condition satisfied if $|d_1| < 1$_).
+In this case, we say the **the model is _over-parameterized_**.
+
+> In the opposite case (we swap the families of $\mathcal{S}$, and $\mathcal{M}(\theta)$) we say the **the model is _under-parameterized_**. Anyway, unless $\mathcal{E}$ is badly designed, the set $\Delta$ will be a singleton, albeit not corresponding to the true system.
+
+#### Uncertainty of the estimated parameters
+
+Assume that $\Delta = \{ \overline{\theta} \}$, with $\overline{\theta}$ not on the boundary of $\Theta$ (_we need to take derivatives wrt $\overline{\theta}$_).
+Let also $\mathcal{S} \in \mathcal{M}(\theta)$, so that $\overline{\theta} = \theta^\circ$.
+Define the (column) vector with the same size as $\theta$:
+$$
+\psi(t; \theta) = -\left(\frac{\partial \epsilon(t; \theta)}{\partial \theta}\right)^T.
+$$
+Notice that, if all the involved processes are stationary, then the same is true for $\psi(\cdot)$.
+Then, we can define:
+$$
+\overline{R} = \mathbb{E}[\psi(t; \theta^\circ) \psi^T(t; \theta^\circ)].
+$$
+It can be shown that for large $N$, the variance of the PEM estimator $\hat{\theta}_N$ is given by $\frac{\overline{P}}{N}$, where:
+$$
+\overline{P} = \mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)] \overline{R}^{-1} \text{, or, more precisely, } \sqrt{N}(\hat{\theta}_N - \theta^\circ) \sim \text{As}G(0, \overline{P}).
+$$
+(_$\text{As}G$ stands for asymptotically gaussian_).
+
+---
+
+In other words, matrix $\overline{P}$ provides the variance of the vector of estimated parameters. To estimate $\overline{P}$ in practice we will approximate $\overline{R}$ with its sampled version:
+$$
+\frac{1}{N} \sum_{t=1}^N \psi(t; \hat{\theta}_N) \psi^T(t; \hat{\theta}_N).
+$$
+Similarly, we can estimate $\mathbb{V}\text{ar}[\varepsilon(t; \theta^\circ)]$ using:
+$$
+\frac{1}{N} \sum_{t=1}^N \varepsilon^2(t; \hat{\theta}_N).
+$$
