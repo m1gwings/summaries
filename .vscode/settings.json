@@ -5,6 +5,7 @@
     ],
     "markdown.marp.enableHtml": true,
     "cSpell.words": [
+        "Akaike's",
         "approximants",
         "ARIMA",
         "ARIMAX",
@@ -30,8 +31,10 @@
         "monic",
         "NAML",
         "operatorial",
+        "overfitting",
         "parameterizations",
         "periodogram",
+        "Rissanen's",
         "Schur",
         "stackrel",
         "stationarity",
