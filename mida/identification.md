@@ -821,3 +821,258 @@ then $\overline{R}$ is _non-singular_ amd the LS estimates asymptotically conver
 **Remarks**:
 - If the estimates fluctuate even for large values of $N$, then presumably the model is _over-parameterized_.
 - If the estimate converge, but the residual is not white, then presumably the model is _under-parameterized_.
+
+#### PEM identification of ARMAX models
+
+As already shown (_see "Prediction" summary_), the optimal 1-step ahead predictor for an ARMAX model is:
+$$
+\hat{y}(t|t-1) = \frac{C(z) - A(z)}{C(z)} y(t) + \frac{B(z)}{C(z)} u(t-k).
+$$
+Remember that the term $\frac{1}{C(z)}$ **isn't linear in the parameters** (_see p. 12_), and so the same is true for both $\frac{C(z) - A(z)}{C(z)}$, and $\frac{B(z)}{C(z)}$.
+For this reason we cannot use least squares for the PEM identification of ARMAX models: we have to resort to a **numerical iterative approach** to minimize $J_N(\theta)$.
+In particular we will use **Newton's method** (a.k.a. **maximum likelihood algorithm**).
+The method works as follows:
+1. Approximate $J_N(\theta)$ with a quadratic function $V(\theta)$ around a given point.
+2. Find the minimum point of the quadratic approximant function (_we will construct $V(\theta)$ in such a way that it always admits minimum_).
+3. Set this point as the new reference and go to 1; iterate until convergence.
+
+Let $\theta^{(i)}$ be the parameterization at iteration $i$.
+We can approximate $J_N(\theta)$ around $\theta^{(i)}$ with its second order Taylor approximation:
+$$
+J_N(\theta) \approx J_N(\theta^{(i)}) + \nabla_\theta J_N^T(\theta^{(i)}) (\theta - \theta^{(i)}) + \frac{1}{2} (\theta - \theta^{(i)})^T \nabla_\theta^2 J_N(\theta^{(i)}) (\theta - \theta^{(i)}).
+$$
+Remember that:
+$$
+J_N(\theta) = \frac{1}{N} \sum_{t=1}^N \varepsilon^2(t; \theta).
+$$
+
+---
+
+Hence:
+$$
+\frac{\partial J_N}{\partial \theta}(\theta) = \frac{2}{N} \sum_{t=1}^N \varepsilon(t; \theta) \frac{\partial \varepsilon}{\partial \theta}(t; \theta),
+$$
+and so:
+$$
+\nabla_\theta J_N(\theta) = \frac{2}{N} \sum_{t=1}^N \varepsilon(t; \theta) \nabla_\theta \varepsilon(t; \theta).
+$$
+
+Then:
+$$
+\nabla_\theta^2 J_N(\theta) = \frac{\partial}{\partial \theta} \nabla_\theta J_N(\theta) = \frac{2}{N} \sum_{t=1}^N \left[ \varepsilon(t; \theta) \nabla_\theta^2 \varepsilon(t; \theta) + \nabla_\theta \varepsilon(t; \theta) \nabla_\theta \varepsilon^T (t; \theta) \right].
+$$
+
+Following the quasi-Newton's approach, the hessian of $J_N(\theta)$ is approximated as:
+$$
+\nabla_\theta^2 J_N(\theta) \approx \frac{2}{N} \sum_{t=1}^N \nabla_\theta \varepsilon(t; \theta) \nabla_\theta \varepsilon^T(t; \theta) = \frac{2}{N} \sum_{t=1}^N \left[ \frac{\partial \varepsilon}{\partial \theta}(t; \theta) \right]^T \frac{\partial \varepsilon}{\partial \theta}(t; \theta).
+$$
+
+Let's justify this approximation. Remember that:
+$$
+\varepsilon(t; \theta) = y(t) - \hat{y}(t|t-1; \theta),
+$$
+hence (_since $y(t)$ is a fixed datum, which does not depend on $\theta$_):
+$$
+\nabla_\theta \varepsilon(t; \theta) = - \nabla_\theta \hat{y}(t|t-1; \theta).
+$$
+If $\theta \approx \theta^\circ$; $\varepsilon(t; \theta)$ is (_almost_) independent from $\hat{y}(t|t-1; \theta)$ (_this holds without approximation if $\theta = \theta^\circ$_). Hence the same applies to $\nabla_\theta \varepsilon(t; \theta)$, and so to:
+$$
+\nabla_\theta^2 \varepsilon(t; \theta) = \frac{\partial}{\partial \theta} \nabla_\theta \varepsilon(t; \theta).
+$$
+If follows that:
+$$
+\frac{1}{N} \sum_{t=1}^N \varepsilon(t; \theta) \nabla_\theta^2 \varepsilon(t; \theta) \approx \mathbb{E}\left[ \varepsilon(t; \theta) \nabla_\theta^2 \varepsilon(t; \theta) \right] = \mathbb{E}[\varepsilon(t; \theta)] \mathbb{E}[\nabla_\theta^2 \varepsilon(t; \theta) ] \approx 0 \cdot \mathbb{E}[\nabla_\theta^2 \varepsilon(t; \theta) ] = 0,
+$$
+assuming that the processes are ergodic and remembering that $\varepsilon(t; \theta)$ has expected value 0.
+
+As anticipated, this approximation has **another important advantage**: $\frac{2}{N} \sum_{t=1}^N \left[ \frac{\partial \varepsilon}{\partial \theta}(t; \theta) \right]^T \frac{\partial \varepsilon}{\partial \theta}(t; \theta)$ is positive semi-definite by construction. Hence the quadratic form which approximates $J_N(\theta)$ will always admit minimum.
+
+---
+
+The resulting approximant of $J_N(\theta)$ around $\theta^{(i)}$ is:
+$$
+V(\theta) = J_N(\theta^{(i)}) + \frac{\partial J_N}{\partial \theta}(\theta^{(i)}) (\theta - \theta^{(i)}) + (\theta - \theta^{(i)})^T \frac{1}{N} \sum_{t=1}^N \left[ \frac{\partial \varepsilon}{\partial \theta}(t; \theta^{(i)}) \right]^T \frac{\partial \varepsilon}{\partial \theta}(t; \theta^{(i)}) (\theta - \theta^{(i)}) \text{.}
+$$
+By the positive definiteness of the hessian, $V(\theta)$ is convex, we can find its minimum by setting:
+$$
+0 = \nabla_\theta V(\theta) = \nabla_\theta J_N(\theta^{(i)}) + \frac{2}{N} \sum_{t=1}^N \left[ \frac{\partial \varepsilon}{\partial \theta}(t; \theta^{(i)}) \right]^T \frac{\partial \varepsilon}{\partial \theta}(t; \theta^{(i)}) (\theta - \theta^{(i)}).
+$$
+Hence:
+$$
+\theta^{(i+1)} = \theta^{(i)} - \left[ \frac{2}{N} \sum_{t=1}^N \left[ \frac{\partial \varepsilon}{\partial \theta}(t; \theta) \right]^T \frac{\partial \varepsilon}{\partial \theta}(t; \theta) \right]^{-1} \nabla_\theta J_N(\theta^{(i)}).
+$$
+Using the definition $\psi(t; \theta) = - \nabla_\theta \varepsilon(t; \theta)$, it follows that:
+$$
+\nabla_\theta J_N(\theta) = - \frac{2}{N} \sum_{t=1}^N \varepsilon(t; \theta) \psi(t; \theta),
+$$
+and so:
+$$
+\theta^{(i+1)} = \theta^{(i)} + \left[ \frac{2}{N} \sum_{t=1}^N \psi(t; \theta^{(i)}) \psi^T(t; \theta^{(i)}) \right]^{-1} \frac{2}{N} \sum_{t=1}^N \psi(t; \theta^{(i)}) \varepsilon(t; \theta^{(i)}) =
+$$
+
+$$
+= \theta^{(i)} + \left[ \sum_{t=1}^N \psi(t; \theta^{(i)}) \psi^T(t; \theta^{(i)}) \right]^{-1} \sum_{t=1}^N \psi(t; \theta^{(i)}) \varepsilon(t; \theta^{(i)}).
+$$
+
+**Remark**: notice that the correction term has a striking resemblance to the LS formula (where we have $\phi(t)$ instead of $\psi(t; \theta)$).
+
+Now its time to discuss how we can compute the quantities required by the algorithm $(\psi(t; \theta)$, $\varepsilon(t; \theta))$ from the data $(y(t), u(t))$.
+
+The **residual** can be obtained from the data through a filtering operation, indeed:
+$$
+\varepsilon(t; \theta) = y(t) - \hat{y}(t|t-1; \theta) = y(t) - \frac{C(z) - A(z)}{C(z)} y(t) - \frac{B(z)}{C(z)} u(t-k) = \frac{A(z)}{C(z)} y(t) - \frac{B(z)}{C(z)}u(t-k).
+$$
+
+For what regards $\psi(t; \theta)$, we can write it as:
+$$
+\psi(t; \theta) = \begin{bmatrix}
+\alpha_1(t) &
+\cdots &
+\alpha_{n_a}(t) &
+\beta_0(t) &
+\cdots &
+\beta_{n_b}(t) &
+\gamma_1(t) &
+\cdots &
+\gamma_{n_c}(t)
+\end{bmatrix}^T,
+$$
+where:
+- $\alpha_i(t; \theta) = -\frac{\partial \varepsilon(t; \theta)}{\partial a_i}$ for $i \in \{1, \ldots, n_a\}$;
+
+---
+
+- $\beta_i(t; \theta) = -\frac{\partial \varepsilon(t; \theta)}{\partial b_i}$ for $i \in \{ 0, \ldots, n_b \}$;
+
+- $\gamma_i(t; \theta) = - \frac{\partial \varepsilon(t; \theta)}{\partial c_i}$ for $i \in \{ 1, \ldots, n_c \}$.
+
+Let's start with the computation of $\alpha_i$.
+We just showed that:
+$$
+C(z) \varepsilon(t; \theta) = A(z) y(t) - B(z) u(t-k),
+$$
+which in time domain becomes:
+$$
+\varepsilon(t; \theta) + c_1 \varepsilon(t-1; \theta) + \ldots + c_{n_c} \varepsilon(t-n_c; \theta) = y(t) - a_1 y(t-1) - \ldots - a_{n_a} y(t-n_a) -
+$$
+$$
+- b_0 u(t-k) - \ldots - b_{n_b} u(t-k-n_b).
+$$
+If we differentiate both sides w.r.t. $a_i$, we get:
+$$
+- \alpha_i(t; \theta) - c_1 \alpha_i(t-1; \theta) - \ldots - c_{n_c} \alpha_i(t-n_c; \theta) = - y(t-i);
+$$
+which in operatorial notation becomes:
+$$
+C(z) \alpha_i(t; \theta) = y(t-i).
+$$
+It follows that, if we define $\alpha(t; \theta)$ by:
+$$
+C(z) \alpha(t; \theta) = y(t);
+$$
+then:
+$$
+\alpha_i(t; \theta) = \alpha(t-i; \theta) \text{ for } i \in \{ 1, \ldots, n_a \}.
+$$
+
+Similarly for the $b_i$ parameters, we get:
+$$
+\beta_i(t; \theta) = \beta(t-i; \theta) \text{ for } i \in \{ 0, \ldots, n_b \}
+$$
+where:
+$$
+C(z) \beta(t; \theta) = u(t-k).
+$$
+
+For the $c_i$ parameters the computation is a bit more involved. If we differentiate the "_residual equation_" in time domain w.r.t. $c_i$, we get:
+$$
+- \gamma_i(t; \theta) - c_1 \gamma_i(t; \theta) - \ldots - c_{n_c} \gamma_i(t; \theta) + \varepsilon(t-i; \theta) = 0.
+$$
+Hence:
+$$
+\gamma_i(t; \theta) = \gamma(t-i; \theta) \text{ for } i \in \{ 1, \ldots, n_c \}
+$$
+where:
+$$
+C(z) \gamma(t) = \varepsilon(t; \theta).
+$$
+
+---
+
+We proved that **all elements of $\psi(t;\ theta)$ are obtained by filtering a suitable signal by means of the transfer function $\frac{1}{C(z)}$**.
+In particular:
+$$
+\psi(t; \theta) = \frac{1}{C(z)} \phi_E(t; \theta)
+$$
+where
+
+$$
+\phi_E(t; \theta) = \begin{bmatrix}
+y(t-1) & \ldots & y(t-n_a) & u(t-k) & \ldots & u(t-k-n_b) & \varepsilon(t-1; \theta) & \ldots & \varepsilon(t-n_c; \theta)
+\end{bmatrix}^T
+$$
+is called the **extended vector of observations**.
+
+**Remark**: using $\phi_E(t; \theta)$, one can also express the prediction error in the simple form:
+$$
+\varepsilon(t; \theta) = y(t) - \phi_E^T(t; \theta) \theta.
+$$
+
+**Stability of the ML algorithm**
+
+All the filtering operations of the ML algorithm involve the polynomial $C(z)^{(i)}$, whose parameters are estimated at every iteration.
+Since the residual of an ARMAX model should be a stationary process, we can safely assume that $C(z)$ is stable, in view of the spectral factorization theorem.
+However, for numerical reasons, polynomial $C(z)^{(i)}$ could turn out to be unstable, and, if we were to use such a polynomial in the filtering operations, the obtained signals $\varepsilon(\cdot)$ and $\psi(\cdot)$ would be diverging, and consequently unreliable in the context of stationary processes.
+At each iteration, one needs to:
+- verify the stability of $C(z)^{(i)}$;
+
+- if $C(z)^{(i)}$ is unstable, it must be substituted with the corresponding canonical spectral factor $\tilde{C}(z)^{(i)}$.
+
+**Initialization of the ML algorithm**
+
+Since the ML is an iterative algorithm, the initial point $\theta^{(0)}$ can greatly influence the convergence process. Convergence to a minimum is guaranteed, but it can only be ensured that it is a _local minimum_ (one method to circumvent this problem is to apply multiple initializations and the pick the best result). We need a way of finding a suitable initialization. Using the extended observation vector we can write:
+$$
+y(t) = \phi_E^T(t) \theta + \eta(t).
+$$
+
+If $\phi_E(t)$ were known (approximately), we could estimate $\theta$ with least squares and take it as initialization for the ML algorithms:
+$$
+\theta^{(0)} = \left( \sum_{t=1}^N \hat{\phi}_E(t) \hat{\phi}_E(t) \right)^{-1} \sum_{t=1}^N \hat{\phi}_E(t) y(t).
+$$
+
+---
+
+To apply this procedure we need to estimate the $\eta(\cdot)$ in $\phi_E(t)$ with $\hat{\eta}(\cdot)$.
+Such estimate can be derived with the following reasoning. The ARMAX model can be expressed as:
+$$
+\mathcal{M}(\theta): \frac{A(z)}{C(z)} y(t) = \frac{B(z)}{C(z)} u(t-k) + \eta(t).
+$$
+The transfer functions $\frac{A(z)}{C(z)}$, and $\frac{B(z)}{C(z)}$ can be interpreted as infinite order polynomials. We can then assume that they can be well approximated by polynomials of sufficiently large order:
+$$
+\tilde{\mathcal{M}}(\theta): \tilde{A}(z) y(t) = \tilde{B}(z) u(t-k) + \eta(t).
+$$
+Hence, we can apply LS on this model (which is an ARX) and use its residual to estimate $\hat{\eta}(\cdot)$.
+
+
+**Other remarks on the ML algorithm**
+
+Quasi-Newton methods provided a good compromise between robustness and accuracy.
+If the estimate of the hessian is numerically badly conditioned (close to singular), a simple workaround is to add an identity matrix multiplied by a small constant:
+$$
+\nabla_\theta^2 J_N(\theta) \approx 2 \sum_{t=1}^N \left[ \frac{\partial J_N(\theta)}{\partial \theta} \right]^T \frac{\partial J_N(\theta)}{\partial \theta} + \delta I.
+$$
+This is sometimes referred to as the _Levenberg-Marquardt_ variant.
+
+
+**The ML algorithm does NOT apply ONLY to ARMAX**
+
+It is not necessary for the model to be in the ARMAX form to apply the ML method. Consider, _e.g._ the following XAR model:
+$$
+\mathcal{M}(\theta): y(t) = bu(t-1) + \frac{1}{1+dz^{-1}}\eta(t) \text{, with } \eta(\cdot) \sim WN(0, \lambda^2)
+$$
+which is equivalent ot an $\text{ARX}(1, 2)$:
+$$
+y(t) = -d y(t-1) + b u(t-1) + bd u(t-2) + \eta(t).
+$$
+**Notice** that the model is **nonlinear** in the parameters (_take a look at the $bd u(t-2)$ term_), which **prevents the application of LS**.
+Anyway we can **compute the expression of $\psi(t; \theta)$** and apply the ML method.
