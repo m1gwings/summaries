@@ -704,7 +704,7 @@ The result is now proved by making the following remarks:
 $$
 \mathcal{F}^{-1}[\Gamma_{vv}(\omega)] = \frac{1}{2 \pi} \int_{-\pi}^\pi \mathbb{E}[v^2] \delta(\omega) e^{j\omega} d\omega = \mathbb{E}[v^2] e^{j0} = \mathbb{E}[v^2] \text{.}
 $$
->> _Remember that: $\frac{1}{2 \pi} \int_{-\pi}^{\pi} \delta(\omega - \omega_0) e^{j \omega} d\omega = e^{j \omega 0}$_.
+>> _Remember that: $\frac{1}{2 \pi} \int_{-\pi}^{\pi} \delta(\omega - \omega_0) e^{j \omega} d\omega = e^{j \omega_0}$_.
 
 > - The **alternated process**: $v(t) = (-1)^t v$, where $v$ is a random variable.
 >> $\tilde{\gamma}_{vv}(\tau) = \mathbb{E}[(-1)^t v (-1)^{t-\tau} v] = (-1)^{- \tau} \mathbb{E}[v^2] = (-1)^\tau \mathbb{E}[v^2]$.
