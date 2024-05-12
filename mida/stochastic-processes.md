@@ -565,7 +565,7 @@ $$
 ##### Vanishing covariance property
 
 19. The previous classes of processes share the property that $\lim_{\tau \rightarrow + \infty} \gamma(\tau) = 0$.
- a. For $\text{MA}(n)$ processes, $\gamma(\tau) = 0$ for $\tau > n$ (_see proeprty 10.b_).
+ a. For $\text{MA}(n)$ processes, $\gamma(\tau) = 0$ for $\tau > n$ (_see property 10.b_).
 
  > b. For an $\text{AR}(1)$ process it holds that $\gamma(\tau) = a^{|\tau|} \gamma(0)$ (_see property 13_), which implies the vanishing property, since $|a| < 1$.
 
