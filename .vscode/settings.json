@@ -19,6 +19,7 @@
         "controlli",
         "Cristiano",
         "differenced",
+        "DIMM",
         "Durbin",
         "fondamenti",
         "infty",
@@ -44,6 +45,7 @@
         "stationarities",
         "stationarity",
         "Toeplitz",
+        "TPUs",
         "WLOG"
     ],
     "cSpell.enableFiletypes": [
