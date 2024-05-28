@@ -146,8 +146,105 @@ The **total delay** of operations performed on a HDD is the sum of _4 components
 
 We call **full rotation delay** $R$ the time required for a full revolution of the platters. Said $\omega$ the platters angular velocity in RPMs,
 $$
-R = \frac{1 \text{ revolution}}{\omega} \text{ [ minutes ] }.
+R = \frac{1 \text{ revolution}}{\omega} \text{ [ minutes ]}.
 $$
 
 ---
+
+We can make a conservative approximation of the rotational delay by considering the case in which the desired track is on the opposite side of the platter w.r.t. the head. In such a case we have two make an half revolution of the platter, that is:
+$$
+T_{\text{rotation}} = \frac{R}{2}.
+$$
+
+##### Seek delay
+
+The seek delay is NOT linear w.r.t. the number of tracks the head has to traverse.
+Indeed the movement of the head during seek is composed of 4 phases:
+- Acceleration;
+- Coasting (_at constant speed_);
+- Deceleration;
+- Settling.
+
+In practice a rough approximation of the average seek delay is obtained by dividing by 3 the time it takes to move the head from the outermost to the innermost track (_or vice-versa_), which we denote with $T_{\text{seek (MAX)}}$. That is:
+$$
+T_{\text{seek (AVG)}} \approx \frac{T_{\text{seek (MAX)}}}{3}.
+$$
+
+---
+
+##### Transfer time
+
+It is the time during which the data is either read from or written to the surface. It includes the time for the head to pass on the sectors. Hence it depends on the _revolution speed_ and on the _storage density_.
+
+##### Service time and response time of an HDD
+
+Through the quantities that we have described we can calculate the **service time** and the **response time** (_see the summary on "Performance"_) of the disk.
+$$
+T_{\text{service}} = T_{\text{rotation}} + T_{\text{seek}} + T_{\text{transfer}} + T_{\text{controller}};
+$$
+$$
+T_{\text{response}} = T_{\text{service}} + T_{\text{queue}}
+$$
+where $T_{\text{queue}}$ is the time that the read or write request stays in queue, waiting to be processed.
+
+##### Service time for contiguous reads/writes
+
+The expression for the service time that we derived considers only the very pessimistic case where sectors are fragmented on the disk in the worst possible way.
+In this scenario every access to the disk requires to "pay" $T_{\text{rotation}}$ and $T_{\text{seek}}$.
+In many circumstances, this is NOT the case: _files are larger than one sector_ and _stored in a contiguous way_.
+
+---
+
+We can measure the **data locality** $L$ of a disk as the percentage of blocks which do not require rotational or seek delay to be accessed (_assuming that the head is at the previous block of the file to which they belong_).
+In this setting the service time becomes:
+$$
+T_{\text{service}} = (1 - L) (T_{\text{seek}} + T_{\text{rotation}}) + T_{\text{transfer}} + T_{\text{controller}}.
+$$
+
+**Remark**: $T_{\text{seek}}$ and $T_{\text{rotation}}$ are the total seek delay and rotational delay respectively for all the sectors that we have to access.
+
+#### Disk scheduling
+
+We want to answer the following problem: suppose that we have a queue of requests to the disk, in which way should we reorder them in order to improve performance?
+There are several algorithms which solve this problem:
+- **First Come, First Served** (**FCFS**);
+- **Shortest Seek Time First** (**SSTF**);
+- **SCAN**;
+- **C-SCAN**, **C-LOOK**, etc. .
+
+##### First Come, First Served
+
+FCFS is the most basic scheduler: it serves the requests in order without performing any optimization. It spends a lot of time seeking.
+
+---
+
+##### Shortest Seek Time First
+
+SSTF minimizes the total seek time by accommodating the request in the queue whose initial block (to be read or written) is the closest w.r.t. the current position of the head.
+
+**Pros**: it is _optimal_ and easily implemented.
+
+**Cons**: it is prone to _starvation_.
+
+##### SCAN
+
+The head _sweeps_ across the disk (going from the first sector to the last and then from the last to the first) serving requests as their first block (_to be read or written_) is encountered.
+
+**Pros**: it has _good performance_, and _NO starvation_.
+
+**Cons**: average access times are higher for requests at high and low addresses.
+
+##### Circular-SCAN (C-SCAN)
+
+It is _like SCAN_ but serves requests only when moving from the first sector to the last. That is, once it reaches the last sector, it goes back to the first without serving any request.
+
+**Pros**: it is fairer than SCAN (_no issues with requests at high and low addresses_).
+
+---
+
+**Cons**: it has worse performance than SCAN.
+
+##### C-LOOK
+
+It is a variant of C-SCAN in which the head, instead of reaching the last sector, stops after having served the request with the initial block with highest address, and, instead of going back to the first sector (_without serving any request_), it stops when it reaches the initial block of the requests at the lowest address.
 
