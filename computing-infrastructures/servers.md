@@ -85,6 +85,28 @@ Servers come with 3 main form factors (2 of which are standardized to make them 
 - _Cost_-effectiveness.
 
 **Cons**:
+- _Power usage_: they need an additional cooling system due to the high components density, thus consuming more power.
+- _Maintenance_: since multiple devices are placed in a rack together, maintaining them gets increasingly difficult with the number of racks.
+
+
+#### Blade server
+
+**Blade servers** are hybrid rack servers, in which servers are placed into _blade enclosures_, forming _blade systems_. 
+
+---
+
+Blade servers are the latest and most advanced type of servers in the market.
+
+**Pros**:
+- _Load balancing and failover_: thanks to their much simpler and slimmer infrastructure, load balancing among the servers and failover managements tend to be easier.
+- _Centralized management_: in a blade system, you can connect all the blades through a single interface, making maintenance and monitoring easier.
+- _Cabling_: blade servers don't involve the cumbersome task of setting up cabling.
+- _Size and form-factor_: they are the smallest and most compact servers.
+
+**Cons**:
+- _Expensive configuration_: the initial configuration and setup of a blade server requires heavy effort in a complex environment;
+- _HVAC_ (Heating, Ventilation and Air Conditioning): blade servers have very high component density; they need special accommodations to ensure that they don't overheat.
+- _Vendor lock-in_: blade servers typically require the use of the manufacturer's specific blades and enclosures.
 
 ---
 
@@ -101,3 +123,33 @@ A server's _motherboard_ supports:
 - from 2 to 192 DIMM slots;
 - from 1 to 24 drive bays (which can be HDD and SSD with SAS or SATA connectors);
 - from 1 to 20 GPUs or TPUs.
+
+#### Graphical Processing Unit (GPU)
+
+**GPUs** are processing units meant for _data-parallel computations_: the same program is executed on many functional units in parallel.
+
+The usual _configuration_ for GPUs in a rack in the following: there is a _CPU host_ connected to a _PCIe_-attached accelerator tray with multiple GPUs. GPUs within the tray are connected using high-bandwidth interconnects such as _NVlink_.
+
+---
+
+#### Tensor Processing Unit (TPU)
+
+While suited to ML, GPUs are still relatively _general purpose devices_. In recent years designers further specialized them to ML-specific hardware: **TPUs**.
+
+TPUs are hardware accelerators designed for efficient computations with _tensors_. In the ML domain, a **tensor** is an $n$-dimensional matrix. Furthermore, it is the basic unit of operation of _TensorFlow_. For this reason TPUs are used both for _training_ and _inference_ of deep learning models.
+
+Several TPU versions have been developed:
+- _TPUv1_: it is an inference focused accelerator connected to the host CPU via a PCIe link.
+- _TPUv2_: in this version, each tensor core has an array for matrix computations (_MXU_) and a connection to high bandwidth memory (_HBM_) to store parameters and intermediate values during computations.
+Multiple TPUv2 accelerator boards can be connected in a rack through a custom high-bandwidth network which enables "fast parameter reconciliation" (_aggregation steps in back-propagation_). 
+- _TPUv3_: it is the first _liquid cooled accelerator_ of this kind. It is 2.5x faster than TPUv2.
+- _TPUv4_: it is 2.7x faster than TPUv3.
+
+---
+
+#### Field-Programmable Gate Array (FPGA)
+
+An **FPGA** is an array of logic gates that can be programmed (configured) in the field, i.e. by the end user of the device as opposed to the manufacturers. It is composed of several interconnected digital sub-circuits that efficiently implement common functionalities, offering an high level of flexibility.
+The digital sub-circuits are called **Configurable Logic Blocks** (**CLBs**).
+
+The configuration of an FPGA is carried out through Hardware Description Languages (HDLs) (such as VHDL) which allow to declare the required components and how they are interconnected.

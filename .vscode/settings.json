@@ -22,6 +22,7 @@
         "DIMM",
         "Durbin",
         "fondamenti",
+        "HVAC",
         "infty",
         "invertibility",
         "Levenberg",
@@ -46,6 +47,7 @@
         "stationarity",
         "Toeplitz",
         "TPUs",
+        "VHDL",
         "WLOG"
     ],
     "cSpell.enableFiletypes": [
