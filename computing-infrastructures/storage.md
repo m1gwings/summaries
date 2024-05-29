@@ -220,9 +220,9 @@ FCFS is the most basic scheduler: it serves the requests in order without perfor
 
 ##### Shortest Seek Time First
 
-SSTF minimizes the total seek time by accommodating the request in the queue whose initial block (to be read or written) is the closest w.r.t. the current position of the head.
+SSTF tries to minimize the total seek time by accommodating the request in the queue whose initial block (to be read or written) is the closest w.r.t. the current position of the head.
 
-**Pros**: it is _optimal_ and easily implemented.
+**Pros**: it is _NOT optimal_ (_the greedy policy can zig-zag, which is never optimal_) but in general very good and easily implemented.
 
 **Cons**: it is prone to _starvation_.
 
@@ -238,9 +238,9 @@ The head _sweeps_ across the disk (going from the first sector to the last and t
 
 It is _like SCAN_ but serves requests only when moving from the first sector to the last. That is, once it reaches the last sector, it goes back to the first without serving any request.
 
-**Pros**: it is fairer than SCAN (_no issues with requests at high and low addresses_).
-
 ---
+
+**Pros**: it is fairer than SCAN (_no issues with requests at high and low addresses_).
 
 **Cons**: it has worse performance than SCAN.
 
@@ -248,3 +248,350 @@ It is _like SCAN_ but serves requests only when moving from the first sector to 
 
 It is a variant of C-SCAN in which the head, instead of reaching the last sector, stops after having served the request with the initial block with highest address, and, instead of going back to the first sector (_without serving any request_), it stops when it reaches the initial block of the requests at the lowest address.
 
+---
+
+### Redundant Array of Independent Disks (RAID)
+
+**RAID** is a technique which allows to use multiple independent disks in concert to build a faster, bigger, and more reliable disk system. It is in contrast w.r.t. JBOD (Just a Bunch Of Disks) method, where each disk is a separate device with a different mount point.
+Indeed, a RAID system is _transparent_ to the outside and can be used as if it were a single disk. But internally it is a complex system: disks are managed by a dedicated CPU and special software; there is also a RAM and other non-volatile memory (_other than the disks_).
+
+#### Striping vs Redundancy
+
+RAID relies on two orthogonal techniques:
+- **Striping**: to improve _performance_;
+- **Redundancy**: to improve _reliability_.
+
+In **striping** data (a file, a vector, a table, ...) are written sequentially in units, on multiple disks, according to a cyclic algorithm (round robin).
+
+<p align="center">
+    <img src="static/raid-striping.svg"
+    width="400mm" />
+</p>
+
+---
+
+We define **stripe unit** the dimension of the unit of data that are written on a single disk. The **stripe width** is the number of disks considered by the striping algorithm.
+Striping allows to parallelize I/O requests.
+- _Multiple I/O requests_ will be executed in parallel by many disks, _reducing the queue length_.
+- _Single multi-block I/O requests_ will be executed in parallel by many disks, _increasing the transfer rate_.
+
+But, the larger is the stripe width, the higher is the probability of failure for the whole system. This is the main motivation for the introduction of redundancy.
+
+**Redundancy** is achieved through _error correcting codes_ or by _mirroring_, in both cases we sacrifice a bit the performance of the system, to gain in reliability: we can tolerate the failure of a certain number of disks.
+
+#### RAID levels
+
+RAID offers many possible configurations, known as **levels**, which differ in the way **striping** and **redundancy** are exploited and mixed together.
+We will compare the performance and reliability of the different levels. For what regards the performance, we will distinguish between two workloads: sequential I/O and random I/O, denoting with $S$ and $R$ the throughput of the single disk in the sequential and random access respectively.
+
+---
+
+**Remember**: the difference between the two is that in sequential access we need to pay the seek and rotational delay once.
+
+Furthermore, we will consider also the total capacity of the system, and we'll denote with $N$ the number of disks, and with $B$ the capacity of a single disk.
+
+##### RAID 0
+
+In **RAID 0** we _only apply striping_. Data is split among the disks following a striping algorithm. RAID 0 is used only when performance and capacity are more important than reliability. As previously remarked, in this setting a single disk failure results into data loss.
+To maximize the performance of RAID 0, it is important to choose an appropriate _stripe unit_ a.k.a. _chunk size_:
+- small chunk size allows to maximize the parallelism when accessing a single file, with the con that we have to pay the maximum seek delay among all the disks in which the file has been split;
+- big chunk size instead maximizes the parallelism when there are multiple I/O requests to different files, in this case, for each file, we pay the seek delay for only one disk.
+
+**Reliability**: 0, _if any drive fails, data is permanently lost_.
+
+**Sequential access**: $N S$, _we have full parallelization among drives_.
+
+---
+
+**Random access**: $N R$, _we have full parallelization among drives_.
+
+**Capacity**: $N B$, all drives are used for storage.
+
+##### RAID 1
+
+In **RAID 1** we _only apply mirroring_. The same data is replicated among all the disks. This requires at least two disks, and in practice it is never done with more than two disks because of the overhead and the costs which are too high w.r.t. the increase in reliability.
+
+**Reliability**: $N-1$ (_remember that only in theory we have $N > 2$_), _each drive is a copy of the other, unless every drive fails, we won't loose data_.
+
+**Sequential read**: $N S$, _we can parallelize reads across drives_.
+
+**Sequential write**: $S$, _we have to write the same data on all the drives_.
+
+**Random read**: $N R$ (_analogous to sequential_).
+
+**Random write**: $R$ (_analogous to sequential_).
+
+**Capacity**: $B$, all the drives store the same data.
+
+**Important remark**: _mirrored writes_ should be **atomic**: all copies are written or none is written. However this is hard to guarantee (think about power failures). For this reason, many RAID controllers include a **write-ahead log**,
+
+---
+
+which is a battery backed, non-volatile storage of pending writes. Thanks to a specific procedure we can recover the out-of-sync writes.
+
+##### RAID 0+1
+
+In **RAID 0+1** a RAID 1 manages $M$ drives (remember that in practice $M = 2$), 
+
+each of which is a RAID 0 which manages $L$ HDDs, instead of being a simple HDD.
+That is, $N = M L$.
+
+**Reliability**: $M-1$, in practice $1$ since $M = 2$ (_remember that each RAID 0 fails after the first failure of one of its HDDs_).
+
+The throughput of a sequential read in this configurations varies greatly depending on how we distribute the load among the disks. To understand why, let's consider an example.
+
+<p align="center">
+    <img src="static/raid0+1.svg"
+    width="600mm" />
+</p>
+
+---
+
+The picture above represents a RAID 0+1 with $M = 2$, $L = 2$ ($N = 4$), $B = 4$.
+Suppose that we want to retrieve the data corresponding to the whole block sequence 0, 1, ..., 7. This is clearly a sequential read.
+
+Let's consider two ways of splitting this sequential read among D0, D1, D2, and D3.
+
+In the first approach we can split the sequence of blocks at every level according to a cyclic algorithm, as it is done in striping, with a stripe width of 2 blocks the first time, and of 1 the second. That is, the root RAID assigns the reading of 0, 1, 4, 5 and 2, 3, 6, 7 to the RAID 0 on the left and on the right respectively. The RAID 0 on the left assigns the reading of 0, 4 to D0 and the reading of 1, 5 to D1. Analogously the RAID 0 on the right assigns the reading of 2, 6 to D2 and the reading of 3, 7 to D3. Now let's consider what happens when D0 reads 0, 4: since this is a sequential read, we need to consider the time spent when going through 2, even if we're not reading. That is, at the end we have 2 read blocks and 1 wasted block. This happens to all the other disks analogously. Observe that, if we keep doubling the length of the sequence of blocks to read (and we increase $B$ accordingly), the number of wasted blocks is always 1 less than the number of read blocks. Hence (_asymptotically_) we're halving the throughput of the system, which results in $\frac{N}{2} S$ even though we're using all the $N$ drives in parallel.
+
+---
+
+In the second approach, instead, we can split the sequence of blocks at each level consistently with the type of RAID at that level. That is, since the first RAID is a RAID 1, we split the sequence into the first and second half, assigning 0, 1, 2, 3 to the RAID 0 on the left, and 4, 5, 6, 7 to the RAID 0 on the right.
+
+Then, since the RAIDs at the second level are RAID 0, we use a cyclic algorithm (with stripe width of 1), assigning 0, 2 to D0, 1, 3 to D1, 4, 6 to D2, and 5, 7 to D3.
+In this way we have no wasted blocks, and this holds even if we keep doubling the length of the sequence of blocks to read. Hence we exploit the full throughput of the system, which is $N S$. Observe that this is also consistent with the results we obtained for sequential reads in RAID 1 and RAID 0 individually. Each RAID 0 at the second level has a throughput of $L S$. Then, the RAID 1 at the first level (remember that the RAID 0 below are transparent, considering the RAID management overhead negligible) have a throughput of $M L S = N S$.
+
+**Unfortunately**, for reasons to me unknown, on the slides we considered only the unintuitive and inefficient way of distributing the sequential read over the disks, hence we will consider a throughput of $\frac{N}{2} S$.
+
+**Sequential read**: $\frac{N}{2} S$.
+
+**Sequential write**: $L S = \frac{N}{M} S$, in practice $\frac{N}{2} S$ (_see write in RAID 1_).
+
+---
+
+Of course the way in which we split the load for random reads is immaterial. In every case we get full throughput.
+
+**Random read**: $N R$.
+
+**Random write**: $L R = \frac{N}{M} R$, in practice $\frac{N}{2} R$.
+
+**Capacity**: $L B = \frac{N}{M} B$, in practice $\frac{N}{2} B$.
+
+##### RAID 1+0
+
+In **RAID 1+0** a RAID 0 manages $L$ drives, each of which is a RAID 1 which manages $M$ (_in practice, $M = 2$_) HDDs. Again, $N = L M$.
+
+**Reliability**: from $M-1$, up to $L (M-1)$; in practice from $1$ to $\frac{N}{2}$ drives can fail without making the full system fail.
+
+The other quantities of interest are the same w.r.t. RAID 0+1. For this reason RAID 1+0 is _preferred_ over RAID 0+1 since it has the same performance but it is (_a bit_) more reliable.
+
+##### RAID 4
+
+RAID 1 offers highly reliable data storage, but it allows to use only half of the array capacity for storage. This motivates the introduction of **RAID 4** which exploits information coding techniques to build light-weight error recovery mechanisms which offer the same reliability of RAID 1. In particular, in RAID 4, one of the $N$ drives is a **parity drive**.
+
+---
+
+That is, the $i$-th bit of the parity drive is such that if we consider the set of bits in position $i$ of all the $N$ drives, there is an even number of 1s. Of course, the minimal accessible unit is still the block (but this does not compromise the property just stated). In particular, said ${DJ}_i$ the $i$-th bit of disk $J \in \{ 1, \ldots, N-1 \}$, the parity bit $P_i$ is easily computed as:
+$$
+P_i = {D1}_i \oplus \ldots \oplus {D(N-1)}_i
+$$
+(_this is easy to see thinking about how the XOR is defined_).
+This way of computing the parity bit is known as **additive parity**.
+Observe that, if we just need to modify one bit in a disk and the parity bit accordingly, we can use **subtractive parity**:
+$$
+P_i^{\text{(new)}} = P_i^{\text{(old)}} \oplus ({DJ}_i^{\text{(old)}} \oplus {DJ}_i^{\text{(new)}}).
+$$
+This follows from the fact that $P_i^{\text{(new)}} = P_i^{\text{(old)}}$ if ${DJ}_i^{\text{(old)}} = {DJ}_i^{\text{(new)}}$, otherwise we need to flip it.
+
+Observe that, if any drive were to fail, we could recover its content through the additive parity formula, swapping $P_i$ with the failed ${DJ}_i$ (_of course we can also recompute the content of the parity drive leaving the formula as is_).
+
+**Reliability**: $1$, _because of what we just remarked_.
+
+**Sequential read**: $(N-1) S$: _we can parallelize the reads over all the storage drives_.
+
+---
+
+**Sequential write**: $(N-1) S$. When performing a sequential write we can assume that we'll overwrite all the ${D1}_i, \ldots {D(N-1)}_i$ bits together, for several contiguous $i$s. Hence we can compute $P_i$ without having to read anything. Then we can parallelize the writing of data onto ${D1}, \ldots, {D(N-1)}$ and the writing of the parity bits on $P$.
+
+**Random read**: $(N-1) R$, _analogous to sequential read_.
+
+**Random write**: $\frac{R}{2}$. Each random write requires the reading of ${DJ}_i$ and $P_i$ in order to apply the subtractive parity formula, plus the two writes of the new values. Hence, in this case to each random write corresponds 1 read and 1 write of the parity drive which we cannot parallelize (_in the sequential case, since we distribute the data in a cyclic way, we need 1 write of the parity drive every $N-1$ writes of the storage drives_). Then the parity drive is the bottleneck: for every request we need to access it two times in a serialized fashion.
+
+**Capacity**: $(N-1) B$.
+
+##### RAID 5
+
+**RAID 5** is an improvement w.r.t. RAID 4 in which there is no dedicated parity drive, the parity bits are spread cyclically over all the drives.
+
+**Reliability**: $1$ (_analogous to RAID 4_).
+
+---
+
+**Sequential read**: $(N - 1) S$. In this case we can parallelize the read over all the $N$ drives, but, since the read is sequential, we need to go through also the parity blocks which are NOT of interest when reading and constitute $\frac{1}{N}\text{th}$ of the read blocks on average.
+
+**Sequential write**: $(N - 1) S$ (_analogous to RAID 4, they only thing which changes is where we write the parity bit_).
+
+**Random read**: $N R$. In this case we can parallelize the reading over all drives.
+
+**Random write**: $\frac{N}{4} R$. In this case, as in RAID 4, each request requires 4 accesses, but (on average) we can distribute them over all the drives (instead, in the RAID 4 case, we had a bottleneck caused by the fact that half of the times we had to access the parity drive).
+
+**Capacity**: $(N-1) B$.
+
+##### RAID 6
+
+**RAID 6** has two parity blocks per stripe, instead of one as in RAID 4 and RAID 5. It uses Solomon-Reeds codes with two redundancy schemes. It can tolerate up to two failures, but each write requires 6 accesses to the disks.
+
+**Reliability**: $2$.
+
+**Sequential read**: $(N-2) S$.
+
+**Sequential write**: $(N-2) S$.
+
+---
+
+**Random read**: $N R$.
+
+**Random write**: $\frac{N}{6} R$.
+
+**Capacity**: $(N-2) B$.
+
+#### Other considerations about RAIDs
+
+##### Hot spare
+
+Many RAIDs include an **hot spare** which is an unused drive installed in the system which stays in idle until one of the disk fails. Then the hot spare is automatically used to replace the failed disk.
+
+##### Hardware vs Software implementation
+
+RAIDs can be implemented both in hardware and software.
+- Hardware implementation is faster and more reliable.
+- But migrating an hardware RAID array to a different hardware controller almost never works.
+
+#### RAID reliability computations
+
+We can compute the $MTTF$ (_see Dependability summary_) of the different RAID levels through the following approximation:
+$$
+\mathbb{P}(\text{failure}) \approx \frac{1}{MTTF}.
+$$
+
+---
+
+In particular, we have to apply it both to the whole system, and to the single disks.
+If follows that:
+$$
+{MTTF}_{\text{RAID}} \approx \frac{1}{\mathbb{P}(\text{RAID failure})}.
+$$
+Let's examine in depth this expression for each RAID level.
+
+- **RAID 0**
+
+$$
+\mathbb{P}(\text{RAID 0 failure}) = \mathbb{P}(\text{1st disk failure}) \approx
+$$
+$$
+\approx N \mathbb{P}(\text{single disk failure}) \approx \frac{N}{{MTTF}_{\text{disk}}}.
+$$
+
+Then:
+$$
+{MTTF}_{\text{RAID 0}} \approx \frac{{MTTF}_{\text{disk}}}{N}.
+$$
+In this case it is easy to show that we have equality since the subsystems are in series (_see the Dependability summary_).
+
+- **RAID 0+1**
+
+$$
+\mathbb{P}(\text{RAID 0+1 failure}) = \mathbb{P}(\text{1st failure}) \mathbb{P}(\text{2nd failure in other stripe group}) \text{.}
+$$
+
+$$
+\mathbb{P}(\text{1st failure}) \approx \frac{N}{{MTTF}_{\text{disk}}}.
+$$
+
+Let $G$ be the number of drives in a stripe group. Usually $G = \frac{N}{2}$. Observe that the 2nd failure must happen before we repair the first failed drive (i.e. in $MTTR$).
+
+---
+
+$$
+\mathbb{P}(\text{2nd failure in other stripe group}) \approx G \frac{MTTR}{MTTF_{\text{disk}}}.
+$$
+
+Then:
+$$
+{MTTF}_{\text{RAID 0+1}} \approx \frac{MTTF^2_{\text{disk}}}{N \ G \  MTTR}.
+$$
+
+- **RAID 1+0**
+
+$$
+\mathbb{P}(\text{RAID 1+0 failure}) = \mathbb{P}(\text{1st failure}) \mathbb{P}(\text{2nd failure in same mirror group}) \text{.}
+$$
+
+$$
+\mathbb{P}(\text{1st failure}) \approx \frac{N}{{MTTF}_{\text{disk}}}.
+$$
+
+Usually we have only 2 drive for mirror group. Then:
+$$
+\mathbb{P}(\text{2nd failure in same mirror group}) \approx \frac{MTTR}{{MTTF}_{\text{disk}}} .
+$$
+
+Then:
+$$
+{MTTF}_{\text{RAID 1+0}} \approx \frac{MTTF^2_{\text{disk}}}{N \  MTTR}.
+$$
+
+- **RAID 4**
+
+$$
+\mathbb{P}(\text{RAID 4 failure}) = \mathbb{P}(\text{1st failure}) \mathbb{P}(\text{2nd failure}).
+$$
+
+$$
+\mathbb{P}(\text{1st failure}) \approx \frac{N}{{MTTF}_{\text{disk}}}.
+$$
+
+---
+
+$$
+\mathbb{P}(\text{2nd failure}) \approx \frac{(N-1) MTTR}{MTTF_{\text{disk}}}.
+$$
+
+Then:
+$$
+{MTTF}_{\text{RAID 4}} \approx \frac{{MTTF}^2_{\text{disk}}}{N(N-1) \ MTTR}.
+$$
+
+- **RAID 5**
+
+Same as RAID 4:
+$$
+{MTTF}_{\text{RAID 5}} \approx \frac{{MTTF}^2_{\text{disk}}}{N(N-1) \ MTTR}.
+$$
+
+- **RAID 6**
+
+$$
+\mathbb{P}(\text{RAID 4 failure}) = \mathbb{P}(\text{1st failure}) \mathbb{P}(\text{2nd failure}) \mathbb{P}(\text{3rd failure}).
+$$
+
+$$
+\mathbb{P}(\text{1st failure}) \approx \frac{N}{{MTTF}_{\text{disk}}}.
+$$
+
+$$
+\mathbb{P}(\text{2nd failure}) \approx \frac{(N-1) MTTR}{MTTF_{\text{disk}}}.
+$$
+
+Observe that the 3rd failure has to happen before we repair either of the two drives. And, analogously to $MTTF$ of a series of drives, the mean time to repair either of the two drives is $\frac{MTTR}{2}$. Hence:
+
+$$
+\mathbb{P}(\text{3rd failure}) \approx \frac{N-2}{MTTF_{\text{disk}}} \frac{MTTR}{2}.
+$$
+
+---
+
+Then:
+$$
+{MTTF}_{\text{RAID 6}} = \frac{2 {MTTF}^3_{\text{disk}}}{N(N-1)(N-2) \ {MTTR}^2} .
+$$
