@@ -384,6 +384,89 @@ It is difficult to comment on the duration of SSDs, since it is influenced by ma
 
 ---
 
+### DAS, NAS, and SAN
+
+<div class="definition">
+
+A **Direct Attached Storage** (**DAS**) is a storage system directly attached to a server or workstation. They are visible as disks/volumes by the client OS.
+
+</div>
+
+<br>
+
+<div class="definition">
+
+A **Network Attached Storage** (**NAS**) is a computer connected to a network that provides only file-based data storage services (e.g. FTP, Network File System (NFS), and SAMBA) to other devices on the network and is visible as File Server to the client OS.
+
+</div>
+
+<br>
+
+<div class="definition">
+
+**Storage Area Networks** (**SAN**) are remote storage units that are connected to a server using a specific networking technology (e.g. Fiber Channel) and are visible as disks/volumes by the client OS.
+
+</div>
+
+#### DAS
+
+The term DAS is used mainly to differentiate non-networked storage from SAN and NAS.
+
+The **main features of DAS** are:
+- limited scalability;
+
+---
+
+- complex management;
+- to read files in other machines, the "_file sharing_" protocol of the OS must be used.
+
+**Remark**: DAS does not necessarily mean "_internal drives_". All the external disks, connected with a point-to-point protocol to a PC can be considered as DAS.
+
+#### NAS
+
+NAS systems contain one or more hard disks, often organized into logical redundant storage containers or RAID. They provide file-access services to the hosts connected to a TCP/IP network through NFS/SAMBA.
+
+**Main features**:
+- each NAS element has its own IP address;
+- good scalability (by incrementing the devices in each NAS element or incrementing the number of NAS elements).
+
+The key differences between DAS and NAS are that DAS is simply an extension of an existing server and is not necessarily networked; NAS instead is designed as an easy and self-contained solution for sharing files over the network.
+
+The performance of NAS depends mainly on the speed of and congestion on the network.
+
+---
+
+#### SAN
+
+SANs have a special network devoted to the accesses to storage devices. In particular, the setup requires two networks, one TCP/IP for communication with the clients, and the dedicated network (e.g. Fiber Channel).
+SANs are highly scalable by simply increasing the number of storage devices in the dedicated network.
+
+The key differences between NAS and SAN is that NAS provides both storage and a file system, instead SAN provides only block-based storage and leaves file system concerns on the "client" side. Another way to conceptualize this difference is that: NAS appears to the client OS as a file server, while a disk available through a SAN still appears to the client OS as a disk. Traditionally NAS is used for low-volume access to a large amount of storage by many users; SAN is the solution for petabytes of storage and multiple, simultaneous access to files, such as streaming audio/video.
+
+---
+
+#### DAS vs NAS vs NAS
+
+<style>
+table {
+    left-margin: auto;
+    right-margin: auto;
+}
+
+td {
+    padding: 2mm;
+}
+
+</style>
+
+|         | Application domain                                 | Advantages                                                                 | Disadvantages                                                                          |
+|---------|----------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **DAS** | - Budget constraints<br>- Simple storage solutions | - Easy setup<br>. Low cost<br>- High performance                           | - Limited accessibility<br>- Limited scalability<br>- No central management and backup |
+| **NAS** | - File storage and sharing<br>- Big Data           | - Scalability<br>- Great accessibility<br>- Performance                    | - Increased LAN traffic<br>- Performance limitations<br>- Security and reliability     |
+| **SAN** | - DBMS<br>- Virtualized environments               | - Improved performance<br>- Greater scalability<br>- Improved availability | - Costs<br>- Complex setup and maintenance                                             |
+
+---
+
 ### Redundant Array of Independent Disks (RAID)
 
 **RAID** is a technique which allows to use multiple independent disks in concert to build a faster, bigger, and more reliable disk system. It is in contrast w.r.t. JBOD (Just a Bunch Of Disks) method, where each disk is a separate device with a different mount point.
