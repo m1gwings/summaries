@@ -343,6 +343,45 @@ One approach to reduce the costs of mapping is to only keep a pointer per _block
 
 In block-level mapping, the address mapping is less straightforward than the page-level case. Specifically, we think of the logical address space of the device as being chopped into chunks that are the size of the physical blocks within the flash. Thus, the logical block address consists of two portions: a chunk number and an offset. FTL computes the address of the desired flash page by adding the offset from the logical address to the physical address of the block, retrieved from the map through the chunk number.
 
+This mechanism makes clear the biggest issue of block mapping: small writes (i.e. writes of data smaller than a physical block in size). When we do a small write, since all the data in a logical chunk must stay in the same physical block, we need to copy the whole block into a new one, modifying only the desired pages. This can greatly degrade the performance.
+
+- **Hybrid Mapping**
+
+To enable flexible writing but also reduce mapping costs, many modern FTLs employ a **hybrid mapping** technique. With this approach, the FTL keeps a few blocks erased and directs all writes to them.
+
+---
+
+These are called **log blocks**. Because the FTL wants to be able to write any page to any location within the log block without all the copying required by a pure block-based mapping, it keeps _per-page_ mappings for these log blocks.
+The FTL has thus two types of mapping tables in its memory; a small set of _per-page_ mappings called _log table_, and a larger set of _per-block_ mappings called _data table_. When looking for a particular logical block, the FTL will first consult the log table; if the logical block's location is not found there, the FTL will then consult the data table to find its location and then access the requested data.
+
+- **Page mapping plus caching**
+
+Given the complexity of the hybrid approach above, others have suggested simpler ways to reduce the memory load of page-mapped FTLs. The simplest is just to cache only the active parts of the FTL in memory, thus reducing the amount of memory needed.
+This approach can work well, for example, if a given workload only accesses a small set of pages. Of course the approach can also perform poorly if memory cannot contain the working set.
+
+###### Wear leveling
+
+The basic log-structuring approach does a good initial job of spreading out write load, and garbage collection helps as well. However, sometimes a block will be filled with long-lived data that does not get over-written;
+
+---
+
+in this case, garbage collection will never reclaim the block, and thus it does not receive its fair share of write load. To remedy this problem, the FTL must periodically read all the live data out of such blocks and re-write it elsewhere, thus making the block available for writing again. This process of wear leveling increases the write amplification of the SSD, and thus decreases performance as extra I/O is required to ensure that all blocks wear at roughly the same rate.
+
+#### Comparison with HDDs
+
+We can measure the reliability of an SSD and compare it with HDDs through the following two metrics:
+- **Unrecoverable Bit Error Ratio** (**UBER**): it is the average number of data errors per bit read;
+- **TeraBytes Written** (**TBW**): it is the number of TiB that we can write to a drive while still meeting the requirements.
+
+If we were to plot the number of corrupted sectors over the number of full rewrites of the drive, we would observe that for HDD the growth of this quantity is linear. For SSD instead, at the beginning we have a flat line, which after a certain number of rewrites start growing very fast till it intersects and overtakes the HDD's curve.
+At this intersection point we can measure the TBW from the number of drive rewrites, and the UBER as the fraction of corrupted sectors.
+
+---
+
+Flash cells can accept data recording between 3,000 and 100,000 during their lifetime. Once the limit value is exceeded, the cell "forgets" any new data.
+A typical TBW for a 250 GB SSD is between 60 and 150 Terabytes of data written to the drive
+It is difficult to comment on the duration of SSDs, since it is influenced by many factors.
+
 ---
 
 ### Redundant Array of Independent Disks (RAID)
