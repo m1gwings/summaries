@@ -250,6 +250,101 @@ It is a variant of C-SCAN in which the head, instead of reaching the last sector
 
 ---
 
+### Solid State Drive (SSD)
+
+A **SSD** is a storage device which, unlike HDDs, has _NO mechanical or moving parts_.
+It is built out transistors, but retains information despite power loss (unlike RAM).
+A controller is included in the device with one or more solid state components.
+It uses traditional HDD interfaces (protocol and physical connectors) and form factors, but it has higher performance.
+
+#### Flash chips
+
+SSDs relies on **flash chips** (_more specifically_, NAND based flash chips)  which are designed to store one or more bits in a single transistor: the level of charge trapped in the transistor is mapped to a binary value.
+We can distinguish between:
+- **Single-level cell** (**SLC**): single bit per cell;
+- **Multi-level cell** (**MLC**): two bits per cell;
+- **Triple-level cell** (**TLC**): three bits per cell;
+- **QLC**, **PLC**, ... .
+
+Flash chips are organized into **banks** which consist of a large number of _cells_.
+A bank is accessed in two different sized units:
+- **blocks**, which are typically of size 128 KiB or 256 KiB, and
+
+---
+
+- **pages**, which are few KiB in size (e.g. 4 KiB).
+
+Within each bank there are a large number of blocks, within each block, there are a large number of pages (e.g. 64).
+
+**Remark**: block/page terminology in the SSD context clashes with the usual one.
+
+Given this flash organization, there are three low-level operations that a flash chip supports:
+- **Read <u>a page</u>**.
+
+- **Erase <u>a block</u>**: _before writing to a page within a flash, the nature of the device requires that you first **erase** the entire block the page lies within_. Erase destroys the contents of the block, _by setting each bit to 1_, therefore you must be sure that any data you care about in the block has been copied elsewhere before executing the erase.
+
+- **Program <u>a page</u>**: _once a block has been erased_, the program command can be used to change some of the 1s within a page to 0s, writing the desired content.
+
+In a flash chip _each page_ has a _state_ associated with it:
+- **INVALID**: is the initial state for each page;
+- **ERASED**: it is the state to which all pages in a block are set after such block has been erased; 
+- **VALID**: it is the state to which transitions and _ERASED_ page after it has been programmed.
+
+---
+
+**Remark**: we can restate what we explained earlier: it is possible to program only pages in the _ERASED_ state, and it makes sense to read only pages in the _VALID_ state.
+
+#### Flash Transition Layer (FTL)
+
+We want to understand how to run the flash chips that we've described into something that looks like a typical storage device. The standard storage interface is a simple block-based one, where (_logical_) blocks of size 512 B (for example) can be read or written, given a (_logical_) block address.
+The **task of the flash-based SSD** is to _provide_ that _standard block interface_ _atop the raw flash chips_ inside it. The **FTL** is responsible exactly of this functionality: it takes read and write requests on _logical blocks_ and turns them into low-level read, erase, and program commands of the underlying _physical blocks_ and _physical pages_.
+The FTL should accomplish this task with the goal of delivering excellent performance and high reliability.
+
+<div class="definition">
+
+In particular, one important goal is to reduce as possible **write amplification**, which is defined as the total write traffic (_in bytes_) issued to the flash chips by the FTL, divided by the total write traffic (_in bytes_) issued by the client to the SSD.
+
+</div>
+
+---
+
+The main concern for what regards reliability is **wear out**: when a flash block is erased and programmed, it slowly accumulates a little bit of extra charge; over time it becomes increasingly difficult to distinguish between 0 and 1 and the extra charge builds up.
+To handle this problem, FTL should try to spread writes across the blocks of the flash as evenly as possible, ensuring that all the blocks of the device wear out at roughly the same time. This is known as **wear leveling**.
+
+##### Log-structured FTL
+
+In order to minimize write amplification and wear out, today, most FTLs, are **log-structured FTLs**. They work as follows: upon a write to a logical block $N$, the device appends the write to the next free spot in _currently-being-written-to_ block; we call this _style of writing_ **logging**. To allow for subsequent reads of block $N$, the device keeps a **mapping table** (both in its memory and persistent, in some form, on the device); this table stores the physical address of each logical block in the system.
+
+This approach to FTL has still some problems.
+- The overwrites of logical blocks lead to **garbage** (_since we keep programming new pages without erasing the old blocks_). The device has to perform periodically **garbage collection** (**GC**) to find blocks that should be erased and free space for future writes.
+- In-memory mapping tables have an high cost which increases with the capacity of the device.
+
+---
+
+###### Garbage collection
+
+The basic GC process is simple: find a block that contains one or more garbage pages, read in the live (non-garbage) pages from that block, write out those live pages to the log, and (finally), reclaim the entire block for use in writing.
+
+Observe that GC can be expensive: its cost depends on the amount of data in the blocks that has to be migrated. To alleviate this problem usually SSDs are over-provisioned by adding extra flash capacity, which allows to delay cleaning, and GC is executed in background during less busy periods for the disk.
+
+Another problem of GC is that, in order to perform it efficiently, the SSD has to know which pages are invalid. The issue is that most file systems don't explicitly delete data, they just remove the corresponding meta-data. Indeed, as we anticipated, explicit deletion is inefficient for HDDs. This problem is solved by the introduction of a new storage API command: **trim**, which allows to specify that a contiguous set of _logical blocks_ have been deleted. This is useless for HDD, but, because of what we just explained, can significantly improve the efficiency of GC in SSDs since we don't have to copy useless pages.
+
+###### Mapping table size
+
+Observe that, in a 1 TiB SSD, with 4 KiB pages, a mapping table with one 4 B entry for page requires 1 GiB of space.
+
+---
+
+Hence, _page level mapping tables_ are _impractical_.
+
+- **Block Based Mapping**
+
+One approach to reduce the costs of mapping is to only keep a pointer per _block_ of the device, instead of per page, reducing the amount of mapping information.
+
+In block-level mapping, the address mapping is less straightforward than the page-level case. Specifically, we think of the logical address space of the device as being chopped into chunks that are the size of the physical blocks within the flash. Thus, the logical block address consists of two portions: a chunk number and an offset. FTL computes the address of the desired flash page by adding the offset from the logical address to the physical address of the block, retrieved from the map through the chunk number.
+
+---
+
 ### Redundant Array of Independent Disks (RAID)
 
 **RAID** is a technique which allows to use multiple independent disks in concert to build a faster, bigger, and more reliable disk system. It is in contrast w.r.t. JBOD (Just a Bunch Of Disks) method, where each disk is a separate device with a different mount point.
