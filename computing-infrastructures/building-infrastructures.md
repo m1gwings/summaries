@@ -112,3 +112,37 @@ Container-based data centers go one step beyond in-row cooling by placing the se
 
 ## Data-center power consumption
 
+Data-center power consumption is an _issue_, since it can reach several MWs.
+_Cooling_ usually requires about _half the energy_ required by the IT equipment (servers, network devices, and disks).
+Energy transformation also creates a large amount of energy waste.
+DCs consume ~3 % of the global electricity supply, produce ~2 % of total greenhouse gas emissions (same as worldwide air traffic pre-pandemic).
+
+An important metric to evaluate data-centers is the **Power Usage Effectiveness** (**PUE**), which is the ratio between the total amount of energy used by a DC facility and the energy delivered to the computing equipment:
+$$
+\text{PUE} = \frac{\text{total facility power}}{\text{IT equipment power}}.
+$$
+
+---
+
+An equivalent metric is the **Data-Center infrastructure Efficiency** (**DCiE**), which is the inverse of PUE:
+$$
+\text{DCiE} = \frac{1}{PUE}.
+$$
+
+## Data-center tiers
+
+The design of a data-center is often classified using a **system of four tiers**.
+
+| Tier level | Requirements |
+|---|---|
+| 1 | - Single, non redundant distribution path serving the IT equipment<br>- Non-redundant capacity (_power_, _cooling_) components<br>- Basic site infrastructure with expected availability of 99.671 %  |
+| <br> | |
+| 2 | - Meets or exceeds all tier 1 requirements<br>- Redundant site infrastructure capacity components with expected availability of 99.741 % |
+
+---
+
+| Tier level | Requirements |
+|---|---|
+| 3 | - Meets or exceeds all tier 2 requirements<br>- Multiple distribution paths serving the IT equipment<br>- All IT equipment must be dual-powered and fully compatible with the topology of a site's architecture<br>- Concurrently maintainable site infrastructure with expected availability of 99.982 % |
+| <br> | |
+| 4 | - Meets or exceeds all tier 3 requirements<br>- All cooling equipment is independently dual-powered, including chillers and heating, ventilating and air-conditioning (HVAC) systems<br>- Fault-tolerant site infrastructure with electrical power storage and distribution facilities with expected availability of 99.995 % |
