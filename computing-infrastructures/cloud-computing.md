@@ -141,4 +141,22 @@ Hybrid clouds are the combination of any of the previous types. Usually this sol
 
 ## From cloud to edge and fog computing
 
-Resume...
+Cloud computing has _several advantages_:
+- lower IT costs;
+- improved performance;
+- (almost) instant software updates;
+- (virtually) unlimited storage capacity;
+- increased reliability;
+
+---
+
+- universal document access;
+- device independence.
+
+But it suffers also different _disadvantages_:
+- it requires a constant internet connection;
+- does not work well with low-speed connections;
+- the latency is too high for real time applications;
+- stored data _might_ not be secure.
+
+Furthermore, in the last years, the number of IoT devices is increasing more and more, thus producing larger and larger amount of data. Processing the data through cloud computing is usually infeasible: the bottleneck is due to sending and receiving the data to and from the WSC. Also, it is usually the case that IoT devices are employed in real time applications, where the latency of the cloud in unacceptable. A new computing paradigm has been proposed with the aim of solving these issues: **edge computing**. In edge computing the computation happens at the _edge_, that is, near where the data is generated.
