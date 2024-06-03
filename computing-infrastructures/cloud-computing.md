@@ -160,3 +160,58 @@ But it suffers also different _disadvantages_:
 - stored data _might_ not be secure.
 
 Furthermore, in the last years, the number of IoT devices is increasing more and more, thus producing larger and larger amount of data. Processing the data through cloud computing is usually infeasible: the bottleneck is due to sending and receiving the data to and from the WSC. Also, it is usually the case that IoT devices are employed in real time applications, where the latency of the cloud in unacceptable. A new computing paradigm has been proposed with the aim of solving these issues: **edge computing**. In edge computing the computation happens at the _edge_, that is, near where the data is generated.
+
+## ML-as-a-Service
+
+We can abstract the full stack of a ML solution (as for every other software solution) in 3 main layers:
+1. **AI application**;
+2. **AI platform**;
+3. **AI hardware**.
+
+---
+
+Here we're going to focus on how to implement these abstract layers in the cloud computing paradigm (i.e. inside a WSC).
+Indeed cloud computing simplifies the access to ML capabilities for:
+- **designing a solution** (_without requiring a deep knowledge of ML_);
+- **setting up a project** (_managing demand increases and IT solutions_).
+
+There are cloud computing off-the-shelf components which offer entire **ML solutions**, **ML platforms**, or **ML infrastructures** (HW, and libraries).
+
+Inside a WSC, the AI platform and AI hardware abstractions can be decomposed further in 4 layers:
+1. **Machine/Deep Learning framework**;
+2. **Computing framework**;
+3. **Virtual Machine manager**;
+4. **Computing cluster**.
+
+### Computing cluster
+
+The **computing cluster** is constituted by:
+- **servers** equipped with general purpose CPUs, plus hardware accelerators like GPUs or TPUs;
+- **storage devices** including DAS, NAS, and SAN;
+- **network devices**.
+
+---
+
+### Virtual Machine manager
+
+**Virtualization** is carried out through hypervisors (VMs) or containers.
+The resources can be scaled elastically, as usual in cloud computing, by adding or reducing the number of VMs/containers instanced. Furthermore, users can design personalized software environments.
+
+### Computing framework
+
+**Computing Frameworks** are composed by several modules:
+- cluster manager;
+- data storage manager;
+- data processing engine;
+- graph computation engine;
+- programming languages.
+
+An application operating in a cluster is distributed among different computing (virtual) machines.
+
+### Machine/Deep Learning framework
+
+**Machine learning frameworks** cover a variety of learning methods for classification, regression, clustering, anomaly detection, and data preparation, and they may or may not include neural network methods.
+
+---
+
+**Deep learning frameworks** are specifically tailored for neural networks methods: they cover a variety of neural network topologies with many hidden layers.
