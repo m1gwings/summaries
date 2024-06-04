@@ -85,7 +85,7 @@ $$
 
 - **Proof**: maybe one day, I don't know calculus of variations YET! (: D)
 
-**Important remark**: even though we want to minimize the expected loss $\mathbb{E}[L]$, we can't compute it. Indeed, in order to compute $\mathbb{E}[L]$, we need to know $p(\underline{x}, t)$. But, if we knew $p(\underline{x}, t)$ the problem would be solved: we know the analytic expression of the function that minimizes the expected loss for a given loss function (according to the previous theorems), and we can compute it from $p(\underline{x}, t)$. Indeed, in ML problems, $p(\underline{x}, t)$ is never known. The only thing that we can do is try to estimate the expected loss of a given model from the available training data-set. Usually we look for the model in the chosen hypothesis space that minimizes such estimate. Anyway, we've to always keep in mind that what we're minimizing is an empirical estimate, but what we want to minimize is the (_ideal_) expected loss. The two things does not necessarily coincide (of course), and this mismatch is the core problem with which ML has to deal.
+**Important remark**: even though we want to minimize the expected loss $\mathbb{E}[L]$, we can't compute it. Indeed, in order to compute $\mathbb{E}[L]$, we need to know $p(\underline{x}, t)$. But, if we knew $p(\underline{x}, t)$ the problem would be solved: we know the analytic expression of the function that minimizes the expected loss for a given loss function (according to the previous theorems), and we can compute it from $p(\underline{x}, t)$. Indeed, in ML problems, $p(\underline{x}, t)$ is never known. The only thing that we can do is try to estimate the expected loss of a given model from the available training data-set. Usually we look for the model in the chosen hypothesis space that minimizes such estimate. Anyway, we've to always keep in mind that what we're minimizing is an empirical estimate, but what we want to minimize is the (_ideal_) expected loss. The two minimizations do not necessarily coincide (of course), and this mismatch is the core problem with which ML has to deal.
 
 The last theorems and the remark allow us to characterize three **different approaches to regression**.
 
@@ -110,7 +110,7 @@ Once we have fixed an hypothesis space $\mathcal{H}$, which for linear models co
 $$
 L(\underline{w}) = \frac{1}{2} \sum_{n=1}^N (y(\underline{x}_n, \underline{w}) - t_n)^2
 $$
-where $\mathcal{D} = \{ (\underline{x}_1, t_1), \ldots, (\underline{x}_n, t_n) \}$ is the given training set. (_The \frac{1}{2} factor, as every other multiplicative positive constant, does not alter the set of minima of $L(\underline{w})$; it is there only for convenience in the expressions that we're going to derive_).
+where $\mathcal{D} = \{ (\underline{x}_1, t_1), \ldots, (\underline{x}_n, t_n) \}$ is the given training set. (_The $\frac{1}{2}$ factor, as every other multiplicative positive constant, does not alter the set of minima of $L(\underline{w})$; it is there only for convenience in the expressions that we're going to derive_).
 
 - We define **Residual Sum of Squares** the quantity:
 $$
@@ -154,16 +154,239 @@ Hence $L$ is convex, this implies that a NS condition for optimality is $\nabla_
 
 We know that $r(\Phi^T \Phi) = r(\Phi)$ (_see NAML summaries_), hence $\Phi^T \Phi$ is full rank iff the columns of $\Phi$ are linearly independent, or, in other words (_take a look at the structure of $\Phi$_) the chosen features are linearly independent. Hence it is reasonable to require that $\Phi^T \Phi$ is full rank.
 
-We're ready to determine the minimizer of $L(\underline{w})$: $\underline{w}_{\text{OLS}}$ (_where OLS stands for Ordinary Least Squares_).
+We're ready to determine the minimizer of $L(\underline{w})$: $\underline{\hat{w}}_{\text{OLS}}$ (_where OLS stands for Ordinary Least Squares_).
 
 ---
 
 $$
-\nabla_{\underline{w}} L(\underline{w}_{\text{OLS}}) = \underline{0} \text{ iff } - \Phi^T(\underline{t} - \Phi \underline{w}_{\text{OLS}}) = \underline{0} \text{ iff } \Phi^T \Phi \underline{w}_{\text{OLS}} = \Phi^T \underline{t} \text{ iff}
+\nabla_{\underline{w}} L(\underline{\hat{w}}_{\text{OLS}}) = \underline{0} \text{ iff } - \Phi^T(\underline{t} - \Phi \underline{\hat{w}}_{\text{OLS}}) = \underline{0} \text{ iff } \Phi^T \Phi \underline{\hat{w}}_{\text{OLS}} = \Phi^T \underline{t} \text{ iff}
 $$
 
 $$
-\underline{w}_{\text{OLS}} = (\Phi^T \Phi)^{-1} \Phi^T \underline{t}.
+\underline{\hat{w}}_{\text{OLS}} = (\Phi^T \Phi)^{-1} \Phi^T \underline{t}.
 $$
 
-Resume from gradient optimization...
+### Sequential update
+
+The matrix $(\Phi^T \Phi)^{-1} \Phi^T$ is known as **pseudo-inverse** (_see NAML summaries, remember that the columns of $\Phi$ are assumed to be linearly independent_), it can be computed efficiently in $O(N M^2)$ through QR factorization, then, the final product with $\underline{t}$ has a cost of $O(N M)$.
+If $N$ or $M$ are too large, the _closed-form_ solution is not practical.
+We can use **sequential** updates, in particular, we can apply **Stochastic Gradient Descent** (**SGD**). In particular, let:
+$$
+L_n(\underline{w}) = \frac{1}{2} (t_n - y(\underline{x}_n, \underline{w}))^2 = \frac{1}{2} (t_n - \underline{\phi}^T(\underline{x}_n) \underline{w})^2 \text{ for } n \in \{ 1, \ldots, N \}.
+$$
+Then: $L(\underline{w}) = \sum_{n=1}^N L_n(\underline{w})$. Now that we have decomposed $L(\underline{w})$ as a sum of losses, one per sample, we can apply the usual SGD update rule:
+$$
+\underline{w}^{(k+1)} = \underline{w}^{(k)} - \alpha^{(k)} \nabla L_n(\underline{w}^{(k)})
+$$
+where $n$ is sampled uniformly (with replacement) from $\{ 1, \ldots, N \}$ at each iteration.
+In particular:
+$$
+\nabla L_n(\underline{w}) = (\underline{\phi}^T(\underline{x}_n) \underline{w} - t_n) \underline{\phi}(\underline{x_n}).
+$$
+To have a convergence guarantee, the sequence of learning rates has to satisfy:
+$$
+\sum_{k=0}^{+ \infty} \alpha^{(k)} = + \infty, \sum_{k=0}^{+ \infty} \left(\alpha^{(k)}\right)^2 < + \infty.
+$$
+
+### Geometric interpretation
+
+[_Important: take a look at NAML summaries on least squares for an explanation of the geometric intuition_].
+$\underline{\hat{t}} = \Phi (\Phi^T \Phi)^{-1} \Phi^T \underline{t}$ is the orthogonal projection of $\underline{t}$ onto $C(\Phi)$. The matrix $H = \Phi (\Phi^T \Phi)^{-1} \Phi^T$ is called the **hat matrix**.
+
+### Maximum-Likelihood (ML) interpretation
+
+It is possible to give a statistical meaning to the least squares approach. Suppose that:
+$$
+t = f(\underline{x}) + \epsilon
+$$
+where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ and $f(\underline{x}) = \underline{\phi}(\underline{x})^T \underline{w}^\circ$ for some "_true_" parameters $\underline{w}^\circ$.
+We're given $N$ **independent and identically distributed** (**iid**) samples with inputs $\mathbf{X} = \{ \underline{x}_1, \ldots, \underline{x}_n \}$ and outputs $\underline{t} = \begin{bmatrix} t_1 & \cdots & t_N \end{bmatrix}^T$.
+
+---
+
+Hence, for fixed parameters $\underline{w}$, the **likelihood** of the observed data is:
+$$
+p(\underline{t} | \mathbf{X}, \underline{w}, \sigma^2) = \prod_{n=1}^N \mathcal{N}(t_n | \underline{\phi}^T(\underline{x}_n) \underline{w}, \sigma^2).
+$$
+
+As in the usual _maximum likelihood_ approach, we can obtain an estimate of the "_true_" parameters $\underline{w}^\circ$ by finding the parameters $\underline{\hat{w}}_{\text{ML}}$ which maximizes the likelihood.
+Equivalently, since the $\ln$ function is strictly increasing and the likelihood is positive, we can maximize the _log-likelihood_:
+$$
+l(\underline{w}) = \ln p(\underline{t} | \mathbf{X}, \underline{w}, \sigma^2) =  \sum_{n=1}^N \left[ \ln \frac{1}{\sqrt{2 \pi \sigma^2}} - \frac{(t_n - \underline{\phi}^T(\underline{x}_n) \underline{w})^2}{2 \sigma^2} \right] = - \frac{N}{2} \ln(2\pi \sigma^2) - \frac{1}{2 \sigma^2} \text{RSS}(\underline{w})^2.
+$$
+It follows that, since $\underline{\hat{w}}_{\text{OLS}}$ minimizes $\text{RSS}(\underline{w})$, it maximizes the _log-likelihood_ (and the _likelihood_). Hence:
+$$
+\underline{\hat{w}}_{\text{ML}} = \underline{\hat{w}}_{\text{OLS}} \text{.}
+$$
+In this setting we can also compute the variance of the least squares estimate (_for fixed input_):
+$$
+\mathbb{V}\text{ar}[\underline{\hat{w}}_{\text{OLS}} | \mathbf{X}] = \mathbb{V}\text{ar}[(\Phi^T \Phi)^{-1} \Phi^T \underline{t} | \mathbf{X}] = (\Phi^T \Phi)^{-1} \Phi^T \mathbb{V}\text{ar}[\underline{t} | \mathbf{X}] \Phi (\Phi^T \Phi)^{-1} =
+$$
+$$
+= (\Phi^T \Phi)^{-1} \Phi^T \sigma^2 I_N \Phi (\Phi^T \Phi)^{-1} = \sigma^2 (\Phi^T \Phi)^{-1}.
+$$
+
+Observe that the "_true_" variance $\sigma^2$ is usually unknown. Anyways it is possible to build an unbiased estimate for it.
+
+> Let $\underline{\varepsilon}_{\text{OLS}} = \underline{t} - \Phi \underline{\hat{w}}_{\text{OLS}} = \underline{t} - \Phi (\Phi^T \Phi)^{-1} \Phi^T \underline{t} = G \underline{t}$ with $G = I_N - \Phi (\Phi^T \Phi)^{-1} \Phi^T$. $\underline{\varepsilon}_{\text{OLS}}$ is a random vector obtained from $\underline{t}$.
+Observe that: $G \Phi = O_N$. Remember that $\underline{t} = \Phi \underline{w}^\circ + \underline{\epsilon}$. It follows that: $\underline{\varepsilon}_{\text{OLS}} = G \underline{t} = G \Phi \underline{w}^\circ + G \underline{\epsilon} = \underline{0}_N + G \underline{\epsilon} = G \underline{\epsilon}$.
+Hence:
+$$
+\mathbb{E}[\underline{\varepsilon}_{\text{OLS}}] = G \mathbb{E}[\underline{\epsilon}] = G \underline{0}_N = \underline{0}_N.
+$$
+> Then:
+$$
+\mathbb{V}\text{ar}[\underline{\varepsilon}_{\text{OLS}}] = \mathbb{E}[\underline{\varepsilon}_{\text{OLS}} \underline{\varepsilon}_{\text{OLS}}^T] = G \mathbb{E}[\underline{\epsilon} \underline{\epsilon}^T] G^T = G \mathbb{V}\text{ar}[\underline{\epsilon}] G^T = G \sigma^2 I_N G^T = \sigma^2 G G^T.
+$$
+> Let's work on the expression of $G G^T$:
+$$
+G G^T = (I - \Phi (\Phi^T \Phi)^{-1} \Phi^T) (I - \Phi (\Phi^T \Phi)^{-1} \Phi^T) = I - 2 \Phi (\Phi^T \Phi)^{-1} \Phi^T + \Phi (\Phi^T \Phi)^{-1} \Phi^T =
+$$
+$$
+= I - \Phi (\Phi^T \Phi)^{-1} \Phi^T = G.
+$$
+> Hence:
+$$
+\mathbb{V}\text{ar}[\underline{\varepsilon}_{\text{OLS}}] = \sigma^2 G.
+$$
+
+---
+
+> Now let
+$$
+\hat{\sigma}^2 = \frac{1}{N-M} \text{tr}[\underline{\varepsilon}_{\text{OLS}} \underline{\varepsilon}_{\text{OLS}}^T].
+$$
+> Then, remembering that the trace is cyclic:
+$$
+\mathbb{E}[\hat{\sigma}^2] = \frac{1}{N-M} \text{tr} \mathbb{E}[\underline{\varepsilon}_{\text{OLS}} \underline{\varepsilon}_{\text{OLS}}^T] = \frac{1}{N-M} \text{tr} \sigma^2 G = \frac{1}{N-M} \sigma^2 [\text{tr} I_N - \text{tr} (\Phi (\Phi^T \Phi)^{-1} \Phi^T) ] =
+$$
+
+$$
+= \frac{1}{N-M} \sigma^2[\text{tr}I_N - \text{tr}((\Phi^T \Phi)^{-1} \Phi^T \Phi)] = \frac{1}{N-M} \sigma^2[\text{tr}I_N - \text{tr}I_M]= \frac{1}{N-M} \sigma^2 (N-M) = \sigma^2.
+$$
+> That is, $\hat{\sigma}^2$ is an **unbiased estimator** of $\sigma^2$.
+Finally, observe that:
+$$
+\hat{\sigma}^2 = \frac{1}{N-M} \sum_{n=1}^N \varepsilon_{\text{OLS},n}^2 = \frac{1}{N-M} \sum_{n=1}^N (t_n - \underline{\phi}^T(\underline{x}_n) \underline{\hat{w}}_{\text{OLS}})^2.
+$$
+
+### Gauss-Markov theorem
+
+The least squares estimate has other interesting properties.
+
+- **Gauss-Markov theorem**: the least squares estimate of $\underline{w}$ has the **smallest variance** among all linear **unbiased** estimates.
+
+This result implies that the least square estimator has the **lowest MSE** of all linear estimator with **no bias**. However, there may exist a **biased** estimator with **smaller MSE**. [_Remember that $\text{MSE } = \text{variance of the estimator} + \text{ bias of the estimator}^2$_].
+
+### Multiple outputs
+
+Let us now consider the case of **multiple outputs**. We could use a **different** set of basis functions for each output, thus having **independent** regression problems. Usually, a **single** set of basis functions is considered.
+For each output $t_k$ we have:
+$$
+\underline{\hat{w}}_{\text{OLS},k} = (\Phi^T \Phi)^{-1} \Phi^T \underline{t}_k
+$$
+where $\underline{t}_k$ is an $N$-dimensional vector.
+We can arrange the parameters for each output in a matrix:
+$$
+\hat{\mathbf{W}}_{\text{OLS}} = \begin{bmatrix} \underline{\hat{w}}_{\text{OLS},1} & \cdots & \underline{\hat{w}}_{\text{OLS},K} \end{bmatrix} = \begin{bmatrix} (\Phi^T \Phi)^{-1} \Phi^T \underline{t}_1 & \cdots & (\Phi^T \Phi)^{-1} \Phi^T \underline{t}_K \end{bmatrix} = (\Phi^T \Phi)^{-1} \Phi^T \mathbf{T}
+$$
+where $\mathbf{T} = \begin{bmatrix} \underline{t}_1 & \cdots & \underline{t}_K \end{bmatrix}$.
+
+Observe that the pseudo-inverse has to be computed only once.
+
+---
+
+### Under-fitting vs Over-fitting
+
+Imagine to apply linear regression to a synthetic dataset where $f$ is a sinusoidal function and $\epsilon$ is a gaussian noise. We're in the perfect framework for applying least squares. Furthermore, suppose that we choose as basis functions $\phi_i(x) = x^{i-1}$ for all $i \in \{ 1, \ldots, M \}$. That is, we want to fit a polynomial of degree $M-1$ to the data.
+
+What we would observe is that, for small values of $M$, we would have a large training error, which keeps decreasing until reaching 0 for $M = N$ if we assume that there are no two points with the same $x$ coordinate.
+
+Now, if we were to test the OLS model obtained for every considered value of $M$ on a different dataset generated from the same distribution, we will observe that both the models with very small (close to 0) and very large (close to $N$) values of $M$ would perform poorly. These phenomena have a name.
+
+- In the first case ($M$ close to 0) we have **under-fitting**: the model is "_too-simple_" to explain the data generating mechanism;
+- in the second case ($M$ close to $N$) we have **over-fitting**: the model is too complex, we're learning the values of the noise together with $f$.
+
+The best value of $M$ falls between these two extrema: finding it requires _model selection_ (which we will tackle later).
+
+Observe that it is not weird that these phenomena happen: as we remarked at the beginning, we're minimizing an empirical loss while our aim is to minimize the ideal loss.
+
+### Regularization
+
+One way to improve the generalization capabilities of the learned model, other than decreasing the model family complexity, is to adopt regularization techniques.
+Regularization techniques consist in modifying the loss function in order to account for the "_complexity_" of the model:
+$$
+L(\underline{w}) = L_D(\underline{w}) + \lambda L_W(\underline{w})
+$$
+where $L_D$ accounts for the error on the training set, and $L_W$ instead tries to measure the model complexity. $\lambda \geq 0$ is an hyperparameter which allows to tune the strength of the regularization.
+
+#### Ridge regression
+
+One of the most common regularization techniques is **Ridge regression** in which:
+- $L_D(\underline{w}) = \frac{1}{2} \text{RSS}(\underline{w})$;
+- $L_W(\underline{w}) = \frac{1}{2} ||\underline{w}||_2^2$.
+
+---
+
+Observe that it is still possible to compute the minimizer of $L(\underline{w})$ analytically.
+
+$$
+\nabla_{\underline{w}} L(\underline{w}) = \frac{1}{2} \nabla_{\underline{w}} \text{RSS}(\underline{w}) + \lambda \underline{w} = - \Phi^T (\underline{t} - \Phi \underline{w}) + \lambda \underline{w} = (\lambda I_M  + \Phi^T \Phi) \underline{w} - \Phi^T \underline{t}.
+$$
+
+Then:
+$$
+\nabla_{\underline{w}\underline{w}}^2 L(\underline{w}) = \lambda I_M + \Phi^T \Phi \succ O \text{ if } \lambda > 0.
+$$
+
+Hence, the problem is strictly convex and we can find the minimizer by imposing:
+$$
+\nabla_{\underline{w}} L(\underline{\hat{w}}_{\text{ridge}}) = (\lambda I_M + \Phi^T \Phi) \underline{\hat{w}}_{\text{ridge}} - \Phi^T \underline{t} = \underline{0}_M.
+$$
+That is:
+$$
+\underline{\hat{w}}_{\text{ridge}} = (\lambda I_M + \Phi^T \Phi)^{-1} \Phi^T \underline{t}.
+$$
+
+#### Least Absolute Shrinkage and Selection Operator (LASSO)
+
+Another popular regularization method is **LASSO** in which:
+- $L_D(\underline{w}) = \frac{1}{2} \text{RSS}(\underline{w})$;
+- $L_W(\underline{w}) = \frac{1}{2}||\underline{w}||_1$.
+
+The LASSO estimate has **no closed-form**, we need to rely on iterative optimization techniques.
+
+Maybe the _most important property_ of LASSO regularization, is that it yields sparse models.
+Let's try to understand why. It is possible to show that, for every continuously differentiable convex objective function $f$, there exist values of $\lambda$ and $t$ s.t. the two following optimization problems are equivalent:
+$$
+\min f(\underline{w}) + \frac{\lambda}{2}||\underline{w}||_1 \ (1)
+$$
+and:
+$$
+\min f(\underline{w}) \ (2)
+$$
+$$
+\text{s.t.}
+$$
+$$
+||\underline{w}||_1 \leq t \text{.}
+$$
+
+In particular it is easy to show that, for a fixed value of $\lambda$, it is possible to find a $t$ s.t. the optimal solution to $(1)$ is an optimal solution to $(2)$. The converse is more difficult, doing it formally requires KTT conditions in sub-gradient form + other properties of sub-gradients.
+Fortunately to understand why LASSO yields to sparsity it is sufficient the "first direction". So, let's prove the statement.
+
+Let $\underline{w}_1^*$ be an optimal solution of $(1)$. Let $t = ||\underline{w}_1^*||_1$. Let $\underline{w}_2^*$ be an optimal solution of $(2)$ for the chosen $t$.
+
+---
+
+By the optimality of $\underline{w}_1^*$: $f(\underline{w}_1^*) + \frac{\lambda}{2}||\underline{w}_1^*||_1 \leq f(\underline{w}_2^*) + \frac{\lambda}{2}||\underline{w}_2^*||_1$.
+By the optimality of $\underline{w}_2^*$, since $\underline{w}_1^*$ is feasible for $(2)$, then: $f(\underline{w}_2^*) \leq f(\underline{w}_1^*)$.
+By the feasibility of $\underline{w}_2^*$: $||\underline{w}_2^*||_1 \leq t = ||\underline{w}_1^*||_1$.
+Hence: $\frac{\lambda}{2}(||\underline{w}_2^*||_1 - ||\underline{w}_1^*||_1) \geq f(\underline{w}_1^*) - f(\underline{w}_2^*) \geq 0$ iff ($\lambda > 0$) $||\underline{w}_2^*||_1 \geq ||\underline{w}_1^*||_1$.
+Then it must be: $||\underline{w}_2^*||_1 = ||\underline{w}_1^*||_1$.
+Hence, since $f(\underline{w}_1^*) + \frac{\lambda}{2}||\underline{w}_1^*||_1 \leq f(\underline{w}_2^*) + \frac{\lambda}{2}||\underline{w}_2^*||_1$, $f(\underline{w}_2^*) \leq f(\underline{w}_1^*)$, and $||\underline{w}_2^*||_1 = ||\underline{w}_1^*||_1$, it must be $f(\underline{w}_1^*) = f(\underline{w}_2^*)$. That is, $\underline{w}_1^*$ is an optimal solution for $(2)$.
+
+<p align="center">
+    <img src="static/lasso-favors-sparsity.svg"
+    width="300mm" />
+</p>
