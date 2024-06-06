@@ -298,7 +298,7 @@ Observe that the pseudo-inverse has to be computed only once.
 
 ### Under-fitting vs Over-fitting
 
-Imagine to apply linear regression to a synthetic dataset where $f$ is a sinusoidal function and $\epsilon$ is a gaussian noise. We're in the perfect framework for applying least squares. Furthermore, suppose that we choose as basis functions $\phi_i(x) = x^{i-1}$ for all $i \in \{ 1, \ldots, M \}$. That is, we want to fit a polynomial of degree $M-1$ to the data.
+Imagine to apply linear regression to a synthetic dataset where $f$ is a sinusoidal function and $\epsilon$ is a Gaussian noise. We're in the perfect framework for applying least squares. Furthermore, suppose that we choose as basis functions $\phi_i(x) = x^{i-1}$ for all $i \in \{ 1, \ldots, M \}$. That is, we want to fit a polynomial of degree $M-1$ to the data.
 
 What we would observe is that, for small values of $M$, we would have a large training error, which keeps decreasing until reaching 0 for $M = N$ if we assume that there are no two points with the same $x$ coordinate.
 
@@ -313,7 +313,7 @@ Observe that it is not weird that these phenomena happen: as we remarked at the 
 
 ### Regularization
 
-One way to improve the generalization capabilities of the learned model, other than decreasing the model family complexity, is to adopt regularization techniques.
+One way to improve the generalization capabilities of the learned model, other than decreasing the model family "_expressivity_", is to adopt regularization techniques.
 Regularization techniques consist in modifying the loss function in order to account for the "_complexity_" of the model:
 $$
 L(\underline{w}) = L_D(\underline{w}) + \lambda L_W(\underline{w})
@@ -373,7 +373,7 @@ $$
 $$
 
 In particular it is easy to show that, for a fixed value of $\lambda$, it is possible to find a $t$ s.t. the optimal solution to $(1)$ is an optimal solution to $(2)$. The converse is more difficult, doing it formally requires KTT conditions in sub-gradient form + other properties of sub-gradients.
-Fortunately to understand why LASSO yields to sparsity it is sufficient the "first direction". So, let's prove the statement.
+Fortunately to have a clue of why LASSO yields to sparsity it is sufficient the "first direction". So, let's prove the statement.
 
 Let $\underline{w}_1^*$ be an optimal solution of $(1)$. Let $t = ||\underline{w}_1^*||_1$. Let $\underline{w}_2^*$ be an optimal solution of $(2)$ for the chosen $t$.
 
@@ -384,9 +384,143 @@ By the optimality of $\underline{w}_2^*$, since $\underline{w}_1^*$ is feasible 
 By the feasibility of $\underline{w}_2^*$: $||\underline{w}_2^*||_1 \leq t = ||\underline{w}_1^*||_1$.
 Hence: $\frac{\lambda}{2}(||\underline{w}_2^*||_1 - ||\underline{w}_1^*||_1) \geq f(\underline{w}_1^*) - f(\underline{w}_2^*) \geq 0$ iff ($\lambda > 0$) $||\underline{w}_2^*||_1 \geq ||\underline{w}_1^*||_1$.
 Then it must be: $||\underline{w}_2^*||_1 = ||\underline{w}_1^*||_1$.
-Hence, since $f(\underline{w}_1^*) + \frac{\lambda}{2}||\underline{w}_1^*||_1 \leq f(\underline{w}_2^*) + \frac{\lambda}{2}||\underline{w}_2^*||_1$, $f(\underline{w}_2^*) \leq f(\underline{w}_1^*)$, and $||\underline{w}_2^*||_1 = ||\underline{w}_1^*||_1$, it must be $f(\underline{w}_1^*) = f(\underline{w}_2^*)$. That is, $\underline{w}_1^*$ is an optimal solution for $(2)$.
+Hence, since $f(\underline{w}_1^*) + \frac{\lambda}{2}||\underline{w}_1^*||_1 \leq f(\underline{w}_2^*) + \frac{\lambda}{2}||\underline{w}_2^*||_1$, $f(\underline{w}_2^*) \leq f(\underline{w}_1^*)$, and $||\underline{w}_2^*||_1 = ||\underline{w}_1^*||_1$, it must be $f(\underline{w}_1^*) = f(\underline{w}_2^*)$. That is, $\underline{w}_1^*$ is an optimal solution for $(2)$ as we wanted to prove.
+
+Now, suppose that $f$ is a quadratic strictly convex function whose matrix has equal eigenvalues: its level curves are circles. The picture below plots the level curves of $f$ and the feasibility region of the equivalent constrained optimization problem $(2)$ in red.
+By observing the picture, it is clear that, if the global minimum of $f$ is outside of the yellow region, then the optimum of $(2)$ is a vertex of the feasibility region. Indeed, in this setting the value of $f$ is proportional to the squared euclidean distance of the input point from the global minimum of $f$, and, if we're outside of the yellow area, to reach any point different from the vertex closest to the global minimum, we need to increase one of the legs of the highlighted right triangle, thus increasing the value of $f$ because of Pythagorean theorem. 
+Finally, we need to observe that the vertices of the feasibility region of $(2)$ are sparse (one of the two coordinates is 0) and that, especially as the feasibility region of $(2)$ gets smaller, "it's more likely for the global minimum of $f$ to be outside of the yellow region than inside".
 
 <p align="center">
     <img src="static/lasso-favors-sparsity.svg"
     width="300mm" />
 </p>
+
+In the lasso setting $f$ is quadratic and strictly convex (assuming linearly independent features), but the eigenvalues are not necessarily equal. The level curves of $f$ become some ellipses and thus also the shape of the yellow area changes accordingly.
+
+---
+
+Anyways it is possible to generalize the previous argument to elliptical level curves by showing that the "yellow area is still tiny", but it requires to do some math that unfortunately I have no time for (: ( ).
+
+## Bayesian approach
+### The Bayesian approach in general
+
+Let's start by discussing the **Bayesian approach** in general.
+In a Bayesian approach we formulate our knowledge about the world in a **probabilistic way**:
+- we define the **model** that expresses our knowledge **qualitatively**;
+- our model will have some **unknown parameters**;
+- we capture our assumptions about unknown parameters by specifying the **prior distribution** over those parameters before seeing the data.
+
+Every time we **observe some data**, we update the posterior probability distribution over the parameters, given the observed data. Finally, we can use the posterior distribution to:
+- **make predictions**;
+- **examine/account for uncertainty** in the parameter values;
+- **make decisions** by minimizing expected posterior loss.
+
+The **posterior distribution** for the model parameters can be **found** by combining the **prior with the likelihood** for the parameters given the data.
+This is accomplished using **Bayes' rule**:
+$$
+p(\underline{w}|\mathcal{D}) = \frac{p(\mathcal{D}|\underline{w}) p(\underline{w})}{p(\mathcal{D})}
+$$
+where:
+- $p(\underline{w}|\mathcal{D})$ is the **posterior** probability of parameters $\underline{w}$ given the training data $\mathcal{D}$;
+- $p(\mathcal{D}|\underline{w})$ is the probability (**likelihood**) of observing $\mathcal{D}$ given $\underline{w}$;
+- $p(\underline{w})$ is the **prior** probability over the parameters;
+- $p(\mathcal{D})$ is the marginal likelihood, indeed, since $p(\underline{w}|\mathcal{D})$ is a probability distribution:
+$$
+1 = \int p(\underline{w}|\mathcal{D}) d\underline{w} = \int \frac{p(\mathcal{D}|\underline{w})p(\underline{w})}{p(\mathcal{D})} d\underline{w} \text{ iff } p(\mathcal{D}) = \int p(\mathcal{D}|\underline{w}) p(\underline{w}) d\underline{w}.
+$$
+> Hence we can compute it once we know the likelihood and the prior.
+
+To make prediction we can adopt the **Maximum A Posteriori** (**MAP**) approach: we take the value of $\underline{w}$ most likely according to the posterior, i.e. the _mode_.
+
+---
+
+### Refresh on some properties of Gaussian vectors
+
+Let's state some properties of Gaussian vectors which will be useful in a moment.
+
+- **Theorem**: given a marginal Gaussian distribution for $\underline{x}$ and a conditional Gaussian distribution for $\underline{y}$ given $\underline{x}$ in the form:
+> - $p(\underline{x}) = \mathcal{N}(\underline{x}|\underline{\mu}, \Lambda^{-1})$;
+> - $p(\underline{y}|\underline{x}) = \mathcal{N}(\underline{y}|A \underline{x} + \underline{b}, L^{-1});$
+
+> the marginal distribution of $\underline{y}$ and the conditional distribution of $\underline{x}$ given $\underline{y}$ are given by:
+
+> - $(A) \ \ \ p(\underline{y}) = \mathcal{N}(\underline{y}|A \underline{\mu} + \underline{b}, L^{-1} + A \Lambda^{-1} A^T)$;
+> - $(B) \ \ \ p(\underline{x}|\underline{y}) = \mathcal{N}(\underline{x}|\Sigma[A^T L (\underline{y} - \underline{b}) + \Lambda \underline{\mu}], \Sigma)$
+
+> where $\Sigma = (\Lambda + A^T L A)^{-1}$.
+
+### Bayesian approach to linear regression
+
+**Bayesian approach** provides another way of dealing with the **over-fitting** problem in ML.
+In particular, as discussed in the general setting, we assume that the parameters of our linear model are drawn by some distribution.
+It is usual to choose the prior and likelihood distributions so that they are **conjugate priors**, that is, we want the posterior, obtained by multiplying the prior with the likelihood and then normalizing, to be of the same family of the prior, so that we can iterate this process by taking the posterior as the new prior.
+A **Gaussian** prior and likelihood are conjugate priors, we will exploit this family.
+Hence, we can set the **prior** as:
+$$
+p(\underline{w}) = \mathcal{N}(\underline{w}|\underline{w}_0, S_0).
+$$
+Given the data $\mathcal{D}$, the likelihood has the same expression that we used in the Maximum Likelihood setting:
+$$
+p(\mathcal{D}|\underline{w}) = \mathcal{N}(\underline{t}|\Phi \underline{w}, \sigma^2 I_N).
+$$
+We can compute the expression of the posterior, thanks to the properties of Gaussian vectors. In particular we will use property $(B)$. Let $\underline{x} = \underline{w}$, $\mu = \underline{w}_0$, $\Lambda^{-1} = S_0$, $\underline{y} = \underline{t}$, $A = \Phi$, $\underline{b} = \underline{0}$, $L^{-1} = \sigma^2 I_N$. Then:
+$$
+p(\underline{w}|\mathcal{D}) = \mathcal{N}(\underline{w}|\underline{w}_N, S_N)
+$$
+where:
+- $S_N = \Sigma = (\Lambda + A^T L A)^{-1} = (S_0^{-1} + \frac{1}{\sigma^2} \Phi^T \Phi)^{-1}$;
+- $\underline{w}_N = \Sigma [A^T L (\underline{y} - \underline{b}) + \Lambda \underline{\mu}] = S_N[\frac{1}{\sigma^2}\Phi^T\underline{t} + S_0^{-1} \underline{w}_0]$.
+
+---
+
+**Remark**: batch updates are equivalent to online updates. That is, if we were to do two updates with $N_1$ and $N_2$ data points respectively, we would get:
+$$
+S_{N_1+N_2}^{-1} = S_0^{-1} + \frac{1}{\sigma^2} \Phi_1^T \Phi + \frac{1}{\sigma^2} \Phi_2^T \Phi_2 = S_0^{-1} + \frac{1}{\sigma^2} \begin{bmatrix} \Phi_1^T & \Phi_2^T \end{bmatrix} \begin{bmatrix} \Phi_1 \\ \Phi_2 \end{bmatrix}, \text{ and}
+$$
+$$
+\underline{w}_{N_1+N_2} = S^{-1}_{N_1 + N_2} [S_{N_1}^{-1}\{ S_{N_1} [S_0^{-1} \underline{w}_0 + \frac{1}{\sigma^2} \Phi_1^T \underline{t}_1] \} + \frac{1}{\sigma^2} \Phi^2 \underline{t}_2] = S_{N_1+N_2}^{-1}[S_0^{-1} \underline{w}_0 + \frac{1}{\sigma^2}\begin{bmatrix} \Phi_1^T & \Phi_2^T \end{bmatrix} \begin{bmatrix} \underline{t}_1 \\ \underline{t}_2 \end{bmatrix} ].
+$$
+
+Let's do some observations.
+
+- In Gaussian distributions the **mode** coincides with the **mean**. It follows that $\underline{w}_N$ is the **MAP estimator**.
+
+- If the priori has infinite variance, that is $S_0^{-1} = O_M$, then:
+$$
+S_N = \sigma^2 (\Phi^T \Phi)^{-1} \text{, and then } \underline{w}_N = S_N \frac{1}{\sigma^2} \Phi^T \underline{t} = (\Phi^T \Phi)^{-1} \Phi^T \underline{t} = \underline{\hat{w}}_{\text{OLS}},
+$$
+> that is, the Bayesian estimate coincides with the Maximum Likelihood estimate.
+
+- **Important**: if $\underline{w}_0 = \underline{0}_M$ and $S_0 = \tau^2 I_M$, then:
+$$
+S_N = (\frac{1}{\tau^2} I_M + \frac{1}{\sigma^2} \Phi^T \Phi)^{-1} \text{, and then } \underline{w}_N = (\frac{\sigma^2}{\tau^2} I_M + \Phi^T \Phi)^{-1} \Phi^T \underline{t} = \underline{\hat{w}}_{\text{ridge}},
+$$
+> that is, the Bayesian estimate coincides with the Ridge regression estimate for $\lambda = \frac{\sigma^2}{\tau^2}$. This shows how Ridge regression arises naturally in a Bayesian setting.
+
+Thanks to the properties of Gaussian vectors, we can also compute the **posterior predictive distribution**. In particular we will use property $(A)$ (observe that now $p(\underline{x}) = p(\underline{w}|\mathcal{D})$ and NOT $p(\underline{w})$, and $p(\underline{y}|\underline{x}) = p(t|\underline{w}, \mathcal{D}) = \mathcal{N}(t|\underline{\phi}^T(\underline{x})\underline{w}, \sigma^2)$):
+$$
+p(t|\mathcal{D}) = \mathcal{N}(\underline{t}|\Phi \underline{w}_N, \sigma^2_N(\underline{x}))
+$$
+where $\sigma_N^2(\underline{x}) = \sigma^2 + \underline{\phi}^T(\underline{x}) S_N \underline{\phi}(\underline{x})$. **Important**: the variance in the prediction depends on the input point.
+Observe that, since $\lim_{N \rightarrow + \infty} S_N = O_M$, then: $\lim_{N \rightarrow +\infty} \sigma_N^2(\underline{x}) = \sigma^2$ for all $\underline{x}$.
+
+#### Challenges
+
+The Bayesian approach is powerful but requires to face many challenges.
+
+##### Modelling challenges
+
+The first challenge is in **specifying suitable model** and **suitable prior distributions**: a suitable model should admit all the possibilities that thought to be at all **likely**; a suitable prior should avoid giving zero or very small probabilities to possible events, but should also avoid spreading out the probability over all possibilities.
+
+---
+
+Furthermore, having fixed basis functions allows a tractable Bayesian treatment, with closed-form solution; but they are chosen independently from the dataset.
+
+##### Computational challenges
+
+The other big challenge is **computing the posterior distribution**. There are several approaches:
+- **analytical integration**: if we use **conjugate priors**, the posterior distribution can be computed **analytically** (this works only for simple models);
+- **Gaussian (Laplace) approximation**: we can approximate the posterior distribution with a Gaussian. It works well where there are a lot of data compared to the model complexity.
+- **Monte Carlo integration**: once we have a sample from the posterior distribution, we can do many things. Currently, the most common approach is Markov Chain Monte Carlo (MCMC), that consists in simulating a Markov chain that converges to the posterior distribution.
+- **Variational approximation**: a clever way of approximating the posterior. It is usually faster than MCMC, but it is less general.
+
