@@ -524,3 +524,106 @@ The other big challenge is **computing the posterior distribution**. There are s
 - **Monte Carlo integration**: once we have a sample from the posterior distribution, we can do many things. Currently, the most common approach is Markov Chain Monte Carlo (MCMC), that consists in simulating a Markov chain that converges to the posterior distribution.
 - **Variational approximation**: a clever way of approximating the posterior. It is usually faster than MCMC, but it is less general.
 
+## Preliminary operations
+### Data normalization
+
+It is usually a good practice to normalize the training set in order to uniform the sizes of the quantities at play. In this way the magnitude of each parameter of the linear model, provides an insight on the importance of the corresponding feature for the prediction of the target.
+Let $\{ s_1, \ldots, s_N \}$ be the scalar samples of one of the quantities in the training set.
+We can do it in two main ways.
+- **z-score**:
+$$
+z = \frac{s-\overline{s}}{S}
+$$
+> where $\overline{s} = \frac{1}{N} \sum_{n=1}^N s_n$ and $S^2 = \frac{1}{N-1} \sum_{n=1}^N (s_n - \overline{s})^2$ (_$S^2$ is an unbiased estimator of the variance, see PSI #17.2_).
+- **Min-max feature scaling**:
+$$
+s' = \frac{s-s_\min}{s_\max - s_\min}
+$$
+> where $s_\max = \max_{n \in \{ 1, \ldots, N \}} s_n$ and $s_\min = \min_{n \in \{ 1, \ldots, N \}} s_n$.
+
+---
+
+## Evaluating the results
+
+We're going to discuss several quantities which allows to evaluate the quality of the obtained linear model.
+
+### Residual Sum of Squares
+
+The first and most intuitive metric is the $\text{RSS}$ of the model:
+$$
+\text{RSS}(\underline{w}) = \sum_{n=1}^N (t_n - \underline{\phi}^T(\underline{x}) \underline{w})^2 = \sum_{n=1}^T(t_n - \hat{t}_n)^2
+$$
+where $\hat{t}_n = \underline{\phi}^T(\underline{x}) \underline{{w}}$.
+
+### Mean Square Error (MSE) and Root Mean Square Error (RMSE)
+
+Another metric used very often is the **MSE** which rescales the $\text{RSS}$ by the number of samples:
+$$
+\text{MSE}(\underline{w}) = \frac{1}{N} \text{RSE}(\underline{w}).
+$$
+
+The **RMSE** is a metric with the same unit of measurement of the target obtained by taking the square root of the MSE:
+$$
+\text{RMSE}(\underline{w}) = \sqrt{\text{MSE}(\underline{w})}.
+$$
+
+### Coefficient of Determination
+
+The **Coefficient of Determination** $R^2$ compares the accuracy of our model with that of the _best constant model_. In particular:
+$$
+R^2(\underline{w}) = 1 - \frac{\text{RSS}(\underline{w})}{\text{TSS}}
+$$
+where $TSS = \min_{w_0 \in \mathbb{R}} \sum_{n=1}^N (t_n - c)^2$. Observe that $\sum_{n=1}^N (t_n - c)^2$ is a convex function since it is the sum of $N$ convex function. We can find the value of $c$ that gives the minimum by setting
+$$
+\frac{\partial}{\partial c} \sum_{n=1}^N (t_n - c)^2 = 2 \sum_{n=1}^N (t_n - c) = 0 \text{ iff } c = \overline{t} = \frac{1}{N} \sum_{n=1}^N t_n.
+$$
+Hence $\text{TSS} = \sum_{n=1}^N (t_n - \overline{t})$.
+
+---
+
+Observe that $TSS = \text{RSS}(\begin{bmatrix} \overline{t} \\ 0 \\ \vdots \\ 0 \end{bmatrix}) \geq \text{RSS}(\underline{\hat{w}}_\text{OLS})$ iff $R^2(\overline{\hat{w}}_\text{OLS}) \geq 0$. And clearly, $R^2(\underline{\hat{w}}_\text{OLS}) \leq 1$.
+In particular, if $R^2(\underline{\hat{w}}_\text{OLS})$ is close to 0 then our model is not much better than the constant one; conversely, if it is close to 1, our model is significantly better.
+
+There is also an **adjusted version** of the coefficient of determination: $R^2_\text{adj}(\underline{w}) = 1-(1-R^2(\underline{w})) \frac{N-1}{\text{dfe}}$ where $\text{dfe} = N-M$ are the **degrees of freedom**.
+
+### Statistical tests
+
+We can also setup some statistical tests to verify that the model is meaningful. In particular we say that a weight $w_j$ is **meaningful** is it is different from 0.
+
+In particular, **we need to assume** that $t = \underline{\phi}^T(\underline{x}) \underline{w}^\circ + \epsilon$ where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ for some "_true_" parameter $\underline{w}^\circ$.
+
+#### Test on a single coefficient
+
+Under the aforementioned assumption, it is possible to prove that (_we did a proof in a simpler setting in PSI #17.10_):
+$$
+\frac{\hat{w}_j - w_j}{\hat{\sigma} \sqrt{v_j}} \sim t_{N-M}
+$$
+where $w_j$ is the true parameter, $\hat{w}_j$ is the estimated parameter with $N$ samples, $v_j$ is the $j$-th diagonal element of the matrix $(\Phi^T \Phi)^{-1}$, $t_{N-M}$ is the $T$-student distribution with $N-M$ degrees of freedom, and $\hat{\sigma}^2$ is the unbiased estimate for the target variance:
+$$
+\hat{\sigma}^2 = \frac{\text{RSS}(\underline{\hat{w}}_{\text{OLS}})}{N-M} \text{ (it is the estimator we discussed in previous paragraphs)}.
+$$
+
+This allows us to setup a test on the meaningfulness of the $j$-th weight, with $j \in \{ 0, \ldots, M-1 \}$. In particular, the hypotheses are:
+$$
+H_0 : w_j = 0 \text{ vs } H_1 : w_j \neq 0.
+$$
+The statistics is:
+$$
+t_\text{stat} = \frac{\hat{w}_j - w_j}{\hat{\sigma} \sqrt{v_j}}_{\lvert{w_j = 0}} = \frac{\hat{w}_j}{\hat{\sigma} \sqrt{v_j}}.
+$$
+
+---
+
+From this we can compute the p-value. **Remember**: the p-value is the minimum value of the significance (w.r.t. to the described class of tests) for which we reject the null hypothesis. If it is close to 0, it means that we reject the null hypothesis for any "reasonable" value of the significance.
+
+#### Test on the overall significance of the model
+
+Another result allows us to setup a test which checks that the obtained model is actually better than a constant model.
+It is possible to prove that:
+$$
+\frac{N-M}{M-1} \frac{\text{TSS} - \text{RSS}(\underline{\hat{w}}_\text{OLS})}{\text{RSS}(\underline{\hat{w}}_\text{OLS})} \sim F_{M-1,N-M}
+$$
+where $F_{M-1,N-M}$ is the Fischer-Snedecor distribution with parameters $M-1$ and $N-M$. The hypotheses are:
+$$
+H_0 : w_1 = \ldots = w_{M-1} = 0 \text{ v.s } H_1 : \exists j \in \{ 1, \ldots, M \} \text{ s.t. } w_j \neq 0.
+$$
