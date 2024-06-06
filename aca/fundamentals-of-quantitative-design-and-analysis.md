@@ -102,14 +102,41 @@ $$
 $$
 
 $$
-\cdot \frac{\text{execution time}_{C \text{enhanced}}}{\text{execution time}_C} = \text{execution time}_S \ (1 - \text{fraction}_C + \text{ fraction}_C \text{ speedup}_C).
+\cdot \frac{\text{execution time}_{C \text{enhanced}}}{\text{execution time}_C} = \text{execution time}_S \ (1 - \text{fraction}_C + \frac{\text{ fraction}_C}{\text{ speedup}_C}).
 $$
 
 Finally:
 $$
-\text{speedup}_S = \frac{\text{execution time}_S}{\text{execution time}_{S \text{ enhanced}}} = \frac{1}{1 - \text{fraction}_C + \text{ fraction}_C \text{ speedup}_C}.
+\text{speedup}_S = \frac{\text{execution time}_S}{\text{execution time}_{S \text{ enhanced}}} = \frac{1}{1 - \text{fraction}_C + \frac{\text{ fraction}_C}{\text{ speedup}_C}}.
 $$
 
 ---
 
-Resume from processor performance equation...
+### The Processor Performance Equation
+
+Essentially all (_digital_) computers are constructed using a clock running at a constant rate. Computer designers refer to the time of a clock period by its duration $T_{\text{clock}}$ or by its rate $f_{\text{clock}}$.
+Hence we have two ways to compute the CPU time $T_{\text{CPU}}$ of a program.
+$$
+T_{\text{CPU}} = N_\text{clock cycles} T_{\text{clock}}
+$$
+or:
+$$
+T_{\text{CPU}} = \frac{N_{\text{clock cycles}}}{f_{\text{clock}}}.
+$$
+
+In addition to the number of clock cycles needed to execute a program, we can also count the number of instructions executed: the _instruction path length_ or _**instruction count**_ $\text{IC}$.
+
+If we know the number of clock cycles and the instruction count, we can calculate the average number of _clock cycles per instruction_ $\text{CPI}$. Designer sometimes also use _instructions per clock_ $\text{IPC} = \frac{1}{\text{CPI}}$.
+Observe that the $\text{CPI}$ can be computed as:
+$$
+\text{CPI} = \frac{N_{\text{clock cycles}}}{\text{IC}}.
+$$
+Hence, by rearranging the above formula:
+$$
+N_{\text{clock cycles}} = \text{CPI} \cdot \text{IC}.
+$$
+Finally, if we plug this result in the formula of $T_{\text{CPU}}$, we get:
+$$
+T_{\text{CPU}} = \text{CPI} \cdot \text{IC} \cdot T_{\text{clock}}.
+$$
+AS this formula demonstrates, processor performance is equally dependent on 3 characteristics. Unfortunately, it is difficult to change one parameter in complete isolation from others.
