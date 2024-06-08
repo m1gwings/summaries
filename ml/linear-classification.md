@@ -80,7 +80,7 @@ Now, we want to **extend** this approach to **multiple classes**: $K > 2$. Let's
     width="400mm" />
 </p>
 
-- **$K$-linear classifiers**: we can ise $K$ linear discriminant functions of the form:
+- **$K$-linear classifiers**: we can use $K$ linear discriminant functions of the form:
 $$
 y_k(\underline{x}) = \underline{x}^T \underline{w}_k + w_{k,0} \text{ where } k \in \{ 1, \ldots, K \}.
 $$
@@ -118,3 +118,75 @@ where $\mathbf{T} = \begin{bmatrix} \underline{t}_1 & \ldots & \underline{t}_N \
 But, **there are serious problems when using LS for linear classification**.
 First of all observe that the values of $y_k(\underline{x})$ grows in magnitude as $\underline{x}$ gets further from the decision boundary, hence, even for points that are on the right side of the decision boundary, if they are very distant from it they will introduce high loss, **penalizing the correct model**. Indeed LS applied to linear classification is sensitive to outliers and can produce wrong models even when the training set could be classified perfectly.
 Another consideration that will make us understand immediately why LS is a bad choice for linear classification is that we derived it in the Maximum Likelihood setting, assuming that the conditional distribution of the target given the input was Gaussian. This is clearly false for binary vectors like the ones that we want to fit.
+
+## Fixed basis functions
+
+So far we've considered classification models that work directly in the **input space**. All considered algorithms are equally applicable if we first make a **fixed nonlinear transformation** of the input space using vector of basis functions $\underline{\phi}(\underline{x})$. Decision boundaries will be **linear** in the **feature space**, but would correspond to **nonlinear** boundaries in the original **input space**. Classes that are linearly separable in the feature space **need not** be linearly separable in the original input space.
+
+---
+
+## Perceptron
+
+The **perceptron** (Rosenblatt, 1958) is another example of **linear discriminant models**. It is an **online** linear classification algorithm. It correspond to a two-class model:
+$$
+y(\underline{x}) = \text{sign}(\underline{\phi}^T(\underline{x}) \underline{w}).
+$$
+The **target values** are +1 for class $C_1$ and -1 for class $C_2$. The algorithm finds the **separating hyperplane** by minimizing the _distance_ of **misclassified points** to the **decision boundary**. Indeed, using the number of misclassified points as a loss function is NOT effective, since it is a _piecewise constant function_.
+
+We look for a vector $\underline{w}$ such that $\underline{\phi}^T(\underline{x}_n) \underline{w} > 0$ when $\underline{x}_n \in C_1$ and $\underline{\phi}^T(\underline{x}_n) \underline{w} < 0$ when $\underline{x}_n \in C_2$.
+
+The **perceptron criterion** assign:
+- _zero error_ to correct classification;
+- $-t_n \underline{\phi}^T(\underline{x}_n) \underline{w}$ to misclassified pattern $\underline{x}_n$ (observe that, because of how $t_n$ is defined, by the properties of the decision boundary we discussed before, $-t_n \underline{\phi}^T(\underline{x}_n) \underline{w} = ||\underline{w}||_2 d$ where $d$ is the distance of $\underline{x}_n$ from the boundary).
+
+The corresponding loss function is:
+$$
+L_P(\underline{w}) = - \sum_{n \in \mathcal{M}(\underline{w})} t_n \underline{\phi}^T(\underline{x}_n) \underline{w}
+$$
+where $\mathcal{M}(\underline{w})$ is the set of points miss-classified by model $\underline{w}$. Observe that, the fact that $\mathcal{M}$ depends on $\underline{w}$ makes the loss function piece-wise linear instead of being linear. For this reason the optimization of $L_P$ is done iteratively. The update rule can be derived heuristically imagining $\mathcal{M}$ fixed and applying SGD. The learning rate can be set to 1 since it only affects the magnitude of $\underline{w}$, which is immaterial w.r.t. to the decision boundary.
+$$
+\underline{w}^{(k+1)} = \underline{w}^{(k)} + t_{n^{(k)}} \underline{\phi}(\underline{x}_{n^{(k)}}) \text{ where } n_k \text{ is s.t. } \underline{x}_{n^{(k)}} \text{ is miss-classified.}
+$$
+We can easily translate this in an algorithm: we scan all the samples from $n=1$ to $n=N$ and we apply the update rule every time we encounter a miss-classified sample. After $n = N$, we restart with $n=1$ and we stop after a full scan with no miss-classified points.
+
+Every step reduces the error due to the miss-classified pattern:
+$$
+- t_{n^{(k)}} \underline{\phi}^T(\underline{x}_{n^{(k)}}) \underline{w}^{(k+1)} = - t_{n^{(k)}} \underline{\phi}^T(\underline{x}_{n^{(k)}}) \underline{w}^{(k)} - ||t_{n^{(k)}} \underline{\phi}(\underline{x}_{n^{(k)}})||_2^2 \leq - t_{n^{(k)}} \underline{\phi}^T(\underline{x}_{n^{(k)}}) \underline{w}^{(k)}.
+$$
+**Remark**: this DOES not imply that the loss is reduced at each stage, we could increase the miss-classification error on another sample.
+
+Observe that the reason why the update rule is heuristic is that, since $\mathcal{M}$ depends on $\underline{w}$, we are NOT in the right setting to apply SGD. Anyways we have convergence guarantees.
+
+---
+
+- **Perceptron COnvergence Theorem**: if the training data set is **linearly separable** in the feature space $\mathbf{\Phi}$, then the perceptron learning algorithm is guaranteed to find an **exact solution** in a **finite number of steps**.
+
+> **Proof**: assuming that the dataset is linearly separable is equivalent to assuming that there exist $\underline{w}^* \in \mathbb{R}^M$, $\gamma > 0$ s.t. $t_n \underline{\phi}^T(\underline{x}_n) \underline{w}^* > \gamma$ for all $n \in \{ 1, \ldots, N \}$.
+Furthermore, since the samples are limited in number, we can assume that there exists $R > 0$ s.t. $||\underline{\phi}(\underline{x}_n)||_2 \leq R$ for all $n \in \{ 1, \ldots, N \}$.
+Now we're going to prove that, under this assumption, the number of times that we can apply the update rule is finite, hence, the algorithm will terminate.
+$$
+{\underline{w}^{(k+1)}}^T \underline{w}^* = {\underline{w}^{(k)}}^T \underline{w}^* + t_{n^{(k)}} \underline{\phi}^T(\underline{x}_{n^{(k)}}) \underline{w}^* > {\underline{w}^{(k)}}^T \underline{w}^* + \gamma.
+$$
+> Hence, by induction:
+$$
+\underline{w}^{(k)} > {\underline{w}^{(0)}}^T \underline{w}^* + k \gamma.
+$$
+> Furthermore: $||\underline{w}^{(k)}||_2 || \underline{w}^* ||_2 \geq {\underline{w}^{(k)}}^T \underline{w}^* > {\underline{w}^{(0)}}^T \underline{w}^* + k \gamma$ iff $|| \underline{w}^{(k)} ||_2 > \frac{{\underline{w}^{(0)}}^T \underline{w}^*}{|| \underline{w}^* ||_2} + k \frac{\gamma}{|| \underline{w}^* ||_2}$ (observe that it must be $||\underline{w}^*||_2 > 0$ by how we defined $\underline{w}^*$).
+
+> To obtain an upper bound, we argue that:
+$$
+||\underline{w}^{(k+1)}||_2^2 = ||\underline{w}^{(k)}||_2^2 + 2 t_{n^{(k)}} \underline{\phi}^T(\underline{x}_{n^{(k)}}) \underline{w}^{(k)} + t_n^2 ||\underline{\phi}(\underline{x}_{n^{(k)}})||_2^2 \leq
+$$
+$$
+\leq ||\underline{w}^{(k)}||_2^2 + t_n^2 ||\underline{\phi}(\underline{x}_{n^{(k)}})||_2^2 = ||\underline{w}^{(k)}||_2^2 + ||\underline{\phi}(\underline{x}_{n^{(k)}})||_2^2 \leq ||\underline{w}^{(k)}||_2^2 + R^2.
+$$
+> Hence, by induction: $||\underline{w}^{(k)}||_2^2 \leq ||\underline{w}^{(0)}||_2^2 + k R^2$.
+> Finally:
+$$
+\frac{({\underline{w}^{(0)}}^T \underline{w}^*)^2}{|| \underline{w}^* ||_2^2} + k^2 \frac{\gamma^2}{|| \underline{w}^* ||_2^2} + 2 k \frac{{\underline{w}^{(0)}}^T \underline{w}^* \gamma}{|| \underline{w}^* ||_2^2}  \leq ||\underline{w}^{(k)}||_2^2 \leq ||\underline{w}^{(0)}||_2^2 + k R^2;
+$$
+> since $\frac{\gamma^2}{||\underline{w}^*||_2^2} > 0$, this puts an upper bound on the value of $k$ (the quadratic function eventually grows faster than the linear one).
+
+## Logistic regression
+
+
