@@ -57,6 +57,7 @@
         "Posteriori",
         "Rissanen's",
         "Schur",
+        "softmax",
         "stackable",
         "stackrel",
         "stationarities",

@@ -189,4 +189,158 @@ $$
 
 ## Logistic regression
 
+**Logistic regression** is a probabilistic <u>discriminative</u> approach for linear classification. Before diving in the actual method, let's try to understand where does the shape of the conditional density $p(C_k | \underline{x})$ used in this method come from.
+Let's start our analysis from the binary classification case $K = 2$.
+Consider the following data generating mechanism:
+$$
+p(\underline{x} | C_i) = \mathcal{N}(\underline{x} | \underline{\mu}_i, \Sigma) \text{ for } i \in \{ 1, 2 \}.
+$$
 
+---
+
+That is, the inputs for each class are generated according to a Gaussian distribution with mean $\underline{\mu}_i$. The variance **is the same for all classes** and corresponds to $\Sigma$.
+
+Thanks to Bayes theorem and marginalization, we can write:
+$$
+p(C_i | \underline{x}) = \frac{p(\underline{x} | C_i) p(C_i)}{p(\underline{x})} = \frac{p(\underline{x}|C_i) p(C_i)}{p(\underline{x}|C_1)p(C_1)+p(\underline{x}|C_2)p(C_2)} \text{ for } i \in \{ 1, 2 \}.
+$$
+For reasons that will be come evident in a moment, we can rewrite:
+$$
+p(C_i | \underline{x}) = \sigma\left(\ln \frac{p(\underline{x}|C_i) p(C_i)}{p(\underline{x}|C_{j(i)})p(C_{j(i)})}\right)
+$$
+where:
+$$
+\sigma(x) = \frac{1}{1+e^{-x}} \text{, and } j(i) = \begin{cases} 2 \text{ if } i = 1 \\ 1 \text{ if } i = 2 \end{cases}.
+$$
+The function $\sigma(x)$ is known as **logistic sigmoid** function. It has many interesting properties:
+- $\sigma(-x) = 1 - \sigma(x)$;
+- $\sigma'(x) = \sigma(x)(1-\sigma(x))$;
+- $\sigma(x) \in (0, 1)$ for all $x \in \mathbb{R}$.
+
+Now observe that, because of our assumptions on the class-conditional densities (_remember that that the two Gaussian distribution are assumed to have the same variance, hence the multiplicative coefficients in front of the exponential simplify_):
+$$
+\ln \frac{p(\underline{x}|C_i) p(C_i)}{p(\underline{x}|C_{j(i)})p(C_{j(i)})} = \ln\frac{p(\underline{x}|C_i)}{p(\underline{x}|C_{j(i)})} + \ln\frac{p(C_i)}{p(C_{j(i)})} =
+$$
+
+$$
+= - \frac{1}{2} (\underline{x} - \underline{\mu}_i)^T \Sigma^{-1} (\underline{x} - \underline{\mu}_i) + \frac{1}{2} (\underline{x} - \underline{\mu}_{j(i)}) \Sigma^{-1} (\underline{x} - \underline{\mu}_{j(i)}) + \ln\frac{p(C_i)}{p(C_{j(i)})} =
+$$
+$$
+= (\underline{\mu}_i - \underline{\mu}_{j(i)})^T \Sigma^{-1} \underline{x} - \frac{1}{2} \underline{\mu}_i^T \Sigma^{-1} \underline{\mu}_i + \frac{1}{2} \underline{\mu}_2^T \Sigma^{-1} \underline{\mu}_2 + \ln\frac{p(C_i)}{p(C_{j(i)})} = \underline{w}_i^T \underline{x} + w_{i,0}
+$$
+where $\underline{w}_i = \Sigma^{-1} (\underline{\mu}_i - \underline{\mu}_{j(i)})$, and $w_{i,0} = - \frac{1}{2} \underline{\mu}_i^T \Sigma^{-1} \underline{\mu}_i + \frac{1}{2} \underline{\mu}_2^T \Sigma^{-1} \underline{\mu}_2 + \ln\frac{p(C_i)}{p(C_{j(i)})}$.
+That is, we have written:
+$$
+p(C_i | \underline{x}) = \sigma(\underline{w}_i^T \underline{x} + w_{i,0}).
+$$
+
+Now, let's try to generalize this reasoning to $K$ classes:
+$$
+p(C_i | \underline{x}) = \frac{p(\underline{x} | C_i) p(C_i)}{\sum_{j=1}^K p(\underline{x}|C_j) p(C_j)} = \frac{ \exp\{-\frac{1}{2} (\underline{x} - \underline{\mu}_i)^T \Sigma^{-1} (\underline{x} - \underline{\mu}_i)\} p(C_i)}{\sum_{j=1}^K \exp\{-\frac{1}{2} (\underline{x} - \underline{\mu}_j)^T \Sigma^{-1} (\underline{x} - \underline{\mu}_j)\} p(C_j)} =
+$$
+
+---
+
+$$
+= \frac{\exp\{-\frac{1}{2} \underline{x}^T \Sigma^{-1} \underline{x}\} \exp\{ \underline{\mu}_i^T \Sigma^{-1} \underline{x} -\frac{1}{2} \underline{\mu}_i^T \Sigma^{-1} \underline{\mu}_i \} p(C_i)}{\sum_{j=1}^K \exp\{-\frac{1}{2} \underline{x}^T \Sigma^{-1} \underline{x}\} \exp\{ \underline{\mu}_j^T \Sigma^{-1} \underline{x} -\frac{1}{2} \underline{\mu}_j^T \Sigma^{-1} \underline{\mu}_j \} p(C_j)} =
+$$
+$$
+= \frac{\exp\{ \underline{\mu}_i^T \Sigma^{-1} \underline{x} -\frac{1}{2} \underline{\mu}_i^T \Sigma^{-1} \underline{\mu}_i \} p(C_i)}{\sum_{j=1}^K \exp\{ \underline{\mu}_j^T \Sigma^{-1} \underline{x} -\frac{1}{2} \underline{\mu}_j^T \Sigma^{-1} \underline{\mu}_j \} p(C_j)} = \frac{e^{a_i}}{\sum_{j=1}^K e^{a_j}}
+$$
+
+where $a_k = \underline{w}_k^T \underline{x} + w_{k,0}$, $\underline{w}_k = \Sigma^{-1} \underline{\mu}_k$, and $w_{k,0} = -\frac{1}{2} \underline{\mu}_k^T \Sigma^{-1} \underline{\mu}_k + \ln p(C_k)$ for $k \in \{ 1, \ldots, K \}$.
+The function:
+$$
+\underline{s}\left(\begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix}\right) = \frac{1}{\sum_{i=1}^n e^{x_i}} \begin{bmatrix} e^{x_1} \\ \vdots \\ e^{x_n} \end{bmatrix}
+$$
+is known as **softmax function**. Indeed, if $x_i >> x_j$ for all $j \neq i$, then $\underline{s}(\underline{x}) \approx \underline{e}_i$.
+
+Now we're ready to tackle logistic regression. Again let's start from the two class problem. We assume (_we just explained why_) that the posterior probability of class $C_1$ can be written as a **logistic sigmoid function**:
+$$
+p(C_1 | \underline{\phi}) = \sigma(\underline{w}^T \underline{\phi})
+$$
+(_the bias term is embedded in $\underline{\phi}$_). By the laws of probability: $p(C_2|\underline{\phi}) = 1 - p(C_1|\underline{\phi})$.
+Let $\mathcal{D} = \{ (\underline{x}_1, t_1 ), \ldots, (\underline{x}_N, t_N) \}$ be our dataset of independent samples. Note that $t|\underline{x} \sim Be(p(C_1|\underline{\phi}))$. Then, the likelihood of the observed data, is:
+$$
+p(\underline{t}|\mathbf{X}, \underline{w}) = \prod_{n=1}^N p(C_1 | \underline{\phi}_n)^{t_n} (1-p(C_1 | \underline{\phi}_n))^{1-t_n}.
+$$
+Taking the negative log of the likelihood, we get the so-called **cross-entropy error function**:
+$$
+L(\underline{w}) = -\sum_{n=1}^{N}[ t_n \ln p(C_1 | \underline{\phi}_n) + (1-t_n) \ln (1-p(C_1 | \underline{\phi}_n ))].
+$$
+As in every Maximum Likelihood approach, we want to find the parameters which maximize the likelihood of the observed data, which is equivalent to minimize $L(\underline{w})$.
+Let's add some notation to make it easier to differentiate $L(\underline{w})$:
+$$
+L(\underline{w}) = - \sum_{n=1}^N [t_n \ln y_n + (1-t_n)\ln(1-y_n)] = \sum_{n=1}^N L_n
+$$
+
+---
+
+where $y_n = p(C_1|\underline{\phi}_n)$, and $L_n = -[t_n \ln y_n + (1-t_n)\ln(1-y_n)]$.
+Now:
+$$
+\frac{\partial L_n}{\partial y_n}(y_n) =  -\frac{t_n}{y_n} + \frac{1-t_n}{1-y_n} = \frac{y_n - t_n}{y_n(1-y_n)}.
+$$
+$$
+\frac{\partial y_n}{\partial \underline{w}} = \frac{\partial}{\partial \underline{w}}\left[ \sigma(\underline{w}^T \underline{\phi}_n) \right] = \sigma'(\underline{w}^T \underline{\phi}_n) \underline{\phi}_n^T = \sigma(\underline{w}^T \underline{\phi}_n) (1 - \sigma(\underline{w}^T \underline{\phi}_n)) \underline{\phi}_n^T = y_n(1-y_n) \underline{\phi}_n^T.
+$$
+Then:
+$$
+\frac{\partial L_n}{\partial \underline{w}}(\underline{w}) = (y_n-t_n) \underline{\phi}_n^T.
+$$
+Hence:
+$$
+\nabla_{\underline{w}} L_n(\underline{w}) = (y_n - t_n) \underline{\phi}_n,
+$$
+and so:
+$$
+\nabla_{\underline{w}} L(\underline{w}) = \sum_{n=1}^N (y_n - t_n) \underline{\phi}_n.
+$$
+_Observe that this has the same form of the gradient of the **sum-of-squares error function** for linear regression, see Linear Regression, p. 5_.
+
+Furthermore:
+$$
+\nabla_{\underline{w} \underline{w}}^2 L(\underline{w}) = \frac{\partial}{\partial \underline{w}} \nabla_{\underline{w}} L(\underline{w}) =  \sum_{n=1}^N \underline{\phi}_n \frac{\partial y_n}{\partial \underline{w}} = \sum_{n=1}^N y_n (1-y_n) \underline{\phi}_n \underline{\phi}_n^T
+$$
+is a conic combination of positive semi-definite matrices (remember that $y_n \in (0, 1)$) for every value of $\underline{w}$, hence, because of the second order sufficient condition (_see Non-Linear Optimization_), it is convex. Because of the nonlinearity in the expression of $y_n$, we can't solve $\nabla_{\underline{w}} L(\underline{w}) = \underline{0}_M$, anyway we can find the global minimum through gradient descent since the problem is convex (_see Non-Linear Optimization_).
+
+Now let's tackle **multi-class logistic regression**. In this case we represent the class posteriors by a **softmax** transformation:
+$$
+p(C_k | \underline{\phi}) = \frac{\exp(\underline{w}_k^T \underline{\phi})}{\sum_{j=1}^K \exp(\underline{w}_j^T \underline{\phi})}.
+$$
+
+**Remark**: for the softmax function it holds that:
+$$
+\frac{\partial s_k}{\partial x_j}(\underline{x}) = s_k(\underline{x}) \delta_{kj} - s_k(\underline{x}) s_j(\underline{x}).
+$$
+
+---
+
+Again, we can express the likelihood of the observed data (_assuming that we used one-hot encoding for the targets_):
+$$
+p(\mathbf{T}|\mathbf{X}, \underline{w}_1, \ldots, \underline{w}_K) = \prod_{n=1}^N \left( \prod_{k=1}^K p(C_k | \underline{\phi}_n)^{t_{n,k}} \right) = \prod_{n=1}^N \left( \prod_{k=1}^K y_{n,k}^{t_{n,k}} \right)
+$$
+where $y_{n,k} = p(C_k | \underline{\phi}_n)$.
+Taking the negative logarithm of the likelihood gives the **cross-entropy function** for multi-class classification problems:
+$$
+L(\underline{w}_1, \ldots, \underline{w}_K) = - \ln p(\mathbf{T}|\mathbf{X},\underline{w}_1, \ldots, \underline{w}_K) = - \sum_{n=1}^N \left(\sum_{k=1}^K t_{n,k} \ln y_{n,k} \right).
+$$
+
+Observe that:
+$$
+\frac{\partial y_{n,k}}{\partial \underline{w}_j}(\underline{w}_1, \ldots, \underline{w}_k) = \frac{\partial}{\partial \underline{w}_j} s_k(W^T \underline{\phi}_n) = \begin{bmatrix} \frac{\partial s_k}{\partial x_1}(W^T \underline{\phi}_n) & \cdots & \frac{\partial s_k}{\partial x_K}(W^T \underline{\phi}_n) \end{bmatrix} \begin{bmatrix} \frac{\partial}{\partial \underline{w}_j}\underline{w}_1^T \underline{\phi}_n \\ \vdots \\ \frac{\partial}{\partial \underline{w}_j}\underline{w}_K^T \underline{\phi}_n \end{bmatrix} =
+$$
+$$
+= \underline{0}_M^T + \ldots + \underline{0}_M^T + [s_k(W^T \underline{\phi}_n) \delta_{kj} - s_k(W^T \underline{\phi}_n) s_j(W^T \underline{\phi}_n)] \underline{\phi}^T_n + \underline{0}_M^T + \ldots + \underline{0}_M^T =
+$$
+$$
+= y_{n,k}(\delta_{kj} - y_{n,j}) \underline{\phi}_n^T.
+$$
+
+Hence:
+$$
+\frac{\partial L}{\partial \underline{w}_j}(\underline{w}_1, \ldots, \underline{w}_K) = - \sum_{n=1}^N \sum_{k=1}^K \frac{t_{n,k}}{y_{n,k}} y_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T = - \sum_{n=1}^N \sum_{k=1}^K t_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T =
+$$
+$$
+= \text{resume...}
+$$
