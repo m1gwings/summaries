@@ -124,3 +124,54 @@ Observe that the optimization has to be legal: it must be OK to executed the mov
 
 In this case, the branch delay slot is scheduled from the not-taken fall-through path. This strategy is preferred when the branch is not taken with high probability.
 Also in this case we have to make sure that the optimization is legal.
+
+### Dynamic branch prediction
+
+In **dynamic branch prediction** we use the hardware to dynamically predict the outcome of a branch: the prediction will depend on the behavior of the branch at run time and will change if the branch changes its behavior during execution.
+Dynamic branch prediction is based on **two interacting** mechanisms:
+- **Branch Outcome Predictor**: to predict the direction of a branch (i.e. _taken_ or _not taken_);
+- **Branch Target Predictor** (**BTP**): to predict the BTA in case of taken branch.
+
+These modules are used by the Instruction Fetch Unit to predict the next instruction to read in the Instruction cache: if the branch is predicted as not taken, then the PC is incremented, otherwise we fetch the instruction at the address provided by the BTP.
+
+---
+
+#### Branch Target Buffer
+
+The **Branch Target Buffer** (**BTB**) is a way of implementing a **Branch Target Predictor**. It consists in a cache storing the predicted BTA. We access the BTB in the IF stage using the lower bits (_for cache sizing reasons_) of the instruction address of the fetched instruction (_a possible branch_) to index the cache. A typical entry of the BTB has two fields: the **exact address of the branch** (_remember, since we're indexing through the lower bits, there could be conflicts between different branches and we must be able to identify them_), and the **predicted BTA**. The predicted BTA is expressed as an offset from the PC. As usual in caches, there are also some validity bits to distinguish valid entries from invalid ones.
+
+#### Branch history Table
+
+The **Branch History Table** (**BHT**) (or Branch Prediction Buffer) is a way of implementing a **Branch Outcome Predictor**. The simplest version consists in a table containing 1 bit for each entry that says whether the branch was recently taken or not. As for the BTB, the table is indexed by the lower portion of the address of the branch instruction.
+As opposed to what happens for BTB, this table doesn't store the exact address of the branch instruction (every access is a hit)m hence the prediction bit could have been put there by another branch with the same low-order address-bits. At the end it is not a big deal, the prediction is just an hint.
+
+If we use $k$ bits to index the BHT, then we will have $2^k$ entries.
+
+The behavior of this simple 1 bit BHT is determined by the following state machine.
+
+<p align="center">
+    <img src="static/1bit-bht-state-machine.svg"
+    width="300mm" />
+</p>
+
+A more accurate version of the BHT uses 2 bits for entry instead of one: _the prediction must miss twice before it is changed_.
+The behavior can be again described by a state machine:
+<p align="center">
+    <img src="static/2bit-bht-state-machine.svg"
+    width="300mm" />
+</p>
+
+---
+
+Observe that this implementation uses twice the memory w.r.t. the 1 bit BHT.
+
+Finally, we can generalize this architecture to an $n$-bit history table implemented through an $n$-bit _saturating counter_ for each entry in the table. The counter can take on values between 0 and $2^n - 1$. When the counter is greater than or equal to one-half of its maximum value $2^n-1$, the branch is predicted as taken. Otherwise, it is predicted as untaken.
+
+#### Correlating Branch Predictors
+
+BHT predictors use only the (recent) behavior of a **single** branch to predict the future behavior of that branch. The basic idea behind **Correlating Branch Predictors** is that the behavior of recent branches is correlated. That is, the recent behavior of other branches other than the current branch can influence the prediction of the outcome of the current branch condition.
+In particular, an $(m, n)$ Correlating Branch Predictor records the outcome of the last $m$ branches and uses them to choose from $2^m$ $n$-bits BHTs.
+An analogous way of achieving the same behavior is by indexing the BHT by a concatenation of low-order bits from the branch address plus $m$ bits of _global history_ (i.e. the outcome of the $m$ most recent branches).
+This BHT has $2^{k+m}$ (where $k$ is the number of lower bits of the branch address used for indexing) entries, each of which occupies $n$ bits.
+
+Usually $(2, 2)$ Correlating Branch Predictors are significantly more efficient than 2-bit BHTs.
