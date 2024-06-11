@@ -339,8 +339,22 @@ $$
 
 Hence:
 $$
-\frac{\partial L}{\partial \underline{w}_j}(\underline{w}_1, \ldots, \underline{w}_K) = - \sum_{n=1}^N \sum_{k=1}^K \frac{t_{n,k}}{y_{n,k}} y_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T = - \sum_{n=1}^N \sum_{k=1}^K t_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T =
+\frac{\partial L}{\partial \underline{w}_j}(\underline{w}_1, \ldots, \underline{w}_K) = - \sum_{n=1}^N \left( \sum_{k=1}^K \frac{t_{n,k}}{y_{n,k}} y_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T \right) = - \sum_{n=1}^N \left( \sum_{k=1}^K t_{n,k} (\delta_{kj} - y_{n,j}) \underline{\phi}_n^T \right) =
 $$
 $$
-= \text{resume...}
+= -\sum_{n=1}^N \left[ \sum_{k=1}^K t_{n,k} \delta_{kj} - y_{n,j} \sum_{k=1}^K t_{n,k} \right] \underline{\phi}_n^T = - \sum_{n=1}^N \left[ t_{n,j} - y_{n,j} \cdot 1 \right] \underline{\phi}_n^T = \sum_{n=1}^N (y_{n,j} - t_{n,j}) \underline{\phi}_n^T.
 $$
+
+That is:
+$$
+\nabla_{\underline{w}_j} L(\underline{w}_1, \ldots, \underline{w}_K) = \sum_{n=1}^N (y_{n,j} - t_{n,j}) \underline{\phi}_n.
+$$
+
+### Connection between Logistic Regression and Perceptron
+
+Observe that, if we were to optimize the Logistic Regression loss function with a SGD approach, then the update rule would be analogous to that of the perceptron:
+$$
+\underline{w}^{(k+1)} = \underline{w}^{(k)} - \alpha (y(\underline{x}_n, \underline{w}) - t_n) \underline{\phi}_n.
+$$
+
+In particular, for the perceptron $t_n \in \{ -1, 1 \}$, $y(\underline{x}_n, \underline{w}) = \text{sign}(\underline{w}^T \underline{\phi}_n)$, $\alpha = 1$.
