@@ -358,3 +358,100 @@ $$
 $$
 
 In particular, for the perceptron $t_n \in \{ -1, 1 \}$, $y(\underline{x}_n, \underline{w}) = \text{sign}(\underline{w}^T \underline{\phi}_n)$, $\alpha = 1$.
+
+---
+
+## Naive Bayes (NB)
+
+**Naive Bayes** is a probabilistic generative model for classification. **Important**: it is NOT a bayesian name, it just uses the Bayes theorem to compute the posterior distribution over classes.
+
+Let $\underline{x} = \begin{bmatrix} x_1 \\ \vdots \\ x_M \end{bmatrix}$ be our input vector. The Naive Bayes method is based on the **naive assumption** that the components of $\underline{x}$ are independent given the generating class $C_k$. This assumption is of course false in practice most of the times (think about $p(\underline{x}|C_k) = \mathcal{N}(\underline{x}|\underline{\mu}_k, \Sigma)$ where $\Sigma$ is not diagonal), anyways it simplifies a lot the computations. Indeed:
+$$
+p(\underline{x}|C_k) = p(x_1, \ldots, x_M|C_k) = p(x_1|x_2, \ldots, x_M, C_k) p(x_2, \ldots, x_M | C_k) =
+$$
+
+$$
+= p(x_1|C_k) p(x_2, \ldots, x_M | C_k) = \ldots = \prod_{i=1}^M p(x_i|C_k).
+$$
+
+Then:
+$$
+p(C_k|\underline{x}) = \frac{1}{p(\underline{x})} p(\underline{x}|p(C_k)) p(C_k) = \frac{1}{p(\underline{x})} p(C_k) \prod_{i=1}^M p(x_i|C_k).
+$$
+
+Hence, to build our decision function, we can apply the Maximum A Posteriori (MAP) approach:
+$$
+y(\underline{x}) = \arg \max_k p(C_k|\underline{x}) = \arg \max_k \frac{1}{p(\underline{x})} p(C_k) \prod_{i=1}^M p(x_i|C_k) = \arg \max_k p(C_k) \prod_{i=1}^M p(x_i|C_k).
+$$
+
+We estimate $p(C_k)$ and $p(x_i|C_k)$ with a Maximum Likelihood approach, after having chosen the distributions families.
+For example we could model $p(C_k)$ as a categorical distribution with parameters $(p_1, \ldots, p_k)$ which generates the targets and $p(x_i|C_k) = \mathcal{N}(x_i|\mu_{ik}, \sigma^2_{ik})$ as a Gaussian distribution for each $i \in \{ 1, \ldots, M \}$, $k \in \{ 1, \ldots, K \}$. Finally, because of our independence assumption, the estimation of the parameters of each distribution is independent from the others.
+For example $\mu_{ik}$ is estimated by taking the sample mean of all the values of $x_i$ when $t_{n,k} = 1$ (remember that the sample mean is the MLE for the Gaussian).
+
+## $K$-nearest neighbors
+
+**$K$-nearest neighbors** is a <u>non-parametric</u> discriminative approach for classification. After we have chosen a distance and $K \in \mathbb{N}^+$,
+
+---
+
+we define:
+$$
+\mathcal{N}_k(\underline{x}_q) = \{ n \in \{ 1, \ldots, N \} | \underline{x}_i \text{ are the } K \text{ points closest to } \underline{x}_q \}.
+$$
+Then we build the discriminative function by computing the **mode class** associated to the given input (_we also need to define a tie breaking rule_):
+$$
+\hat{t}_q \in \arg \max_k |\{ i \in \mathcal{N}_K(\underline{x}_q) | t_i = k \}|.
+$$
+(_We're implicitly assuming that $t \in \{ 1, \ldots, K \}$ instead of, for example, using a one-hot encoding_).
+
+This approach **can be applied also to regression** where we take the average of the target of the $K$ closest points.
+
+## Evaluating the results
+
+To evaluate the performance of a (binary) classifier we can compute the **confusion matrix** which tells us the number of points which have been correctly classified and those which have been misclassified.
+
+<style>
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td {
+    padding: 0.5cm;
+}
+
+</style>
+
+|                    | Actual Class: 1 | Actual Class: 0 |
+|--------------------|-----------------|-----------------|
+| Predicted Class: 1 | True positives  | False positives |
+| Predicted Class: 0 | False negatives | True negatives  |
+
+
+In particular we will denote with $\text{tp}$ the number of true positives, $\text{fp}$ the number of false positives, $\text{fn}$ the number of false negatives and $\text{tn}$ the number of true negatives.
+Now we're ready to compute other useful performance indices:
+- **Accuracy**: it is the fraction of samples correctly classified in the dataset
+$$
+\text{Acc} = \frac{\text{tp} + \text{tn}}{\text{tp} + \text{tn} + \text{fp} + \text{fn}};
+$$
+- **Precision**: it is the fraction of samples correctly classified in the positive class among the ones classified in the positive class
+$$
+\text{Pre} = \frac{\text{tp}}{\text{tp} + \text{fp}};
+$$
+- **Recall**: it is the fraction of samples correctly classified in the positive class among the ones belonging to the positive class
+$$
+\text{Rec} = \frac{\text{tp}}{\text{tp} + \text{fn}};
+$$
+
+---
+
+- **F1 score**: it is the harmonic mean of precision and recall
+$$
+F1 = \frac{2 \cdot \text{Pre} \cdot \text{Rec}}{\text{Pre} + \text{Rec}}.
+$$
+
+Remember that:
+- the higher these performance measures the better the algorithm is performing;
+- these performance measures are **not symmetric**, but depend on the class we selected as positive;
+- depending on the **application** one might switch the classes to have measures which better evaluate the predictive power of the classifier.
