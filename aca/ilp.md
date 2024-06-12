@@ -194,7 +194,8 @@ The most common example of such an instruction is the conditional move.
 
 ##### Rotating register file
 
-Resume...
+In order to reduce the name dependencies among the instructions of different iterations of a loop, we can adopt a **rotating register file**. In a rotating register file, registers are split into rotating and non-rotating.
+Rotating registers are used for the instructions in loop bodies. In particular, the actual address of the physical rotating register is obtained by adding the address of the virtual register, specified in the code, to the value of the **Rotating Register Base** (**RRB**) which points at the base of the register set for the current iteration. Of course this value is incremented (or decremented) at each iteration to prevent WAR and WAW hazards, maximizing the parallelism among different iterations.
 
 ### Dynamic scheduling
 
@@ -208,3 +209,39 @@ These advantages are gained at a cost:
 - a significant increase in hardware complexity;
 - increased power consumption;
 - possible generation of imprecise exception.
+
+---
+
+#### Scoreboard (CDC 6600)
+
+The **Scoreboard** (**CDC 6600**) is an evolution of the complex pipeline architecture, which aims at increasing ILP by reducing the number of stalls due to conflicts arising from name dependencies. Indeed, in the complex pipeline (_with IS stage_) that we described, all the instructions causing WAR or WAW hazards are stalled in the ID stage, causing a stall also for all the instructions that follow.
+We can't do otherwise since, without further checks, executing such instructions out of order could corrupt the data flow and hence the correctness of a program.
+In Scoreboard we improve the parallelism by <u>allowing out of order execution of instructions causing WAR hazards</u>, while we still have to stall instructions causing WAW hazards (_later you can find a disappointing comment about this_). This is achieved by introducing a **centralized scheduler** which keeps track of all the relevant information of the instructions executing in the pipeline. Thanks to this information we can stall the write-back of instructions causing WAR hazards until the previous data that will be overwritten is read by all those who need it.
+
+In the Scoreboard architecture there are 4 stages (excluding the IF stage).
+1. **Issue**: if a functional unit for the instruction is free and the instruction does not cause a WAW (i.e., there is no other active instruction that has the same destination register), then the Scoreboard issues the instruction to the functional unit and <u>updates its internal data structure</u>. As in the complex pipeline with IS stage, we can have multiple instructions in the issue stage in a queue. If a structural or WAW hazard exists, the instruction issue stalls, and no further instructions will issue until the hazards are clear (i.e. we have in order issue). If we DON'T assume that the queue has unlimited capacity, we have to stall also the fetch when we reach saturation.
+2. **Read operands**: the scoreboard monitors the availability of the source operands. A source operand is available if no earlier issued active instruction is going to write it. When the source operands are available, the scoreboard tells the functional unit to proceed to read the operands from the registers and begin the execution. The scoreboard resolves RAW hazards dynamically in thi step, and instructions may be sent into execution out of order.
+3. **Execution**: the functional unit begins execution upon receiving operands. When the result is ready, it notifies the scoreboard that it has completed execution.
+4. **Write result**: once the Scoreboard is aware that the functional unit has completed execution, the Scoreboard checks for WAR hazards and stalls the completing instruction if necessary. If there is no WAR hazard the Scoreboard tells the functional unit to store its result to the destination register.
+
+**Important remark**: since we have to go through the centralized scheduler, it is NOT possible to overlap _read operands_ and _write result_ to solve a RAW hazard as in the simple 5 stages MIPS pipeline. That is, the reading instruction will complete the _read operands_ in the cycle <u>after</u> the _write result_ of the writing instruction involved in the RAW.
+
+---
+
+Let's go into the details of the information used by Scoreboard.
+1. **Instruction status**: indicates which of the four steps the instruction is in.
+2. **Functional unit status**: indicates the state of the FU. There are nine fields for each functional unit:
+> - _Busy_: indicates whether the unit is busy or not;
+> - _Op_: it is the operation to perform in the unit (e.g. _ADD_, or _SUB_);
+> - _Fi_: the destination register;
+> - _Fj, Fk_: the source register numbers;
+> - _Qj, Qk_: functional units producing source registers Fj, Fk;
+> - _Rj, Rk_: flags indicating when Fj, Fk are ready and not yet read. Set to No after operands are read.
+3. **Register result**: indicates which functional unit will write each register, if an active instruction has the register as its destination. This field is set to blank whenever there are no pending instructions that will write that register.
+
+Observe that:
+- We can check if there is a WAW hazard by looking if the _register result_ slot for the destination register of the instruction in the IS stage is empty or not.
+- We can check if there is a RAW hazard by looking if the _register result_ slots for the source registers of the instruction in the IS stage are empty or not, we will set Qj, Qk, Rj, and Rk consequently.
+- Let f be the FU of the current instruction in the _write result_ stage, we can check if there is a WAR hazard or not by checking if in the _functional unit status_ table we have a functional unit f' s.t. (Fj(f') = Fi(f) and Rj(f') = Yes) or (Fk(f') = Fi(f) and Rk(f') = Yes) (_if this condition is satisfied WE HAVE A WAR_).
+Observe that here we assume that if for example Fk(f') != Fi(f), but Fj(f') = Fi(f) and Rj(f') = No we DO NOT HAVE A WAR and we can write. This is due to the fact that, if Fj(f') = Fi(f) and Rj(f') = No, either the instruction in f' has already read or it is waiting for the result produced by f, which, since we stall instructions causing WAW hazards, is the only functional unit which writes in Fi(f).
+I think that it is also possible to make the WAR check a bit more complicated by considering also Qj(f'), Qk(f') and if the instruction in f' has already read (from the instruction status), removing the need of stalling WAWs. Indeed, _according to Wikipedia_, the only reason why Scoreboard doesn't handle WAW hazards, is because its architects had to deliver the product.
