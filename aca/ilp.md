@@ -354,3 +354,45 @@ Let's see the difference in the stages.
 ---
 
 Observe that the in-order commit must still happen to determine the actual architectural registers and move unused physical registers to the free list, anyway this is transparent from the Scoreboard perspective which just needs to check the free list during issue.
+
+## ILP limits
+
+In all the architectures that we discussed (except VLIW) the theoretical upper-bound to the $CPI$ is $1$. To have $CPI < 1$ we must issue more than an instruction per cycle.
+This is known as **super-scalar execution**. It requires:
+- _Fetching more instructions per clock cycle_: this isn't a major problem provided the instruction can sustain the bandwidth and can manage more requests at the same time;
+- _Decide on data and control dependencies_: we need dynamic scheduling and dynamic branch prediction.
+The ideal $CPI$ for a super-scalar architecture is:
+$$
+\text{CPI}_{\text{ideal}} = \frac{1}{\text{issue width}}.
+$$
+
+We're going to test the ILP limits by simulating an _ideal_ super-scalar architecture (impossible to realize in practice as will be clear in a moment) on well known benchmarks and get an upper bound to the amount of parallelism that we can exploit.
+In particular we will assume for this **ideal machine**:
+- _ideal register renaming_: there are infinite physical registers, hence all WAW and WAR hazards are avoided;
+- _ideal branch prediction_: no miss-predictions;
+- _ideal jump prediction_: the predicted BTA is always correct;
+- _ideal memory-address alias analysis_: addresses are always known, hence we can for example move a store before a load if the address they access is not the same (_since we know the actual address beforehand_);
+- _1 cycle latency for all instructions_;
+- _we can issue an unlimited number of instructions per clock cycle_;
+- _ideal caching_: we never have a cache miss.
+
+Obviously the obtained results are VERY optimistic.
+Observe that branch prediction performance close to the ideal one is possible only with dynamic branch prediction which implies that, to issue many instructions, we need dynamic scheduling.
+Even assuming the ideal (in many cases unlimited) resources that we listed before, we still have some computational limits on the **instruction window size**, where the **instruction window** is the set of instructions among which we choose those that will be issued.
+Indeed, to identify RAWs (_assuming that there are infinite registers, otherwise we could check all the accesses to a register, for every register_) among $n$ instruction, for each instruction we must do two comparisons with all the ones that precede it (_i.e. we need to compare both the source operands of the instruction with the destination operand of the others_).
+
+---
+
+Hence, we have a total of:
+$$
+\sum_{i=2}^n 2(i-1) = 2 \sum_{i=1}^{n-1} i = 2 \frac{(n-1)n}{2} = n^2 - n = \Theta(n^2) \text{ comparisons.}
+$$
+That is, if $n = 2000$ we have about _4 million_ comparisons to carry out in order to determine which instructions to issue.
+
+Anyways, despite assuming also an _infinite window size_, on many benchmark we still have a very limited average number of instruction issued per cycle on the _ideal machine_. As we anticipated, there is an upper bound to the amount of ILP present in usual programs which we can't overtake even with an _ideal machine_.
+
+## Final remarks
+
+Dynamically-scheduled super-scalar processors are the commercial state-of-the-art for general purpose computations.
+Most techniques for increasing performance increase power consumption, in particular, multiple issue processors techniques all are energy inefficient.
+Nowadays, to make performance progress, we must exploit explicit parallelism found by programmers.
