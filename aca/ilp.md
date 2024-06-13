@@ -218,7 +218,7 @@ The **Scoreboard** (**CDC 6600**) is an evolution of the complex pipeline archit
 We can't do otherwise since, without further checks, executing such instructions out of order could corrupt the data flow and hence the correctness of a program.
 In Scoreboard we improve the parallelism by <u>allowing out of order execution of instructions causing WAR hazards</u>, while we still have to stall instructions causing WAW hazards (_later you can find a disappointing comment about this_). This is achieved by introducing a **centralized scheduler** which keeps track of all the relevant information of the instructions executing in the pipeline. Thanks to this information we can stall the write-back of instructions causing WAR hazards until the previous data that will be overwritten is read by all those who need it.
 
-In the Scoreboard architecture there are 4 stages (excluding the IF stage).
+In the Scoreboard architecture there are 4 stages (excluding the IF and ID stages).
 1. **Issue**: if a functional unit for the instruction is free and the instruction does not cause a WAW (i.e., there is no other active instruction that has the same destination register), then the Scoreboard issues the instruction to the functional unit and <u>updates its internal data structure</u>. As in the complex pipeline with IS stage, we can have multiple instructions in the issue stage in a queue. If a structural or WAW hazard exists, the instruction issue stalls, and no further instructions will issue until the hazards are clear (i.e. we have in order issue). If we DON'T assume that the queue has unlimited capacity, we have to stall also the fetch when we reach saturation.
 2. **Read operands**: the scoreboard monitors the availability of the source operands. A source operand is available if no earlier issued active instruction is going to write it. When the source operands are available, the scoreboard tells the functional unit to proceed to read the operands from the registers and begin the execution. The scoreboard resolves RAW hazards dynamically in thi step, and instructions may be sent into execution out of order.
 3. **Execution**: the functional unit begins execution upon receiving operands. When the result is ready, it notifies the scoreboard that it has completed execution.
@@ -245,3 +245,69 @@ Observe that:
 - Let f be the FU of the current instruction in the _write result_ stage, we can check if there is a WAR hazard or not by checking if in the _functional unit status_ table we have a functional unit f' s.t. (Fj(f') = Fi(f) and Rj(f') = Yes) or (Fk(f') = Fi(f) and Rk(f') = Yes) (_if this condition is satisfied WE HAVE A WAR_).
 Observe that here we assume that if for example Fk(f') != Fi(f), but Fj(f') = Fi(f) and Rj(f') = No we DO NOT HAVE A WAR and we can write. This is due to the fact that, if Fj(f') = Fi(f) and Rj(f') = No, either the instruction in f' has already read or it is waiting for the result produced by f, which, since we stall instructions causing WAW hazards, is the only functional unit which writes in Fi(f).
 I think that it is also possible to make the WAR check a bit more complicated by considering also Qj(f'), Qk(f') and if the instruction in f' has already read (from the instruction status), removing the need of stalling WAWs. Indeed, _according to Wikipedia_, the only reason why Scoreboard doesn't handle WAW hazards, is because its architects had to deliver the product.
+
+---
+
+#### Tomasulo
+
+**Tomasulo** architecture is an improvement w.r.t. Scoreboard since it is capable not only of handling RAW and WAR, but also WAW hazards.
+RAW hazards are avoided by executing an instruction only when its operands are available, which is exactly what the simpler Scoreboard approach provides.
+WAR and WAW hazards, which arise from name dependencies, are eliminated by **implicit register renaming**. _Register renaming_ eliminates these hazards by renaming all destination registers, including those with a pending read or write for an earlier instruction, so that the out-of-order write does not affect any instructions that depend on an earlier value of the operand. In Tomasulo's scheme, register renaming is provided by _reservation stations_, which buffer the operands of instructions waiting to issue. The basic idea is that a reservation station fetches and buffers an operand as soon as it is available, eliminating the need to get the operand from a register. In addition, pending instructions designate the reservation station that will provide their input. Finally, when successive writes to a register overlap in execution, only the last one is actually used to update the register (_thus reducing also power consumption by minimizing useless bit flips_). As instructions are issued, the register specifiers for pending operations are renamed to the names of the reservation station, which provides register renaming.
+Since there can be more reservation stations that real registers, the technique can even eliminate hazards arising from name dependencies that could not be eliminated by a compiler.
+The use of reservation stations, rather than a centralized register file, leads to two other important properties. First, hazard detection and execution control are distributed: the information held in the reservation stations at each functional unit determines when an instruction can begin execution at that unit. Second, results are passed directly to functional units from the reservation stations where they are buffered, rather than going through the registers. This bypassing is done with a common result bus that allows all units waiting for an operand to be loaded simultaneously; this is called **Common Data Bus** (**CDB**).
+
+In Tomasulo (excluding IF and ID stages) there are only 3 stages.
+1. **Issue**: get the next instruction from the head of the instruction queue, which is maintained in FIFO order (_i.e., we have in order issue_) to ensure the maintenance of correct data flow. If there is a matching reservation station that is empty, issue the instruction to the station with the operand values, if they are currently in the registers. If there is not an empty reservation station, then there is a structural hazard and the instruction stalls until a station or buffer is freed. If the operands are not in the registers, keep track of the functional units that will produce the operands. This step renames registers, eliminating WAR and WAW hazards.
+2. **Execute**: if one or more of the operands is not yet available, monitor the common data bus while waiting for it to be computed. When an operand becomes available, it is placed into any reservation station awaiting it. When all the operands are available, the operation can be executed at the corresponding functional unit. By delaying instruction execution until the operands are available, RAW hazards are avoided.
+
+---
+
+> Notice that several instructions could become ready in the same clock cycle for the same functional unit. Although independent functional units could begin execution in the same clock cycle for different instructions, if more than one instruction is ready for a single functional unit, the unit will have to choose among them.
+
+**Important remark**: to preserve exception behavior, no instruction is allowed to initiate execution until all branches that precede the instruction in program order have completed. This restriction guarantees that an instruction that causes an exception during execution really would have been executed. In a processor using branch prediction, this means that the processor must know that the branch prediction was correct before allowing an instruction after the branch to begin execution.
+As we will see, speculation provides a more flexible and more complete method to handle exceptions, so we will delay making this enhancement and show how speculation handles this problem later.
+
+3. **Write result**: when the result is available, write it on the CDB and from there into the registers and into any reservation stations waiting for this result.
+
+Let's discuss the data structures used to implement implicit register renaming.
+Each reservation station has seven fields:
+- _Op_: the operation to perform on source operands S1 and S2;
+- _Qj, Qk_: the reservation stations that will produce the corresponding source operand; a value of zero indicates that the source operand is already available in Vj or Vk, or is unnecessary;
+- _Vj, Vk_: the value of the source operands. Note that only one of the V fields or the Q fields is valid for each operand;
+- _A_: used to hold information for the memory address calculation for a load or store. Initially, the immediate field of the instruction is stored here, after the address calculation, the effective address is stored here;
+- _Busy_: indicates that this reservation station and its accompanying functional unit are occupied.
+
+The register file has a field:
+- _Qi_: the number of the reservation station that contains the operation whose result should be stored into this register. If the value of Qi is blank, no currently active instruction is computing a result destined to this register, meaning that the value is simply the register contents.
+
+**Remark on loads and stores**: loads and stores require a two-step execution process. The first step computes the effective address when the base register is available, and the effective address is the placed in the load or store buffer. Loads in the load buffer execute as soon as the memory unit is available. Stores in the store buffer wait for the value to be stored before being sent to the memory unit. Loads and stores are maintained in program order through the effective address calculation, which will help to prevent hazards through memory.
+
+---
+
+#### Hardware-based speculation
+
+As we try to exploit more instruction-level parallelism, maintaining control dependencies becomes an increasing burden. Overcoming control dependence is done by speculating on the outcome of branches and executing the program as if our guesses were correct. This mechanism represents a subtle, but important, extension over branch prediction with dynamic scheduling. In particular, with speculation, we fetch, issue, and _execute_ instructions, as if our branch predictions were always correct; dynamic scheduling only fetches and issues such instructions. Of course, we need mechanisms to handle the situation where the speculation is incorrect.
+
+Hardware-based speculation combines 3 key ideas: dynamic branch prediction to choose which instructions to execute; speculation to allow the execution of instructions before the control dependencies are resolved; dynamic scheduling to deal with the scheduling of different combinations of basic blocks.
+To extend Tomasulo's algorithm to support speculation, we must separate the bypassing of results among instructions, which is needed to execute an instruction speculatively, from the actual completion of an instruction. By making this separation, we can allow an instruction to execute and to bypass its results to other instructions, without allowing the instruction to perform any updates that cannot be undone, until we know that the instruction is no longer speculative.
+When an instruction is no longer speculative, we allow it to update the register file or memory; we call this additional step in the instruction execution sequence: _instruction commit_.
+The key idea behind implementing speculation is to allow instructions to execute out of order but to force them to commit _in order_ and to prevent any irrevocable action until an instruction commits. Hence, when we add speculation, we need to separate the process of completing execution from instruction commit, since instructions may finish execution considerably before they are ready to commit. Adding this commit phase to the instruction execution sequence requires an additional set of hardware buffers that hold the results of instructions that have finished execution but have not committed. This hardware buffer, which we call the **ReOrder Buffer** (**ROB**), is also used to pass results among instructions that may be speculated.
+The ROB holds the result of an instruction between the time the operation associated with the instruction completes and the time the instruction commits. Hence, the ROB is a source of operands for instructions, just as the reservation stations provide operands in Tomasulo's algorithm. The key difference is that in Tomasulo's algorithm, once an instruction writes its result, any subsequent instructions will find the result in the register file. With speculation, the register file is not updated until the instruction commits, thus, the ROB supplies operands in the interval between completion of instruction execution and instruction commit.
+The ROB is similar to the store buffer in Tomasulo's algorithm, and we integrate the function of the store buffer into the ROB for simplicity.
+
+---
+
+Each entry of the ROB contains 4 fields:
+- the instruction type: it indicates if the instruction is a branch;
+- the destination field: either the register number or the memory address where the instruction result should be written;
+- the value field: the value of the instruction result;
+- the ready field: indicates that the instruction has completed execution, and the value is ready.
+
+Here we list the 4 stages (excluding IF and ID) of Tomasulo + Hardware-based speculation.
+1. **Issue**: get an instruction from the instruction queue. Issue the instruction if there is an empty reservation station and an empty slot in the ROB; send the operands to the reservation station if they are available in either the registers or the ROB. _In the course we treat the ROB as a **circular queue** when we assign new slots or empty them during commits_. Update the control entries to indicate the buffers are in use. The number of the ROB entry allocated for the result is also sent to the reservation station, so that the number can be used to tag the result when it is placed on the CDB. If either all reservations are full or the ROB is full, then instruction issue is stalled until both have available entries.
+2. **Execute**: if one or more of the operands is not yet available, monitor the CDB while waiting for the register to be computed. This step checks for RAW hazards. When both operands are available at a reservation station, execute the operation.
+3. **Write result**: when the result is available write it on the CDB (with the ROB tag sent when the instruction issued) and from the CDB into the ROB, as well as to any reservation stations waiting for this result. Mark the reservation station as available. 
+4. **Commit**: this is the final stage of completing an instruction, after which only its result remains. There are three possible behaviors:
+> - **Normal commit**: the instruction at the head of the ROB (_remember that we treat it as a circular queue_) is not a store. The corresponding result slot has been filled. Then we can store the result in the register file and remove the entry from ROB (_we increase the head address_);
+> - **Store commit**: the instruction at the head of the ROB is a store. We behave like in normal commit, but writing to memory instead of to the register file.
+> - **Instruction is a branch with incorrect prediction**: it indicates that the speculation is wrong. The ROB is flushed (all the results of speculative instructions after the miss-predicted branch are removed) and execution restarts at the correct successor of the branch.
