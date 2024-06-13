@@ -311,3 +311,46 @@ Here we list the 4 stages (excluding IF and ID) of Tomasulo + Hardware-based spe
 > - **Normal commit**: the instruction at the head of the ROB (_remember that we treat it as a circular queue_) is not a store. The corresponding result slot has been filled. Then we can store the result in the register file and remove the entry from ROB (_we increase the head address_);
 > - **Store commit**: the instruction at the head of the ROB is a store. We behave like in normal commit, but writing to memory instead of to the register file.
 > - **Instruction is a branch with incorrect prediction**: it indicates that the speculation is wrong. The ROB is flushed (all the results of speculative instructions after the miss-predicted branch are removed) and execution restarts at the correct successor of the branch.
+
+---
+
+#### Explicit register renaming
+
+One alternative to the use of a ROB is the explicit use of a larger physical set of registers combined with register renaming. The extended set of physical registers is used to hold both the architecturally visible registers as well as the temporary values. Thus, the extended registers replace most of the function of the ROB and the reservation stations; <u>only a queue to ensure that the instructions commit in order is needed</u> (_as usual, this is important for speculation_).
+During instruction issue, a renaming process maps the names of architectural registers to physical register numbers in the extended register set, allocating a new unused register for the destination. WAW and WAR hazards are avoided by renaming of the destination register. Speculation recovery is handled because a physical register holding an instruction destination does not become the architectural register until the instruction commits. The renaming map is a simple data structure that supplies the physical register number of the register that currently corresponds to the specified architectural register. When an instruction commits, the renaming table is permanently updated to indicate that a physical register corresponds to the actual architectural register, thus effectively finalizing the update to the processor state. As we anticipated, a "_full_" ROB is not necessary, but the hardware must still track instructions in a queue-like structure and update the renaming table in strict order.
+In particular the commit consists of two actions:
+1. record that the mapping between an architectural register number and physical register number is no longer speculative;
+2. free up the physical register being used to hold the "older" value of the architectural register.
+Let's understand why we have to do so. With register renaming, de-allocating registers is more complex, since before we free up a physical register, we must know that it no longer corresponds to an architectural register and that no further uses of the physical register are outstanding. A physical register corresponds to an architectural register until the architectural register is rewritten, causing the renaming table to point elsewhere. That is, if no renaming entry points to a particular physical register, then it no longer corresponds to an architectural register. <u>There may, however, still be uses of the physical register outstanding</u> (_remember that instructions may read operands out of order_). The processor can determine whether this is the case by examining the source register specifiers of all instructions in the functional unit queues. If a given physical register does not appear as a source and it is not designated as an architectural register, it may be reclaimed and re-allocated.
+Alternatively, each instruction in the queue could keep track of the old physical register for the architectural register it is writing. When it commits, since commit is in order, all the previous instructions will have committed too, and those are the only ones which could have to read the value in the old physical register. Hence we can reclaim it without the risk of outstanding uses of the older value. Although this method may tie up a physical register slightly longer than necessary, it is easy to implement and is used very often.
+
+---
+
+_In the course we will implement the discussed mechanism through the following data structures._
+- The _rename table_ maps architectural registers to the _current_ (speculative) physical register;
+- The _physical register_ have two additional fields: one that keeps the name of the corresponding _non speculative_ architectural register if there is one, and a bit (with values either 'p' or empty) which indicates if this physical register corresponds _non speculatively_ to an architectural register or not.
+- The _free list_ is the list of free physical registers which can be allocated for new instructions.
+- A _queue_ (which replaces the ROB) with 10 fields:
+> - _use_: if the row is in use (with values either 'x' or empty);
+> - _ex_: if the instruction in the row has been executed (with values either 'x' or empty);
+> - _op_: the kind of operation of the instruction in the row (_add_, _sub_ , ...);
+> - _p1_: if the physical register from which we take the value of the first operand is NOT speculative or speculative (with values either 'p' or empty as in the physical registers);
+> - _PR1_: the address of the physical register from which we take the value of the first operand;
+> - _p2_: analogous to p1, but for the second operand;
+> - _PR2_: analogous to PR1, but for the second operand;
+> - _Rd_: architectural destination register of the instruction;
+> - _LPRd_: old physical register corresponding to the architectural destination register of the instruction (_required for the second action of the commit, see before_);
+> - _PRd_: new physical register (allocated from the free list) corresponding to the architectural destination register of the instruction.
+
+##### Explicit register renaming with Scoreboard
+
+It is possible to mix together explicit register renaming and Scoreboard, beng able of handling RAW, WAR, and WAW hazards as in Tomasulo.
+Let's see the difference in the stages.
+1. **Issue**: we allocate a new physical register from the free list to store the result. If there is no free physical register we stall the issue. Observe that, if there is a free physical register, WARs or WAWs can't occur, hence we don't need to worry about them. Of course we still also need to check if there is an available reservation station.
+2. **Read operands**: as before. Observe that we can use the data structures discussed above to understand the source physical registers where to read.
+3. **Execution**: as before.
+4. **Write result**: as before, only that this time we don't have to worry about WAR hazards.
+
+---
+
+Observe that the in-order commit must still happen to determine the actual architectural registers and move unused physical registers to the free list, anyway this is transparent from the Scoreboard perspective which just needs to check the free list during issue.
