@@ -115,6 +115,17 @@ Indeed the behavior of the training loss is more similar to that of the bias ter
 
 For this reason, to evaluate our model and estimate the prediction error, we need a dataset different from the training set, that we use only for this purpose. This is known as **test set**. Indeed, when we computed the bias-variance decomposition of the generalization error, we introduced the random variables $t_\text{test}$ and $\underline{x}_\text{test}$, independent from $\mathcal{D}$. To have an unbiased estimate of such error we need a dataset independent from $\mathcal{D}$.
 
+### Bootstrap confidence intervals
+
+We're going to describe a simple procedure to get confidence intervals on the performance of our model by evaluating it on the test set $\mathcal{D}_\text{test}$.
+1. Sample $N$ data points from $\mathcal{D}_\text{test}$ with _replacement_ (_bootstrapping_).
+2. Do this $M$ times, forming $M$ resamples $\mathcal{D}_1$, ..., $\mathcal{D}_M$ of $\mathcal{D}_\text{test}$.
+3. Compute the $\text{MSE}$ (or any other metric) on each resample: $\hat{\text{MSE}}_1(\hat{\underline{w}})$, ...., $\hat{\text{MSE}}_M(\hat{\underline{w}})$.
+
+For example, if we want to build a 90% confidence interval, we have to compute the 5-th and 95-th percentiles of $\hat{\text{MSE}}_i(\hat{\underline{w}})$. This allows us to say that the error test is within the two percentiles with 90% confidence.
+**Important remark**: a test set should be used _only once_!
+If I retest my model $K$ times, I must correct the significance level from $\alpha$ to $\frac{\alpha}{K}$ (Bonferroni correction).
+
 ## Managing the bias-variance tradeoff
 
 The methods used to manage the bias-variance tradeoff are known as **model selection** techniques (_at the end we will tackle also model ensemble which have the same objective_).
@@ -123,7 +134,11 @@ We can distinguish 3 classes of model selection techniques.
 - **Regularization**: all the input features are used, but estimated coefficients are **shrunken towards zero**, thus reducing the variance;
 - **Dimension reduction**: the input variables are **projected** into a lower-dimensional subspace.
 
-Observe that reducing the number of features can be beneficial for solving a learning problem. This is related to the so-called **curse of dimensionality**. It is related to the **exponential increase in volume** associated with adding **extra dimensions** to the input space. Working with high-dimensional data is **difficult** both from the computational point of view and from the statistical point of view. To prevent the increase in model variance we need many samples, which scale as $N^d$ where $d$ is the number of dimensions of the features space.
+Observe that reducing the number of features can be beneficial for solving a learning problem. This is related to the so-called **curse of dimensionality**. It is related to the **exponential increase in volume** associated with adding **extra dimensions** to the input space. Working with high-dimensional data is **difficult** both from the computational point of view and from the statistical point of view.
+
+---
+
+To prevent the increase in model variance we need many samples, which scale as $N^d$ where $d$ is the number of dimensions of the features space.
 A common pitfall is that if we can't solve a problem with a few features, adding **more features** seems like a good idea. However, since the number of samples usually **stays the same**, the method with more features is likely to **perform worse**.
 
 ### Feature selection
@@ -132,8 +147,6 @@ A common pitfall is that if we can't solve a problem with a few features, adding
 
 The **best subset selection** technique is a feature selection technique which works as follows.
 1. Let $\mathcal{M}_0$ denote the **null model**, which contains no input feature: it just predicts the sample mean for each observation (_which is constant and does not depend on any of the features_);
-
----
 
 2. For $k \in \{ 1, \ldots, M \}$:
 > 2.1 Fit all $\binom{M}{k}$ models that contain exactly $k$ features;
@@ -152,6 +165,9 @@ To solve these problems we can adopt 3 **meta-heuristics**:
 
 THe model containing **all the features** will always have the **smallest training error**. We wish to choose a model with **low test error**, not a low training error.
 THerefore, $\text{RSS}$ and $R^2$ are **not** suitable for selecting the best model among a collection of models with different numbers of features.
+
+---
+
 There are two approaches to **estimate the test error**:
 - we can do a **direct estimation** using a **validation** approach;
 - or we can make an **adjustment** to the training error to account for **model complexity**.
@@ -160,8 +176,6 @@ There are two approaches to **estimate the test error**:
 
 As explained above, we want to find a way of estimating the test error to choose the optimal model. We can't use the training error since it is not a good estimate of the test error and the most complex model will always have the smallest training error.
 We can't use the test set either. Indeed, if we were to choose the model according to the test error, the model would become _dependent_ on the test set and the test error would stop being an unbiased estimate of the generalization error. In simpler words, if we learn from the test set, the test set becomes part of the training set and the test error becomes like the training error.
-
----
 
 Hence we need a third set of data, known as **validation set**, which we can use to choose the best model family, but that we can't use to evaluate the performance of the learned model (for that we use the test set, otherwise the estimate would be biased) or to learn its parameters (for that we use the training set).
 
@@ -179,6 +193,8 @@ $$
 
 This approach is great from the statistical point of view since it provides an estimate with small variance and small bias, but it is problematic from the computational point of view since we have to retrain the model $N$ times to have a single estimate.
 
+---
+
 ##### $k$-fold cross validation
 
 To overcome the computational problems of LOO cross validation we can use $k$-fold cross validation.
@@ -191,8 +207,6 @@ $$
 L_{k\text{-fold}} = \frac{1}{k} \sum_{i=1}^k L_{D_i}.
 $$
 For the reason we discussed earlier, $k$-fold cross validation is more pessimistically biased than LOO cross validation, but it is $\frac{N}{k}$ times faster from the computational point of view.
-
----
 
 Indeed, LOO cross validation is $N$-fold cross validation.
 
@@ -210,7 +224,11 @@ Indeed, LOO cross validation is $N$-fold cross validation.
 We have already seen regularization approaches applied to **linear models** (_ridge regression_, _LASSO_). Such methods **shrink** the parameters towards **zero**.
 It may not be immediately obvious why such a constraint should improve the fit, but it turns out that shrinking coefficient estimates can significantly reduce the variance.
 
-As for feature selection, for ridge regression and LASSO we require a method to determine which of the model under consideration is **best**. So, we need a method for selecting the tuning parameter $\lambda$. **Cross validation** provides a simple way to tackle this problem. We choose a grid of $\lambda$ values, and compute the cross-validation error rate for each value of $\lambda$. We then select the tuning parameter value for which the cross-validation error is **smallest**.
+As for feature selection, for ridge regression and LASSO we require a method to determine which of the model under consideration is **best**. So, we need a method for selecting the tuning parameter $\lambda$. **Cross validation** provides a simple way to tackle this problem. We choose a grid of $\lambda$ values, and compute the cross-validation error rate for each value of $\lambda$.
+
+---
+
+We then select the tuning parameter value for which the cross-validation error is **smallest**.
 Finally, the model is **re-fit** using **all** of the available observations and the selected value of the tuning parameter.
 
 ### Dimension reduction
@@ -222,8 +240,6 @@ There are many techniques to perform dimensionality reduction: we will tackle **
 
 The idea behind **PCA** is to project the input dataset onto the subspace which accounts for most of the variance. Let's formalize the algorithm.
 Let $\underline{x}_1, \ldots, \underline{x}_N \in \mathbb{R}^M$ (where $M$ is the number of features) be the input samples in our dataset.
-
----
 
 Let
 $$
@@ -252,6 +268,10 @@ $$
 $$
 \underline{u}_1^T \underline{u}_1 = 1.
 $$
+
+---
+
+
 > We can exploit Lagrange's multipliers theorem (_the constraint gradient is unique and there is at least one optimum with gradient different from $\underline{0}_M$, hence the set of constraint gradients is linearly independent_) to derive a necessary condition that the optimal solutions to the above problem must satisfy:
 $$
 \begin{cases}
@@ -270,8 +290,6 @@ $$
 $$
 
 2. **Iteration**: we want to generalize the result for the $k$ orthogonal directions which produce features with the largest sum of variances.
-
-----
 
 > Suppose that $\underline{u}_1, \ldots, \underline{u}_{k-1}$ have already been found and correspond to $k-1$ normalized eigenvectors of $S$ associated with the $k-1$ largest eigenvalues.
 We want to solve:
@@ -301,6 +319,9 @@ $$
 \underline{u}_k^T \underline{u}_i = \delta_{ki} \text{ for } i \in \{ 1, \ldots, k \}
 \end{cases} \text{ iff }
 $$
+
+---
+
 $$
 \begin{cases}
 2 S \underline{u}_k = \alpha_1 \underline{u}_1 + \ldots + \alpha_{k-1} \underline{u}_{k-1} + 2 \lambda_k \underline{u}_k \\
@@ -324,8 +345,6 @@ $$
 S \underline{u}_k = \lambda_k \underline{u}_k.
 $$
 
----
-
 > We proved that $\underline{u}_k$ is an eigenvector of $S$, in particular it is the one with largest eigenvalue $\lambda_k$ among those orthogonal to the ones that we've already chosen.
 
 The dataset with new features is given by:
@@ -347,6 +366,9 @@ Transforming the reduced dimensionality projection back into the original space 
 
 PCA can help reduce the **computational load** on the learning technique. Furthermore, reducing the dimension implies a simpler hypothesis space, with less risk of overfitting.
 PCA can also be seen as **noise reduction**.
+
+---
+
 The are some **caveats**:
 - it fails when data consists of **multiple clusters**;
 - the direction with the greatest variance may not be the most informative for out learning task;
@@ -363,3 +385,81 @@ yes, with **Boosting**!
 
 Bagging and Boosting are **meta-algorithms**, they can be applied to other learning algorithms. The basic idea behind both is to learn several models and combine them instead of learning just one model.
 Typically this improves the accuracy by a lot.
+
+#### Bagging
+
+**Bagging** is based on the idea that _averaging_ reduces the variance. In particular, if we have $N$ i.i.d. samples:
+$$
+\mathbb{V}\text{ar}[\overline{X}] = \mathbb{V}\text{ar}[\frac{1}{N} \sum_{n=1}^N X_n] = \frac{1}{N^2} \sum_{n=1}^N \mathbb{V}\text{ar}[X_n] = \frac{1}{N} \mathbb{V}\text{ar}[X_1].
+$$
+Observe that, if the samples were perfectly correlated, that is: $\mathbb{C}\text{ov}[X_i, X_j] = \mathbb{V}\text{ar}[X_i] = \mathbb{V}\text{ar}[X_j]$, we wouldn't get any advantage by averaging:
+$$
+\mathbb{V}\text{ar}[\overline{X}] = \frac{1}{N^2} \left( \sum_{n=1}^N \mathbb{V}\text{ar}[X_n] + \sum_{i \neq j; i,j \in \{ 1, \ldots, N \} } \mathbb{C}\text{ov}[X_i, X_j] \right) =
+$$
+$$
+= \frac{1}{N^2} \sum_{i,j=1}^N \mathbb{V}\text{ar}[X_1] = \frac{N^2}{N^2} \mathbb{V}\text{ar}[X_1] = \mathbb{V}\text{ar}[X_1].
+$$
+
+In particular, **Bagging** stands for bootstrap aggregation. It works as follows.
+We generate $B$ **bootstrap samples** of the training data by **randomly sampling it with replacement**.
+We **train** each model using each bootstrap sample.
+
+---
+
+The prediction is done by using all the learned models together:
+- for classification we do **majority voting**;
+- for regression we **average** the predicted values.
+This approach, as we anticipated, reduces variation, improving the performance of **unstable learners** (_learners with high variance_).
+
+Observe that averaging doesn't affect the bias. Indeed Bagging is useful when our model suffers from high variance but has low bias and is useless in the converse case.
+
+#### Boosting
+
+**Boosting** is another (very different) technique of generating an **ensemble of models**. The idea is to **sequentially** train **weak learners**. A weak learner has a performance that on **any** train set is slightly better than chance prediction.
+This approach was discovered in order to answer a **theoretical question**: is a weak learner (a learner with low accuracy) **equivalent** to a strong learner (very high accuracy)? The answer is **yes** (if the weak learner is better than random guessing for **any** distribution). And the equivalence is possible thanks to Boosting.
+
+The Boosting meta-algorithm at an high level works as follows.
+1. **Weight** all train samples **equally**;
+2. **Train** a model on the training set;
+3. **Compute the error** of the model on the training set;
+4. **Increase weights** on train cases **where model gets wrong**;
+5. **Train** a new model on **re-weighted train set**;
+6. **Re-compute errors** on **weighted** train set;
+7. Increase weights again on cases where model gets wrong;
+8. Repeat until tired.
+
+The prediction for the final model is obtained by **weighing** the prediction of all the trained models.
+
+---
+
+The detailed algorithm to apply Boosting to a classification problem is the following.
+
+<div class="algorithm">
+
+1. **for** $i \in \{ 1, \ldots, N \}$:
+1. &emsp; $w(i) \gets \frac{1}{N}$
+1. **for** $r \in \{ 1, \ldots, T \}$:
+1. &emsp; **for** $i \in \{ 1, \ldots, N \}$:
+1. &emsp; &emsp; $p(i) \gets \frac{w(i)}{\sum_{j \in \{ 1, \ldots, N \}} w(j)}$
+1. &emsp; $y_r \gets L(\mathcal{D}, p)$
+1. &emsp; $\epsilon \gets \sum_{j \in \{ 1, \ldots, N \}} p(j) \mathbb{1}[y_r(j) \neq t_j]$
+1. &emsp; **if** $\epsilon > 0.5$:
+1. &emsp; &emsp; $T \gets r-1$
+1. &emsp; &emsp; **continue**
+1. &emsp; $\beta_r \gets \frac{\epsilon}{1-\epsilon}$
+1. &emsp; **for** $i \in \{ 1, \ldots, N \}$:
+1. &emsp; &emsp; $w(i) \gets w(i) \beta_r^{1-\mathbb{1}[y_r(x_i) \neq t_i]}$
+1. 
+1. **return** $y(x) = \arg \max_t \sum_{r=1}^T \left( \log \frac{1}{\beta_r} \right) \mathbb{1}[y_r(x) = t]$
+
+</div>
+
+**Final remarks on Bagging and Boosting**:
+- Bagging reduces **variance**;
+- Boosting reduces **bias**;
+- Bagging doesn't work so well with **stable models** (_since they already have small variance_), Boosting might still help;
+- Boosting might hurt performance on **noisy datasets**, while Bagging doesn't have this problem;
+- in practice Bagging almost always helps;
+- on average, Boosting helps more than Bagging, but it is also more common for Boosting to hurt performance;
+- the weights in Boosting grow exponentially;
+- Bagging can be parallelized, in Boosting we have to do the trainings in series.

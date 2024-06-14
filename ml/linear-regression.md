@@ -40,7 +40,7 @@ $$
 $$
 L(t, y(\underline{x})) = (t - y(\underline{x}))^2.
 $$
-Our aim is to find a model in our hypothesis space $\mathcal{H}$ (in this case the set of linear models with a fixed set of features [_see later_]) that minimizes $\mathbb{E}[L]$.
+Our aim is to find a model in our hypothesis space $\mathcal{H}$ (in this case the set of linear models with a fixed set of features [_see later_]) that minimizes $\mathbb{E}[L]$. This is also called **population risk minimization**.
 
 - **Theorem**: the model which minimizes the squared loss function is the _conditional average_ $y(\underline{x}) = \mathbb{E}[t|\underline{x}]$.
 
@@ -106,7 +106,7 @@ Indeed, the features can be non-linear without compromising the linearity of the
 
 ## Minimizing least squares
 
-Once we have fixed an hypothesis space $\mathcal{H}$, which for linear models coincides with the choice of the basis functions, the most common approach to linear regression is to minimize the <u>empirical</u> squared loss:
+Once we have fixed an hypothesis space $\mathcal{H}$, which for linear models coincides with the choice of the basis functions, the most common approach to linear regression is to minimize the <u>empirical</u> squared loss (this is also called **empirical risk minimization**):
 $$
 L(\underline{w}) = \frac{1}{2} \sum_{n=1}^N (y(\underline{x}_n, \underline{w}) - t_n)^2
 $$
