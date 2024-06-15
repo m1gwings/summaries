@@ -11,7 +11,7 @@ Cristiano Migali
 
 </div>
 
-- A **parallel computer** is a collection of processing elements that cooperates and communicate to solve large problems fast.
+- A **parallel computer** is a collection of processing elements that cooperate and communicate to solve large problems fast.
 
 The aim of parallel architectures is to replicate processors to add performance instead of designing faster processors (_horizontal scalability_ vs _vertical scalability_). They extend the traditional computer architecture with a **communication architecture** (_to allow the interaction among the different computational units_).
 
@@ -113,7 +113,7 @@ Since all GPUs today use the z-buffer algorithm to do hidden surface removal, re
 ## MIMD parallel architectures
 
 Nowadays, the most common types of parallel computer fall in the MIMD class.
-In a MIMD architecture there are several processing units. Each processor may be executing a different instruction streams, operating on different data elements.
+In a MIMD architecture there are several processing units. Each processor may be executing a different instruction stream, operating on different data elements.
 The execution can be synchronous or asynchronous, deterministic or non-deterministic.
 
 MIMDs are flexible: they can function as single-user machines for high performances on one application, as multi-programmed multiprocessors running many tasks simultaneously, or as some combination of such functions.
@@ -122,6 +122,125 @@ Indeed, each processors in a MIMD architecture is usually an off-the-shelf micro
 We can make this architectures scale by increasing the number of processor nodes.
 To exploit a MIMD architecture with $n$ processors we need at least $n$ threads or processes to execute in parallel.
 
-Existing MIMD machines fall into 2 classes, depending on the number of processors involved, which in turn dictates a memory organization and interconnection strategy:
-- **Centralized shared-memory architectures**: resume...
-- **Distributed memory architectures**: resume...
+Existing MIMD machines fall into 2 classes, depending on the number of processors involved, which in turn dictates a memory organization and interconnection strategy. We refer to the multiprocessors by their memory organization because what constitutes a small or large number of processors is likely to change over time.
+- **Centralized shared-memory architectures** (also knows as _Symmetric MultiProcessors_ (_SMP_)): they feature a small number of cores, typically eight or fewer. For multiprocessors with such small processor counts, it is possible for the processors to share a single centralized memory that all processors have equal access to. In multi-core chips, the memory is effectively shared in a centralized fashion among the cores, and all existing multi-cores are SMPs. SMP architectures are also sometimes called _Uniform Memory Access_ (_UMA_) multiprocessors, arising from the fact that all processors have a uniform latency from memory, even if the memory is organized into multiple banks.
+- **Distributed memory architectures**: to support larger processor counts, memory must be distributed among the processors rather than centralized, otherwise, the memory system would not be able to support the bandwidth demands of a larger number of processors without incurring excessively long access latency. The key disadvantages for a DSM are that communicating data among processors becomes somewhat more complex, and a DSM requires more effort in the software to take advantage of the increased memory bandwidth afforded by distributed memories.
+
+Currently, the approach that dominates the server market is _Bus-Bases Symmetric Shared Memory_.
+
+Observe that there are also two types of address spaces on which processors can rely <u>which are orthogonal w.r.t. the underlying physical memory architecture that we just discussed</u>.
+- **Single logically shared address space**: a memory reference can be made by any processor to any memory location.
+
+---
+
+>  The address space is shared among processors: the same physical address on 2 processors refers to the same location in memory;
+
+- **Multiple and private address spaces**: the processors communicate among them through send/receive primitives. This is know as a **Message Passing Architecture**. The address space is logically disjoint and cannot be addressed by different processors: the same physical address on 2 processors refers to 2 different locations in 2 different memories.
+
+For example, multiprocessor systems can have a single addressing space on a distributed physical memory.
+
+The kind of address space determines also the programming model used to distribute the workload.
+- [Programming model 1] **Shared Memory**: in this programming model, a program is a collection of threads. It is also possible to create them dynamically during the execution. Each thread has a set of **private variable**, e.g. local stack variables and a set of **shared variables**, e.g. static variables, shared common blocks, or global heap. Threads communicate **implicitly** by writing and reading shared variables. Threads coordinate by **synchronizing** on shared variables.
+**Advantages**:
+> - implicit communication;
+> - low overhead when cached;
+
+> **Disadvantages**:
+> - complex to build in a way that scales well;
+> - requires synchronization operations;
+> - hard to control data placement within caching systems.
+
+- [Programming model 2] **Message Passing**: in this programming model, a program consists of a collection of **named** processes, usually fixed at program startup time. They DO NOT share data. Instead they communicate explicitly through send/receive primitives.
+**Advantages**:
+> - explicit communication;
+> - easier to control data placement;
+
+> **Disadvantages**:
+> - message passing overhead can be quite high;
+> - more complex to program;
+> - high software overhead to execute the send/receive primitives. In particular receiving messages can be expensive due to the need to poll or interrupt.
+
+---
+
+### Shared Memory Machines
+#### Cache coherency
+
+We can classify further Shared Memory Machines in two main categories:
+- **Non cache coherent**;
+- **Hardware cache coherent**.
+
+To understand the difference we need to talk about the problem of cache coherence.
+Shared Memory Architectures cache both private data (used by a single processor) and shared data (used by multiple processors to provide communication).
+When shared data are cached, the shared value may be replicated in multiple caches. In addition to the reduction in access latency and required memory bandwidth, this replication provides a reduction of shared data contention read by multiple processors simultaneously. But **private processor caches create a problem**: copies of a variable can be present in multiple caches, hence a write by one processor may not become visible to others. This problem is known as **cache coherence**.
+
+An informal definition of cache coherency could be "Any read must return the most recent write". Unfortunately this requirement is too strict and too difficult to implement. A better requirement is the following: "Any write must eventually be seen by a read. All writes are seen in proper order (**serialization**)".
+There are two rules which are sufficient to guarantee the second requirement.
+1. If P1 writes $x$ and P2 reads it, P1's write will be seen by P2 if the read and write are sufficiently far apart and no other writes to $x$ occur between the two accesses.
+2. Writes to a single location are serialized: two writes to the same location by any two processors are seen in the same order by all processors.
+The HW-based solutions to maintain coherency rely on the so-called **Cache Coherence Protocols**. The key issue to solve in order to implement a Cache Coherence Protocol in a multi-processors system is being able to track the status of any sharing of a cache data block.
+In particular, we distinguish two classes of protocols:
+- **Snooping protocols**;
+- **Directory-based protocols**.
+
+##### Snooping protocols
+
+In **Snooping Protocols** all cache controllers monitor (_snoop_) on a shared bus to determine whether or not they have a copy of the block requested on the bus and respond accordingly. Every cache that has a copy of the shared block, also has a copy of the sharing status of the block, and no centralized state is kept.
+Requests for shared data are sent to all the processors. Hence these protocols require broadcasting.
+
+---
+
+Snooping Protocols are of two types depending on what happens on a write operation:
+- **Write-Invalidate Protocol**;
+- **Write-Update** or **Write-Broadcast Protocol**.
+
+In a **Write-Invalidate Protocol** the writing processor issues an invalidation signal over the bus to cause all copies in other caches to be invalidated before changing its local copy.
+The writing processor is then free to update the local data until another processor asks for it. All caches on the bus check to see if they have a copy of the data and, if so, they must invalidate the block containing them. This scheme allows multiple readers but only a single writer.
+The bus is used only on the first write by a processor to invalidate the other copies. Subsequent writes do not result in bus activity. This protocol provides similar benefits to write-back protocols in terms of reducing demands on bus bandwidth.
+
+In a **Write-Update Protocol** the writing processor broadcasts the new data over the bus; all caches check if they have a copy of the data and, if so, all copies are updated with the new value. This scheme requires the continuous broadcast of writes to shared data (while Write-Invalidate Protocols delete all other copies on the first write). This protocol provides similar benefits to write-through protocols because all writes go over the bus to update the copies of the shared data. Furthermore, the memory stays always up to date.
+
+Most part of commercial cache-based multi-processors uses **Write-Back caches** with a **Write-Invalidate protocol** to reduce bus traffic.
+
+Observe that we can use the same snooping scheme both for cache misses and writes. Each processor snoops every address placed on the bus; if a processor finds that it has a dirty copy of the requested cache block, it provides the cache block in response to the read request.
+
+###### Write-Invalidate protocols
+
+In a Write-Back cache system with Write-Invalidate protocol each **memory block** can be in one of three states:
+- **Clean**: it is in more than one cache and up-to-date in memory;
+- **Dirty**: it is exactly in one cache;
+- NOT in any cache.
+
+In the **MSI Invalidate** protocol also **cache blocks** have three states:
+- **M**: **Modified**;
+- **S**: **Shared**;
+- **I**: **Invalid**.
+
+When a processor reads, it obtains a block in the shared state. Writing requires to obtain exclusive ownership: we send an invalidate message to all other caches.
+There are some complications for the basic MSI protocol: the operations are not atomic, e.g. detecting misses, acquiring the bus, receiving a response.
+
+---
+
+It creates the possibility of deadlocks and races. One possible solution is that the processor which sends the invalidate can hold the bus until other processors receive the invalidate.
+
+The **MESI Invalidate** is an improvement w.r.t. **MSI invalidate**. We add another state: **E**, **Exclusive**.
+In particular, the meaning of the states is:
+- **Modified**: the block is dirty and cannot be shared, cache has the only copy, it is writable;
+- **Exclusive**: the block is clean and the cache has the only copy;
+- **Shared**: the block is clean and other copies of the block are in cache;
+- **Invalid**: the block contains no valid data.
+
+The addition of the exclusive block prevents the need of sending useless invalidate on write when we are the only owners of the block.
+
+#### Memory consistency
+
+**Memory consistency** answers the question "When must a processor see the new value of a data updated by another processor?". There are several possible definitions (requirements) for consistency.
+
+- A system is **sequentially consistent** if the result of any execution is the same as if the operations of all the processors were executed in some sequential order, and the operations of each individual processor appear in the order specified by the program.
+
+Sequential consistency is usually a too strict requirement, and often it is also unnecessary if  programs are **synchronized**: i.e.e, the accesses to shared variables are ordered by synchronization operations (_lock_, _unlock_).
+The need for synchronization arises whenever there are concurrent processes in a system (_even in a uni-processor system_).
+The are two **classes of synchronization**:
+- **Producer-Consumer**: a consumer process must wait until the producer process has produced the data;
+- **Mutual exclusion**: ensures that only one process uses a resource at a given time.
+
+Atomic _Read-Modify-Write_ (_RMW_) instructions have been added to ISAs to support mutual exclusion.
