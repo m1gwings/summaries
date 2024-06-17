@@ -232,7 +232,7 @@ Now we're going to provide some conditions to test if a generic function is a ke
 
 - A **necessary and sufficient** for a function $k(\underline{x}, \underline{x}')$ to be a kernel is that the Gram matrix $K$ is positive semi-definite for all possible choices of the set $\{ \underline{x}_1, \ldots, \underline{x}_N \}$.
 
-- **Mercer's theorem**: **any** continuous, symmetric, positive semi-definite kernel function $k(\underline{x}, \underline{y})$ can be expressed as a **dot product** in a high-dimensional space. In particular, with $k(\underline{x}, \underline{y})$ positive semi-definite, we mean $k(\underline{x}, \underline{x}) \geq 0 \ \forall \underline{x}$.
+- **Mercer's theorem**: **any** continuous, symmetric, positive semi-definite kernel function $k(\underline{x}, \underline{y})$ can be expressed as a **dot product** in a high-dimensional space. In particular, with $k(\underline{x}, \underline{y})$ positive semi-definite, we mean that the associated Gram matrix is positive definite for any set of inputs.
 
 ### Composing kernels
 
