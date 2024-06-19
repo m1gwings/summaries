@@ -475,7 +475,7 @@ $$
 = \mathbb{E}_\pi[Q^\pi(s, a_t)|s_t = s] = \sum_{a \in \mathcal{A}(s)} \pi(a|s) Q^\pi(s, a) \text{ as we wanted to prove}.
 $$
 
-The **Bellman optimality equation** is an equation satisfied by all and only the optimal policies. Let $\pi^*$ be an optimal policy.
+The **Bellman optimality equation** is an equation satisfied by all the optimal policies. Let $\pi^*$ be an optimal policy.
 Then:
 $$
 V^{\pi^*}(s) \stackrel{\text{lemma (3)}}{=} \sum_{a \in \mathcal{A}(s)} \pi^*(a|s) Q^{\pi^*}(s, a) \leq \max_{a \in \mathcal{A}(s)} Q^{\pi^*}(s, a)
@@ -487,4 +487,286 @@ $$
 V^{\pi^*}(s) = \max_{a \in \mathcal{A}(s)} Q^{\pi^*}(s, a).
 $$
 
-_[It is also sufficient because it admits a unique solution]_.
+This is the so-called **Bellman optimality equation** which is usually expressed either as dependent only on $V^*$ or only on $Q^*$ (_remember that $V^{\pi^*} = V^*$ and $Q^{\pi^*} = Q^*$_). 
+
+- **Bellman Optimality Equation for $V^*$**:
+$$
+V^*(s) = \max_{a \in \mathcal{A}(s)} Q^*(s, a) =
+$$
+$$
+\stackrel{\text{lemma (1)}}{=} \max_{a \in \mathcal{A}(s)}\left[ R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V^*(s') \right].
+$$
+
+- **Bellman Optimality Equation for $Q^*$**:
+$$
+Q^*(s, a) \stackrel{\text{lemma (1)}}{=} R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V^*(s') =
+$$
+$$
+= R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s,a) \max_{a' \in \mathcal{A}(s')} Q^*(s', a').
+$$
+
+Analogously to what we did before, we can define the operator corresponding to each of the equations above.
+
+- The **Bellman optimality operator** for $V^*$ is defined as $T^* : \mathbb{R}^{|\mathcal{S}|} \rightarrow \mathbb{R}^{|\mathcal{S}|}$ (maps value functions to value functions):
+$$
+(T^* V^*)(s) = \max_{a \in \mathcal{A}} \left[ R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V^*(s') \right].
+$$
+
+---
+
+- The **Bellman optimality operator** for $Q^*$ is defined as $T^* : \mathbb{R}^{|\mathcal{S}| \times |\mathcal{A}|} \rightarrow \mathbb{R}^{|\mathcal{S}| \times |\mathcal{A}|}$ (maps action-value functions to action value functions):
+$$
+(T^* Q^*)(s, a) = R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) \max_{a' \in \mathcal{A}(s')} Q^*(s', a').
+$$
+
+#### Properties of the Bellman Operators
+
+Bellman Operators enjoy the following properties:
+- **monotonicity**: if $\underline{v}_1 \leq \underline{v}_2$, then:
+$$
+T^\pi \underline{v}_1 \leq T^\pi \underline{v}_2 \text{ and } T^* \underline{v}_1 \leq T^* \underline{v}_2;
+$$
+- **max-norm contraction**:
+$$
+||T^\pi \underline{v}_1 - T^\pi \underline{v}_2||_\infty \leq \gamma ||\underline{v}_1 - \underline{v}_2||_\infty \text{ and}
+$$
+$$
+||T^* \underline{v}_1 - T^* \underline{v}_2||_\infty \leq \gamma ||\underline{v}_1 - \underline{v}_2||_\infty;
+$$
+- **fixed points**: $V^\pi$ is the unique fixed point of $T^\pi$ and $V^*$ is the unique fixed point of $T^*$;
+- **convergent iteration**:
+$$
+\lim_{k \rightarrow +\infty} (T^\pi)^k \underline{v}_1 = V^\pi \text{ and } \lim_{k \rightarrow +\infty} (T^*)^k \underline{v}_1 = V^*.
+$$
+
+**Very important remark**: observe that, since $T^*$ has a unique fixed point, all the policies which satisfy the Bellman optimality equation have the same value function. Furthermore, we know that there exists at least an optimal policy, and such policy must satisfy the Bellman optimality equation (which we showed being a necessary condition for optimality). Hence all the policies which satisfy the Bellman optimality equation have the same value function of an optimal policy and thus they are optimal. In other words, the Bellman optimality equation in this setting is not only necessary, but also sufficient for a policy to be optimal.
+
+## Solving MDPs
+
+Solving an MDP means finding an **optimal policy**. 
+A **naive approach** consists of:
+1. **enumerating** all the deterministic Markov policies;
+2. **evaluate** each policy;
+3. **return** the best one.
+
+Unfortunately, the number of deterministic policies (_we know from the theory that there must be at least one optimal deterministic policy_) is exponential in the number of state: $|\mathcal{A}|^{\mathcal{S}}$.
+
+We need a more intelligent way to look for the optimal policy.
+
+---
+
+### Dynamic Programming
+
+**Dynamic Programming** (**DP**) is a family of techniques which can be used to solve certain optimization problems. In particular, the term **dynamic** refers to the fact that the problem has a sequential/temporal component; the term **programming** means that we're optimizing a "program" (i.e. a policy) (_like in linear programming_).
+In particular, in Dynamic Programming we break down a problem into simpler sub-problems, whose solutions can be combined to produce a solution for the original problem. The property that we just described is called **optimal substructure**.
+Another property which DP relies on is the **overlapping sub-problems** property: sub-problems **recur** many times and solutions can be **cached** and **reused**.
+
+We can use DP in a MDP both for **prediction** (computing the value function of a given policy) and **control** (finding the optimal policy).
+
+#### Finite-horizon DP
+
+There is a really convenient way of applying DP to a finite horizon MDP.
+Assume that every interaction between the environment and the agent lasts $N$ steps.
+Hence, in a given interaction, the agent can be in a certain state for at most $N+1$ times (counting also the initial state).
+The **principle of optimality** in a problem of this kind is that an optimal policy for all the $N$ steps must be optimal for the last $N-1$ steps (easy proof by contradiction).
+Hence, we can build an $(N+1) \times |\mathcal{S}|$ table which stores the value of being in state $\mathcal{S}$ at step $t$: **observe that finite-horizon problems are non-stationary**.
+
+In the last step we know that, no matter the policy, the value of being in any state is $0$: we cannot interact with the environment any more. Hence we can fill the last row with zeroes.
+
+At each step $t$, the value of playing an action $a$ in a certain sate $s$ is:
+$$
+Q(s, a, t) = R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V(s', t+1);
+$$ 
+if we fill the table stating from the last row, we can assume that $V(s', t+1)$ is known.
+Hence, we can compute the optimal value function by choosing the best action at every step:
+$$
+V^*(s, t) = \max_{a \in \mathcal{A}(s)} Q^*(s, a, t) = \max_{a \in \mathcal{A}(s)} \left[ R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V^*(s', t+1) \right].
+$$
+This process is known as **backward induction**. The equation above is known as **backward recursion** and allows us to fill the table. The cost is $O(N |\mathcal{S}| |\mathcal{A}|)$.
+Once we have filled the table, at each stable we can choose the action with highest value in the given state, remembering that:
+$$
+Q^*(s, a, t) = R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V^*(s',t+1).
+$$
+
+---
+
+#### Policy evaluation
+
+We know that, given a policy $\pi$, we have two ways of computing the corresponding value function $V^\pi$.
+We can either solve the Bellman expectation equation:
+$$
+V^\pi = (I - \gamma P^\pi)^{-1}R^\pi
+$$
+or apply the Bellman expectation operator iteratively (_we know that this procedure converges in the limit to the value function_). In particular, in this last approach, we update the estimated value function with the following backup operation:
+$$
+V_{k+1}(s) \gets \sum_{a \in \mathcal{A}(s)} \pi(a|s) \left[ R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V_k(s') \right].
+$$
+- A **sweep** consists of applying a backup operation to each state. Using **synchronous** backups, at each iteration $k+1$, for all states $s \in \mathcal{S}$, we update $V_{k+1}(s)$ from $V_k(s')$.
+
+#### Policy iteration
+
+Consider a **deterministic policy** $\pi$. We ask ourselves "for a given state $s$, would it be **better** to do an action $a \neq \pi(s)$". It is possible to answer the question by noticing that we can improve a policy by acting greedily. Let:
+$$
+\pi'(s) = \arg \max_{a \in \mathcal{A}(s)} Q^\pi(s, a).
+$$
+Then:
+$$
+Q^\pi(s, \pi'(s)) \stackrel{\text{definition of } \pi'}{=} \max_{a \in \mathcal{A}(s)} Q^\pi(s, a) \geq Q^\pi(s, \pi(s)) \stackrel{\text{lemma (3)}}{=} V^\pi(s).
+$$
+Hence, $\pi'$ is at least as good as $\pi$ <u>because of the policy improvement theorem</u>.
+
+In particular, if $Q^\pi(s, \pi'(s)) > V^\pi(s)$ for some $s \in \mathcal{S}$ we know that $\pi'$ is <u>strictly better</u> than $\pi$.
+Conversely, if $V^\pi(s) = \max_{a \in \mathcal{A}(s)} Q^\pi(s, a)$, then $\pi$ satisfies the Bellman optimality equation and is thus optimal.
+These two observations describe the **policy improvement** algorithm.
+At every step we evaluate a deterministic policy $\pi$ and then compute the greedy policy $\pi'$ (which is also deterministic) until the value function of $\pi$ does not satisfy the Bellman optimality equation.
+
+**Remark**: the algorithm terminates in finite time since at every step we strictly improve the policy and the deterministic policies are in finite number.
+
+---
+
+The algorithm can be generalized by relaxing the constraint of computing the exact value function of policy $\pi$.
+In particular, we can do **iterative policy evaluation** of $V^\pi$ for few steps, and then compute the greedy policy $\pi'$. There are convergence guarantees also for this algorithm.
+
+The cost of policy iteration is the cost of policy evaluation + the cost of policy improvement.
+- Policy evaluation has a complexity of:
+> - $O(|\mathcal{S}|^3)$ or $O(|\mathcal{S}|^{2.373})$ if we compute the closed form solution to Bellman optimality equations;
+> - $O\left( |\mathcal{S}|^2 \frac{\log(\frac{1}{\epsilon})}{\log(\frac{1}{\gamma})} \right)$ if we apply the iterative approach.
+
+- Policy improvement has recently been proven to be $O\left( \frac{|\mathcal{A}|}{1-\gamma} \log\left(\frac{|\mathcal{S}|}{1-\gamma}\right) \right)$.
+
+#### Value iteration
+
+The **value iteration** algorithm consists of finding the optimal policy for an MDP by iterative application of the Bellman optimality operator.
+
+Remember that this approach converges in the limit. Anyway we have some theoretical guarantees which provide termination conditions.
+- **Theorem**:
+$$
+||V_{i+1} - V_i||_\infty < \epsilon \implies ||V_{i+1} - V^*||_\infty < \frac{2\epsilon \gamma}{1-\gamma}
+$$
+
+Observe that applying the Bellman optimality operator to get a full update has a complexity of $O(|\mathcal{S}|^2 |\mathcal{A}|)$.
+
+#### Efficiency of DP
+
+To find an optimal policy, DP is polynomial in the number of states...
+But the number of states is often astronomical, e.g. often growing exponentially with the number of state variables.
+In practice, classical DP can be applied to problems with a few millions states.
+**Asynchronous DP** can be applied to larger problems, and is appropriate for parallel computation.
+It is **surprisingly** easy to come up with MDPs for which the methods are not practical.
+
+**Comparison between PI and VI**: each iteration of PI is computationally **more expensive** than each iteration of VI, but PI typically requires fewer iterations to converge than VI.
+
+---
+
+### Infinite Horizon Linear programming
+
+In this section we will derive an LP formulation of the problem of finding an optimal policy in a MDP.
+Let $V \in \mathbb{R}^{|\mathcal{S}|}$ s.t. $V \geq T^*(V)$.
+Because of the monotonicity of the Bellman optimality operator:
+$$
+T^*(V) \geq {T^*}^2(V),
+$$
+hence $V \geq T^*(V) \geq {T^*}^2(V)$. By induction $V \geq {T^*}^k (V)$.
+Then, since limits preserve inequalities and ${T^*}^k(V) \stackrel{k \rightarrow + \infty}{\rightarrow} V^*$, it holds that $V \geq V^*$.
+Observe that, if $V > T^*(V)$, by analogous reasoning, $V > V^*$ (_you take the limit of $T^*(V) \geq {T^*}^k(V)$ and then you apply $V > T^*(V)$_).
+
+Fix $\underline{\mu} \in \mathbb{R}^{|\mathcal{S}|}$, $\underline{\mu} > \underline{0}$.
+Then: $\underline{\mu}^T V \geq \underline{\mu}^T V^*$ if $V \geq V^*$ and, in particular, $\underline{\mu}^T V > \underline{\mu}^T V^*$ if $V > V^*$
+
+We're ready to define the LP:
+$$
+\min_V \underline{\mu}^T V
+$$
+$$
+\text{s.t}
+$$
+$$
+V \geq T^*(V).
+$$
+
+First of all observe that $V^* = T^*(V^*)$ by Bellman optimality equation, hence it is feasible for the problem above. Furthermore, we proved that if $V \geq T^*(V^*)$ then $V \geq V^*$ and so $\underline{\mu}^T V \geq \underline{\mu}^T V^*$, hence $V^*$ is also optimal for the LP.
+Now suppose that $V > T^*(V)$, then $V > T^*(V) = V^*$, and so $\underline{\mu}^T V > \underline{\mu}^T V^*$, or, in other words, $V$ is not optimal.
+Hence, to be optimal, $V$ must satisfy $V = T^*(V)$, that is, it must be optimal for the MDP because of Bellman optimality equations.
+
+We proved that the optimal value functions for the MDP are all and only the optimal solutions to the above LP.
+
+Let's find the dual of the above optimization problem.
+Observe that $V \geq T^*(V)$ can be expanded as:
+$$
+V(s) \geq \max_{a \in \mathcal{A}(s)} \left[ R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V(s') \right] \ \forall s \in \mathcal{S}.
+$$
+This is equivalent to imposing:
+$$
+V(s) \geq R(s, a) + \gamma \sum_{s' \in \mathcal{S}} P(s'|s, a) V(s') \ \forall a \in \mathcal{A}, s \in \mathcal{S}.
+$$
+
+---
+
+Observe that if we fix column $s'$, the coefficient of $V(s')$ at row $s, a$ is:
+$$
+\begin{cases}
+1-\gamma P(s'|s, a) \text{ if } s = s' \\
+-\gamma P(s'|s, a) \text{ otherwise}.
+\end{cases}
+$$
+While the constant term is $R(s, a)$ for each row.
+
+Let $\lambda(s, a)$ be the variables of the dual problem.
+Then the dual problem is:
+$$
+\max_\lambda \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \lambda(s, a) R(s, a)
+$$
+$$
+\text{s.t.}
+$$
+$$
+\sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \mathbb{1}[s = s'] \lambda(s, a) = \mu_s + \gamma \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} P(s'|s, a) \lambda(s, a) \ \forall s' \in \mathcal{S}
+$$
+$$
+\lambda(s, a) \geq 0 \ \forall s \in \mathcal{S}, a \in \mathcal{A}.
+$$
+Finally, we can rewrite it as:
+$$
+\max_\lambda \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \lambda(s, a) R(s, a)
+$$
+$$
+\text{s.t.}
+$$
+$$
+\sum_{a \in \mathcal{A}} \lambda(s', a) = \mu_s + \gamma \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} P(s'|s, a) \lambda(s, a) \ \forall s' \in \mathcal{S}
+$$
+$$
+\lambda(s, a) \geq 0 \ \forall s \in \mathcal{S}, a \in \mathcal{A}.
+$$
+
+$\lambda(s, a)$ can be interpreted as:
+$$
+\lambda(s, a) = \sum_{t=0}^\infty \gamma^t \mathbb{P}(s_t = s, a_t = a).
+$$
+Indeed:
+$$
+\sum_{a \in \mathcal{A}} \sum_{t=0}^\infty \gamma^t \mathbb{P}(s_t = s', a_t = a) = \sum_{t=0}^\infty \gamma^t \mathbb{P}(s_t = s') = \sum_{t=0}^\infty \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \gamma^t P(s'|s,a) \mathbb{P}(s_{t-1} = s, a_{t-1} = a) =
+$$
+$$
+ = \gamma \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} P(s'|s,a) \sum_{t=0}^\infty \gamma^{t-1} \mathbb{P}(s_{t-1} = s, a_{t-1} = a).
+$$
+[_This just show that such interpretation "solves" (ignoring the constant shift $\mu_s$) the constraint above, we should also show that the converse is true but I don't know how; maybe the associated operator is a contraction and thus admits a unique fixed point_].
+
+[_What follows will be super informal ( :-( )_]
+Furthermore, by the law of total expectation, we can write $\mathbb{E}[r_{t+1}] = \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} R(s, a) \mathbb{P}(s_t = s, a_t = a)$.
+
+---
+
+Hence, since the return is $v = \sum_{t=0}^\infty \gamma^t r_{t+1}$, then:
+$$
+\mathbb{E}[v] = \sum_{t=0}^\infty \gamma^t \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} R(s, a) \mathbb{P}(s_t = s, a_t = a) = \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \lambda(s, a) R(s, a),
+$$
+which is exactly the objective function which we're maximizing.
+
+Then the corresponding optimal policy is:
+$$
+\pi^*(s) = \arg \max_{a \in \mathcal{A}} \lambda(s, a)
+$$
+_[I don't know why]_.
+
+LP **worst-case** convergence guarantees are better than those of DP methods, but LP methods become **impractical** at a much smaller number of states than DP methods do.
