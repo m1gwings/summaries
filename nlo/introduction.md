@@ -56,4 +56,29 @@ f(\underline{\overline{x}}) \leq f(\underline{x}) \ \forall \underline{x} \in X 
 $$
 > where $\mathcal{N}_\epsilon(\underline{\overline{x}}) = \{ \underline{x} \in X \ | \ ||\underline{x} - \underline{\overline{x}}|| \leq \epsilon \}$.
 
-Resume...
+---
+
+<style>
+
+table {
+    margin: auto;
+}
+
+td {
+    padding: 0.5cm;
+    padding-right: 0.7cm;
+    padding-left: 0.7cm;
+    text-align: center;
+}
+
+</style>
+
+We can classify optimization problems according to the properties of $f$, $g_i$ and $S$.
+
+| $f$                     | $g_i$  | $S$                                                                            | problem type                |
+|-------------------------|--------|--------------------------------------------------------------------------------|-----------------------------|
+| linear                  | linear | $S = \mathbb{R}^n$                                                             | Linear Programming (LP)     |
+| linear                  | linear | $S \subseteq \mathbb{Z}^n$                                                     | Integer LP (ILP)            |
+| linear                  | linear | $S \subseteq \mathbb{Z}^{n_1} \times \mathbb{R}^{n_2}$<br>with $n = n_1 + n_2$ | Mixed Integer LP (MILP)     |
+| at least one non-linear |        | $S \subseteq \mathbb{R}^n$                                                     | Nonlinear Programming (NLP) |
+| at least one non-linear |        | $S \subseteq \mathbb{Z}^{n_1} \times \mathbb{R}^{n_2}$<br>with $n = n_1 + n_2$ | Mixed Integer NLP (MINLP)   |
