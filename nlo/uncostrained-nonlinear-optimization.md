@@ -212,3 +212,410 @@ In particular we will prove the contra-positive: suppose that $\underline{x}_1$ 
 
 >> Hence, if $\underline{x}_1$ is an extreme point of $T_1$ we're done. Otherwise we define $T_2$ analogously (_taking $T_1$ as $C$_). At every step, the dimension of $T_i$ decreases (_at least_) by one (_we take the supporting hyperplane w.r.t. $\text{aff}(T_{i-1})$_). The procedure must terminate with an extreme point since, in the worst case, we get to $T_n$,
  which is s.t. $\dim(T_n) = 0$. Such an isolated point must be an extreme point. Finally we exploit the fact that an extreme point of $T_i$ is an extreme point of $T_{i-1}$ and so on, up to $C$.
+
+## Iterative methods and convergence
+
+Most N.O. (Nonlinear Optimization) methods are **iterative**:
+- we start from an initial solution $\underline{x}_0 \in X$;
+- we generate a sequence $\{ \underline{x}_k \}_{k \geq 0}$ that "converges" to a point of $\Omega = \{ \text{"desired solutions"} \}$.
+
+We can have different meanings of "**converge**" and "**desired solutions**":
+- $\{ \underline{x}_k \}_{k \geq 0}$ converges to a point of $\Omega$ or $\exists$ a limit point of $\{ \underline{x}_k \}_{k \geq 0}$ (_it is equivalent to the limit of a subsequence_) which belong to $\Omega$.
+- $\Omega = \{ \text{"global optima"} \}$ or $\Omega = \{ \text{"set of candidate points satisfying 1st/2nd order NC"} \}$.
+
+Often, but not always, the methods are **descent methods**: $f(\underline{x}_{k+1}) < f(\underline{x}_k)$ for each $k$.
+
+We're interested in robust and efficient methods.
+1. **RObustness** is associated to global convergence.
+
+- An algorithm is **globally** (**locally**) **convergent** if $\{ \underline{x}_k \}_{k \geq 0}$ satisfies one of the previous properties for any $\underline{x}_0 \in X$ (only for $\underline{x}_0$ in a neighborhood of an $\underline{x}^* \in \Omega$).
+
+---
+
+2. **Efficiency** is characterized by convergence speed.
+
+- Suppose that $\lim_{k \rightarrow +\infty} \underline{x}_k = \underline{x}^*$ where $\underline{x}^* \in \Omega$. We say that $\{ \underline{x}_k \}_{k \geq 0}$ converges to $\underline{x}^*$ with order $p \geq 1$ if $\exists r > 0$ and $k_0 \in \mathbb{N}$ s.t.
+$$
+||\underline{x}_{k+1} - \underline{x}^*|| \leq r ||\underline{x}_k - \underline{x}^*||^p \ \forall k \geq k_0.
+$$
+> The _largest_ $p$ is the **order of convergence**, the _smallest_ $r > 0$ is the **rate**.
+If $p = 1$ and $r < 1$ the convergence is **linear**, if $p = 1$ and $r \geq 1$, the convergence is **sub-linear**.
+
+> **Remark**: if $p = 1$ the distance w.r.t. $\underline{x}^*$ decreases at each iteration by a factor $r$.
+
+> We can <u>compute</u> the order of convergence and the rate of a sequence as follows: we calculate the value of the limit $\lim_{k \rightarrow +\infty} \frac{|| \underline{x}_{k+1} - \underline{x}^* ||}{||\underline{x}_k - \underline{x}^*||^q}$ for different values of $q \geq 1$. We find the biggest value of $q$, namely $\hat{q}$, for which $\lim_{k \rightarrow +\infty} \frac{|| \underline{x}_{k+1} - \underline{x}^* ||}{||\underline{x}_k - \underline{x}^*||^\hat{q}} = \hat{s}^-$ for some $s > 0$. Then $p = \hat{q}$, $r = \hat{s}$. Indeed, we know that the order can't be greater than $p$ since the sequence diverges. Furthermore the rate can't be greater than $s$ (_usual proof, just take $\epsilon$ small enough_). Finally, since the limit is from below, the inequality is satisfied by every $k \geq k_0$ for some $k_0 \in \mathbb{N}$.
+
+- The **convergence** is **superlinear** if there exists $\{ r_k \}_{k \geq 0}$ s.t. $\lim_{k \rightarrow + \infty} r_k = 0$ and
+$$
+||\underline{x}_{k+1} - \underline{x}^*|| \leq r_k ||\underline{x}_k - \underline{x}^*|| \ \forall k \geq k_0.
+$$
+
+- If $p = 2$ (and $r$ not necessarily smaller than $1$), the **convergence** is **quadratic**.
+
+## Line search methods
+
+**Line search methods** are a family of methods for solving unconstrained non-linear optimization problems iteratively.
+The **general scheme** is the following.
+
+1. At the beginning we choose an initial solution $\underline{x}_0$ and a tolerance $\epsilon > 0$. We set $k \gets 0$.
+
+2. At every step $k$:
+> 2.1 Choose a search direction $\underline{d}_k \in \mathbb{R}^n$.
+> 2.2 Determine a step length $\alpha_k > 0$ along $\underline{d}_k$ satisfying certain criteria.
+> 2.3 Set $\underline{x}_{k+1} = \underline{x}_k + \alpha_k \underline{x}_k$ and $k \gets k + 1$.
+> 2.4 If the termination criterion is NOT satisfied: go to 2.
+
+Usual **termination criteria** are: $||\nabla f(\underline{x}_k)|| < \epsilon$ or $|f(\underline{x}_k) - f(\underline{x}_{k+1})| < \epsilon$ or $||\underline{x}_{k+1} - \underline{x}_k|| < \epsilon$.
+
+---
+
+Different line search methods differ in the choice of $\underline{d}_k$ and $\alpha_k$ which determines the robustness and the efficiency of the method.
+
+### Search direction
+
+In many line search methods, the search direction has the following shape:
+$$
+\underline{d}_k = - D_k \nabla f(\underline{x}_k)
+$$
+with positive definite $n \times n$ matrix $D_k$.
+
+- **Theorem**: $\underline{d}_k = - D_k \nabla f(\underline{x}_k)$ is a descent direction.
+
+> **Proof**: $\nabla f^T(\underline{x}_k) \underline{d}_k = - \nabla f^T(\underline{x}_k) D_k \nabla f(\underline{x}_k) < 0$ since $D_k$ is p.d. and $||\nabla f(\underline{x}_k)|| > 0$ (_otherwise we would have stopped_).
+
+---
+
+#### Gradient method
+
+Given $f \in \mathcal{C}^1$, consider the linear approximation of $f(\underline{x}_k + \underline{d})$ at $\underline{x}_k$:
+$$
+l_k(\underline{d}) = f(\underline{x}_k) + \nabla f^T(\underline{x}_K) \underline{d}
+$$
+and choose $\underline{d}_k \in \mathbb{R}^n$ minimizing $l_k(\underline{d})$ over sphere of radius $||\nabla f(\underline{x}_k)||$:
+$$
+\begin{matrix}
+\min \nabla f^T(\underline{x}_k) \underline{d} \\
+\text{s.t. } ||\underline{d}|| \leq ||\nabla f(\underline{x}_k)||. 
+\end{matrix}
+$$
+Observe that, by Cauchy-Schwarz inequality $|\nabla f^T(\underline{x}_k) \underline{d}| \leq ||\nabla f(\underline{x}_k)|| ||\underline{d}|| \leq ||\nabla f(\underline{x}_k)||^2$, then $\nabla f^T(\underline{x}_k) \underline{d} \geq - ||\nabla f(\underline{x}_k)||^2$. Finally, this value is attained by $\underline{d}_k = - \nabla f(\underline{x}_k)$, which is thus the minimizer.
+
+In particular, we call $\underline{d}_k = - \nabla f(\underline{x}_k)$ the **steepest descent direction**. Observe that the gradient method is a line search method of the form $\underline{d}_k = - D_k \nabla f(\underline{x}_k)$ where $D_k = I_n \ \forall k$. Since $I_n$ is clearly p.d., $\underline{d}_k$ is a descent direction.
+
+---
+
+#### Newton method
+
+Given $f \in \mathcal{C}^2$ and $H(\underline{x}_k) = \nabla^2 f(\underline{x}_k)$.
+Consider the quadratic approximation of $f(\underline{x}_k + \underline{d})$ at $\underline{x}_k$:
+$$
+q_k(\underline{d}) = f(\underline{x}_k) + \nabla f^T(\underline{x}_k) \underline{d} + \frac{1}{2} \underline{d}^T H(\underline{x}_k) \underline{d}
+$$
+and choose $\underline{d}_k \in \mathbb{R}^n$ and $\alpha_k$ leading to a stationary point of $q_k(\underline{d})$.
+Observe that:
+$$
+\nabla_{\underline{d}} q_k(\underline{d}) = \nabla f(\underline{x}_k) + H(\underline{x}_k) \underline{d}.
+$$
+If $H^{-1}(\underline{x}_k)$ exists (this is not guaranteed), the stationary point of $q_k(\underline{d})$ is attained at:
+$$
+\underline{d}_k = - H^{-1}(\underline{x}_k) \nabla f(\underline{x}_k).
+$$
+
+In particular, we call $\underline{d}_k = -H^{-1}(\underline{x}_k) \nabla f(\underline{x}_k)$ the **newton direction**. Observe that Newton method is a line search method of the form $\underline{d}_k = - D_k \nabla f(\underline{x}_k)$ where $D_k = H^{-1}(\underline{x}_k)$.
+
+If $H(\underline{x}_k)$ is p.d. and $\nabla f(\underline{x}_k) \neq \underline{0}$, $\underline{d}_k$ is a descent direction.
+If $H(\underline{x}_k)$ is NOT p.d., $\underline{d}_k$ may not be defined ($\not \exists H^{-1}(\underline{x}_k)$) or may be an ascent direction.
+
+---
+
+### Step length
+
+TO guarantee global convergence, an <u>approximate solution</u> $\alpha_k$ of line search:
+$$
+\min_{\alpha \geq 0} \phi(\alpha) = f(\underline{x}_k + \alpha \underline{d}_k)
+$$
+is sufficient.
+
+There are different methods to generate $\alpha_k$ and stop when appropriate conditions are satisfied.
+Observe that guaranteeing $f(\underline{x}_k + \alpha_k \underline{d}_k) < f(\underline{x}_k)$ is not sufficient. There are counterexamples where $\underline{x}_k$ satisfies such condition, but it oscillates and it is such that $f(\underline{x}_k)$ converges to a suboptimal value.
+
+The basic principles are the following:
+- $\alpha$ must not be too small _to avoid premature convergence_;
+- $\alpha$ must not be too large _to avoid oscillations_.
+
+#### Wolfe conditions
+
+**Wolfe conditions** are a set of two conditions that the step length must satisfy. As we will see later, they are enough to guarantee global convergence.
+The _first condition_ enforces a sufficient reduction:
+$$
+\phi(\alpha) \leq \phi(0) + c_1 \alpha \phi'(0) \text{ with } c_1 \in (0, 1),
+$$
+which is equivalent to:
+$$
+f(\underline{x}_k + \alpha \underline{d}_k) \leq f(\underline{x}_k) + c_1 \alpha \nabla f^T(\underline{x}_k) \underline{d}_k,
+$$
+which is known as _Armijo criterion_.
+
+> **Remark (A)**: if $\underline{d}_k$ is a decreasing direction, then there exists $\overline{\alpha} > 0$ s.t. the Armijo criterion holds for all $\alpha \in [0, \overline{\alpha}]$.
+
+> **Proof**: since $\underline{d}_k$ is a decreasing direction (that is, $\nabla f^T(\underline{x}_k) \underline{d}_k < 0$), then:
+$$
+\phi'(0) = \nabla f^T(\underline{x}_k) \underline{d}_k < 0.
+$$
+> By Taylor's theorem (remember that $f \in \mathcal{C}^1$):
+$$
+\phi(\alpha) = \phi(0) + \alpha \phi'(0) + o(\alpha).
+$$
+> Then:
+$$\phi(0) + c_1 \alpha \phi'(0) - \phi(\alpha) = \phi(0) + c_1 \alpha \phi'(0) - \phi(0) - \alpha \phi'(0) - o(\alpha) =
+$$
+$$
+= (c_1 - 1) \alpha \phi'(0) - o(\alpha).
+$$
+
+---
+
+> By definition of $o(\cdot)$ there exists $\delta > 0$ s.t.
+$$
+\left|\frac{o(\alpha)}{\alpha}\right| < (c_1 - 1) \phi'(0)
+$$
+> for all $\alpha \in (0, \delta)$.
+Let $\overline{\alpha} = \frac{\delta}{2}$. Then, if $\alpha \in (0, \overline{\alpha}]$:
+$$
+\phi(0) + c_1 \alpha \phi'(0) - \phi(\alpha) > (c_1 - 1) \alpha \phi'(0) - (c_1 - 1)\alpha \phi'(0) = 0
+$$
+> Finally, the statement clearly holds for $\alpha = 0$.
+
+The _second condition_ avoids too small steps:
+$$
+\phi'(\alpha) \geq c_2 \phi'(0) \text{ with } c_2 \in (c_1, 1),
+$$
+which is equivalent to:
+$$
+\nabla f^T(\underline{x}_k + \alpha \underline{d}_k) \underline{d}_k \geq c_2 \nabla f^T(\underline{x}_k) \underline{d}_k.
+$$
+
+> **Remark (B)**: if $\underline{d}_k$ is a decreasing direction, then there exists $\tilde{\alpha} > 0$ s.t. the second Wolfe condition does NOT hold for all $\alpha \in [0, \tilde{\alpha}]$.
+
+> **Proof**: $\phi'$ is continuous since $f \in \mathcal{C}^1$. Observe that $\phi'(0) < 0$, then (c_2 < 1): $c_2 \phi'(0) > \phi'(0)$.
+THe result follows by the continuity of $\phi'$ (take $\epsilon = \frac{(c_2 - 1) \phi'(0)}{2}$).
+
+Let's put everything together. The (**weak**) **Wolfe conditions** are:
+$$
+\begin{matrix}
+\phi(\alpha) \leq \phi(0) + c_1 \alpha \phi'(0) & \text{(2)} \\
+\phi'(\alpha) \geq c_2 \phi'(0) & \text{(3)}
+\end{matrix}
+$$
+with $0 < c_1 < c_2 < 1$.
+
+There is a slight variant of Wolfe conditions, known as **strong Wolfe conditions**:
+$$
+\begin{matrix}
+\phi(\alpha) \leq \phi(0) + c_1 \alpha \phi'(0) & \text{(4)} \\
+|\phi'(\alpha)| \leq c_2 |\phi'(0)| & \text{(5)}
+\end{matrix}
+$$
+with $0 < c_1 < c_2 < 1$.
+This allows to exclude values of $\alpha$ for which $\phi'(\alpha)$ is too positive and thus far from stationary points of $\phi$.
+
+> **Remark**: Wolfe conditions are invariant w.r.t. affine transformation of the variables.
+
+> **Proof**: let $g(\underline{y}) = f(A \underline{y} + \underline{b})$ with $A \in \mathbb{R}^{n \times n}$ invertible.
+Then: $\nabla g(\underline{y}) = A^T \nabla f(A \underline{y} + \underline{b})$.
+Suppose that $\alpha$ satisfies the Wolfe conditions for $f$ in direction $\underline{d}_k$, at point $\underline{x}_k$.
+
+---
+
+> Let's translate the quantities to the coordinate space of $g$:
+$$
+\begin{matrix}
+\underline{d}_k & \rightarrow & \underline{p}_k = A^{-1} \underline{d}_k \\
+\underline{x}_k & \rightarrow & \underline{y}_k = A^{-1} (\underline{x}_k - \underline{b})
+\end{matrix}.
+$$
+> Then $g(\underline{y}_k + \alpha \underline{p}_k) = f(A \underline{y}_k + \alpha A \underline{p}_k + \underline{b}) = f(\underline{x}_k - \underline{b} + \alpha \underline{d}_k + \underline{b}) = \phi(\alpha)$.
+> Hence (_Wolfe conditions depend only on $\phi(\cdot)$_) $\alpha$ satisfies the Wolfe conditions for $g$ in direction $\underline{p}_k$ at point $\underline{y}_k$.
+Furthermore, let $\underline{p} = A^{-1} \underline{d}$ with $\underline{d} \neq \underline{0}$:
+$$
+\nabla g^T(\underline{y}) \underline{p} = \nabla f^T(A \underline{y} + \underline{b}) A A^{-1} \underline{d} = \nabla f^T(\underline{x}) \underline{d},
+$$
+> hence $\underline{p}$ is a decreasing direction for $g$ at $\underline{y}$ iff $\underline{d}$ is a decreasing direction for $f$ at $\underline{x}$.
+
+- **Theorem**: if $f : \mathbb{R}^n \rightarrow \mathbb{R}$ is $\mathcal{C}^1$ and $\underline{d}_k$ descent direction at $\underline{x}_k$ such that $f$ is bounded below along $\{ \underline{x}_k + \alpha \underline{d}_k \ | \ \alpha > 0 \}$. Then if $0 < c_1 < c_2 < 1$ there exists intervals of step lengths satisfying the Wolfe conditions (weak and strong).
+
+> **Proof**: in the proof of remark (A) we showed that there exists $\overline{\alpha} > 0$ s.t.
+$$
+\phi(\alpha) < \phi(0) + c_1 \alpha \phi'(0)
+$$
+> for all $\alpha \in (0, \overline{\alpha}]$.
+Consider the function:
+$$
+\begin{matrix}
+\psi : [\overline{\alpha}, +\infty) & \rightarrow & \mathbb{R} \\
+\alpha & \mapsto & \phi(\alpha) - \phi(0) - c_1 \alpha \phi'(0)
+\end{matrix}.
+$$
+> By what we just remarked, $\psi(\overline{\alpha}) < 0$.
+Since $\phi(\alpha)$ is bounded below while $\phi(0) + c_1 \alpha \phi'(0)$ is not, there must exists $\hat{\alpha} > \overline{\alpha}$ s.t.
+$$
+\psi(\hat{\alpha}) > 0
+$$
+> (_otherwise $\phi$ would be unbounded_).
+Observe that $\psi$ is continuous, then, by the intermediate values theorem [_see Theorem 4.23 of Baby Rudin_], the set $\psi^{-1}(\{ 0 \})$ is not empty.
+Furthermore [_by corollary of Theorem 4.8 of Baby Rudin_], since $\{ 0 \}$ is closed w.r.t. $\mathbb{R}$, $\psi^{-1}(\{ 0 \})$ is closed w.r.t. $[\overline{\alpha}, +\infty)$, and, since $[\overline{\alpha}, +\infty)$ is closed, it is also closed w.r.t. $\mathbb{R}$.
+Finally, $\psi^{-1}(\{ 0 \}) \subseteq [\overline{\alpha}, +\infty)$, hence it is clearly bounded below. Then there exists
+$$
+\alpha' = \inf \psi^{-1}(\{ 0 \}),
+$$
+> furthermore $\alpha' \in \psi^{-1}(\{ 0 \})$ since $\psi^{-1}(\{ 0 \})$ is closed.
+
+---
+
+> We will show that it must be:
+$$
+\phi(\alpha) < \phi(0) + c_1 \alpha \phi'(0)
+$$
+> for all $\alpha \in (0, \alpha')$. Indeed, we know already that this is true for $\alpha \in (0, \overline{\alpha}]$. If $\alpha \in (\overline{\alpha}, \alpha')$, it can't be $\phi(\alpha) = \phi(0) + c_1 \alpha \phi'(0)$ (since $\alpha'$ is the infimum), and it can't be:
+$$
+\phi(\alpha) > \phi(0) + c_1 \alpha \phi'(0)
+$$
+> otherwise there would be a point $\beta \in (\overline{\alpha}, \alpha)$ s.t.
+$$
+\phi(\beta) = \phi(0) + c_1 \beta \phi'(0)
+$$
+> (_and it can't be since $\alpha'$ is the infimum_).
+
+> By the mean value theorem, there must exists a point $\alpha'' \in (0, \alpha')$ s.t.
+$$
+\alpha' \phi'(\alpha'') = \phi(\alpha') - \phi(0).
+$$
+> Since $\alpha' \in \psi^{-1}(\{ 0 \})$, $\phi(\alpha') - \phi(0) = c_1 \alpha' \phi'(0)$.
+Then:
+$$
+\alpha' \phi'(\alpha'') = c_1 \alpha' \phi'(0) \text{ iff } \phi'(\alpha'') = c_1 \phi'(0) > c_2 \phi'(0)
+$$
+> since $c_1 < c_2$ and $\phi'(0) < 0$.
+By the continuity of $\phi'$ there must be a neighborhood of $\alpha''$ s.t. the curvature condition holds strictly.
+If this neighborhood is inside $(0, \alpha')$, by the remark made before, we also have that the Armijo condition holds strictly.
+Finally, $\phi'(\alpha'') = c_1 \phi'(0) < 0$, then:
+$$
+|\phi'(\alpha'')| = - \phi'(\alpha'') \stackrel{\text{curvature condition}}{<} -c_2 \phi'(0) = c_2 |\phi'(0)|.
+$$
+> Then, again, also the Strong Wolfe conditions hold in a neighborhood because of the continuity of $|\phi'|$.
+
+#### Method for 1-D search
+
+There are many methods (with/without derivatives) to determine an approximate solution $\alpha_k$ of
+$$
+\min_{\alpha \geq 0} \phi(\alpha) = f(\underline{x}_k + \alpha \underline{d}_k)
+$$
+satisfying appropriate conditions (e.g. Wolfe) which guarantee global convergence.
+
+In general, they consist in two phases:
+- **bracketing phase**: determine $[\alpha_\min, \alpha_\max]$ containing "acceptable" step lengths;
+- select a good value $\alpha$ withing $[\alpha_\min, \alpha_\max]$ via bisection or interpolation.
+
+---
+
+##### Bisection method to find a minimizer of $\phi$
+
+Consider the following setting: $\phi \in \mathcal{C}^1$, $\phi'(0) < 0$ since $\underline{d}_k$ is a descent direction and $\exists \overline{\alpha}$ s.t. $\phi'(\alpha) > 0$ for $\alpha \geq \overline{\alpha}$. <u>The last one is a very strong assumption</u>.
+
+We want to apply the bisection method to find a step length which minimizes (at least locally) $\phi$.
+
+In particular: we start from $[\alpha_\min, \alpha_\max]$ with $\phi'(\alpha_\min) < 0$ and $\phi'(\alpha_\max) > 0$ and iteratively reduce it.
+
+Iteration:
+> set $\tilde{\alpha} = \frac{1}{2} (\alpha_\min + \alpha_\max)$.
+>> **if** $\phi'(\tilde{\alpha}) > 0$ **then** $\alpha_\max \gets \tilde{\alpha}$;
+>> **if** $\phi'(\tilde{\alpha}) < 0$ **then** $\alpha_\min \gets \tilde{\alpha}$.
+
+The convergence is linear with rate $\frac{1}{2}$.
+
+To find the initial values of $\alpha_\min$ and $\alpha_\max$ we can proceed as follows:
+1. $\alpha_\min \gets 0$ and $s \gets s_0$;
+2. compute $\phi'(s)$
+>> **if** $\phi'(s) < 0$ **then** $\alpha_\min \gets s$, $s \gets 2s$, **goto** 2;
+>> **if** $\phi'(s) > 0$ **then** $\alpha_\max \gets s$, **stop**.
+
+##### Bisection method for Wolfe conditions
+
+We can adapt the bisection method to find a step length $\alpha_k$ satisfying Wolfe conditions.
+
+Procedure:
+> i. select $\alpha > 0$ and set $\alpha_\min \gets 0$, $\alpha_\max \gets 0$.
+
+> ii. **if** $\alpha$ satisfies Wolfe (2) **then** **goto** iii
+> &nbsp; &nbsp; **else** $\alpha_\max \gets \alpha$, $\alpha \gets \frac{\alpha_\min + \alpha_\max}{2}$, **goto** ii.
+
+> iii. **if** $\alpha$ satisfies Wolfe (3) **then** $\alpha_k \gets \alpha$, **stop**
+> &nbsp; &nbsp; **else** $\alpha_\min \gets \alpha$
+$$
+\alpha \gets \begin{cases}
+2 \alpha_\min \text{ if } \alpha_\max = 0 \\
+\frac{1}{2}(\alpha_\min + \alpha_\max) \text{ if } \alpha_\max > 0
+\end{cases}
+$$
+> &nbsp; &nbsp; **goto** ii.
+
+- **Theorem**: if $f \in \mathcal{C}^1$ is bounded below along ray $\{ \underline{x}_k + \alpha \underline{d}_k \}$, the procedure stops after a finite number of iterations and yields $\alpha_k$ satisfying Wolfe conditions.
+
+---
+
+> **Proof**: by how the algorithm is defined either we terminate before or we reach an iteration $N$ s.t.
+>> $\alpha_\min^{(N)}$ satisfies Wolfe (2) but not Wolfe (3);
+
+>> $\alpha_\max^{(N)}$ doesn't satisfy Wolfe (2).
+
+> Indeed:
+> - if $\alpha^{(0)}$ satisfies the Wolfe conditions then we terminate at the first iteration;
+> - if $\alpha^{(0)}$ doesn't satisfy Wolfe (2), then we set $\alpha_\max^{(1)} = \alpha^{(0)}$. Furthermore $\alpha_\min^{(1)} = 0$, which always satisfies Wolfe (2) but not Wolfe (3). Hence $N = 1$;
+> - if $\alpha^{(0)}$ satisfies Wolfe (2) but doesn't satisfy Wolfe (3), then $\alpha_\min^{(n+1)} = \alpha^{(n)}$, $\alpha^{(n+1)} = 2 \alpha_\min^{(n+1)} = 2 \alpha^{(n)}$. We stop doubling when wither $\alpha^{(N-1)}$ does NOT satisfy Wolfe (2) for some finite $N-1$ or $\alpha^{(n)}$ satisfies Wolfe conditions (and we terminate). (Observe that, if $\alpha^{(n)}$ were to satisfy Wolfe (2) for all $n$, then $\phi$ would be unbounded). Now (if we haven't terminated) we have $\alpha_\min^{(N)} = \alpha^{(N-2)}$ which satisfies Wolfe (2) but not Wolfe (3) and $\alpha_\max^{(N)} = \alpha^{(N-1)}$ which doesn't satisfy Wolfe (2).
+
+> Observe that $[\alpha_\min^{(N)}, \alpha_\max^{(N)}]$ is a compact subset of $\mathbb{R}$ and $\phi'$ is continuous. Then [_see theorem 4.19 of Baby Rudin aka Heine Cantor theorem_] $\phi'$ is uniformly continuous on $[\alpha_\min^{(N)}, \alpha_\max^{(N)}]$. Let $\epsilon = - (c_2 - c_1) \phi'(0)$, then there exists $\delta > 0$ s.t. for all $\alpha_1, \alpha_2 \in [\alpha_\min^{(N)}, \alpha_\max^{(N)}]$ with $|\alpha_1 - \alpha_2|  < \delta$, then:
+$$
+|\phi'(\alpha_1) - \phi'(\alpha_2)| < - (c_2 - c_1) \phi'(0).
+$$
+> Now, observe that for all $n \geq N$ (until we terminate):
+>> $\alpha_\min^{(n)}$ satisfies Wolfe (2) but not Wolfe (3);
+>> $\alpha_\max^{(n)}$ doesn't satisfy Wolfe (2); $\alpha_\min^{(n)}$, $\alpha_\max^{(n)} \in [\alpha_\min^{(N)}, \alpha_\max^{(N)}]$;
+>> $\alpha_\max^{(n)} \geq \alpha_\min^{(n)}$.
+
+> Suppose that $\alpha_\max^{(n)} - \alpha_\min^{(n)} < \delta$. Then, for all $\alpha \in [\alpha_\min^{(n)}, \alpha_\max^{(n)}]$, $|\alpha-\alpha_\min^{(n)}| = \alpha - \alpha_\min^{(n)} < \delta$.
+Hence:
+$$
+(c_2-c_1) \phi'(0) < \phi'(\alpha) - \phi'(\alpha_\min^{(n)}) < - (c_2 - c_1) \phi'(0),
+$$
+> which implies:
+$$
+\phi'(\alpha) < -(c_2 - c_1) \phi'(0) + \phi'(\alpha_\min^{(n)}) <
+$$
+$$
+\stackrel{\text{Wolfe (3) not satisfied by } \alpha_min^{(n)}}{<} - (c_2 - c_1) \phi'(0) + c_2 \phi'(0) = c_1 \phi'(0).
+$$
+
+---
+
+> Then:
+$$
+\phi(\alpha_\max^{(n)}) = \phi(\alpha_\min^{(n)}) + \int_{\alpha_\min^{(n)}}^{\alpha_\max^{(n)}} \phi'(\alpha) d\alpha \leq \phi(\alpha_\min^{(n)}) + c_1 \phi'(0)(\alpha_\max^{(n)} - \alpha_\min^{(n)}) \leq
+$$
+$$
+\stackrel{\text{Wolfe (2) satisfied by } \alpha_min^{(n)}}{\leq} \phi(0) + c_1 \alpha_\min^{(n)} \phi'(0) + c_1 \phi'(0) (\alpha_\max^{(n)} - \alpha_\min^{(n)}) = \phi(0) + c_1 \phi'(0) \alpha_\max^{(n)}.
+$$
+> But this is absurd since $\alpha_\max^{(n)}$ doesn't satisfy Wolfe (2).
+Then it must be $\alpha_\max^{(n)} - \alpha_\min^{(n)} \geq \delta > 0$. But at every iteration we bisect the interval:
+$$
+\alpha_\max^{(n)} - \alpha_\min^{(n)} = \frac{1}{2^{n-N}} [\alpha_\max^{(N)} - \alpha_\min^{(N)}] \geq \delta > 0.
+$$
+> Hence it must be:
+$$
+2^n \leq \frac{2^N}{\delta} [\alpha_\max^{(N)} - \alpha_\min^{(N)}].
+$$
+> Finally:
+$$
+n \leq N + \log_2\left( \frac{\alpha_\max^{(N)} - \alpha_\min^{(N)}}{\delta} \right).
+$$
+
+Resume...
