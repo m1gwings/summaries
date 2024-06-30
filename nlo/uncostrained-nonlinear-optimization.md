@@ -794,8 +794,242 @@ For example $\mathcal{B}_k = \{ \underline{x} \in \mathbb{R}^n \ | \ ||\underlin
 The aim of this method it to aim at a faster convergence than gradient method and lower computational load than Newton method.
 As usual, let's consider the quadratic strictly convex case first:
 $$
+\min_{\underline{x} \in \mathbb{R}^n} q(\underline{x}) = \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x}$$
+with $Q$ $n \times n$ symmetric and p.d. .
 
+- Given $n \times n$ and symmetric $Q$, two nonzero $\underline{d}_1, \underline{d}_2 \in \mathbb{R}^n$ are **$Q$-conjugate** if $\underline{d}_1^T Q \underline{d}_2 = 0$.
+
+- **Theorem**: if $Q$ p.d. and nonzero $\underline{d}_0, \ldots, \underline{d}_k$ are mutually $Q$-conjugate, then $\underline{d}_0, \ldots, \underline{d}_k$ are linearly independent.
+
+> **Proof**: suppose that $\lambda_0 \underline{d}_0 + \ldots + \lambda_k \underline{d}_k = \underline{0}$. Fix $i \in \{ 0, \ldots, k \}$. By left multiplying by $\underline{d}_i^T Q$ and exploiting $Q$-conjugacy:
 $$
+\lambda_i \underline{d}_i^T Q \underline{d}_i = 0.
+$$
+> Then, since $Q$ is p.d. and $\underline{d}_i \neq \underline{0}$ (by definition), $\underline{d}_i^T Q \underline{d}_i > 0$, hence $\lambda_i = 0$.
+Hence it must be $\lambda_0 = \ldots = \lambda_k = 0$ as we wanted to prove.
+
+$Q$-conjugacy is a really useful property w.r.t. the optimization of $q(\underline{x})$ because of the following observation: let $\underline{d}_0, \ldots, \underline{d}_{n-1}$ be $n$ mutually $Q$-conjugate vectors. We just proved that they must be linear independent, thus constituting a base of $\mathbb{R}^n$.
+Hence we can write:
+$$
+\underline{x} = \sum_{i=0}^{n-1} \alpha \underline{d}_i
+$$
+for the generic $\underline{x} \in \mathbb{R}^n$. If we plug this change of coordinates in the expression of $q$, we get:
+$$
+\tilde{q}(\underline{\alpha}) = \frac{1}{2}(\sum_{i=0}^{n-1} \alpha_i \underline{d}_i)^T Q (\sum_{i=0}^{n-1} \alpha_i \underline{d}_i) - \underline{b}^T (\sum_{i=0}^{n-1} \alpha_i \underline{d}_i) = \sum_{i=0}^{n-1} \left[ \frac{1}{2} \alpha_i^2 \underline{d}_i^T Q \underline{d}_i - \alpha_i \underline{b}^T \underline{d}_i \right] =
+$$
+$$
+= \sum_{i=0}^{n-1} \tilde{q}(\alpha_i) \text{ where } \tilde{q}(\alpha_i) = \left[ \frac{1}{2} \alpha_i^2 \underline{d}_i^T Q \underline{d}_i - \alpha_i \underline{b}^T \underline{d}_i \right].
+$$
+We have written $\tilde{q}(\underline{\alpha})$ as the sum of $n$ independent 1-D quadratic strictly convex functions, which can be optimized independently.
+
+---
+
+- **Conjugate directions theorem**: let $\{ \underline{d}_i \}_{i=0}^{n-1}$ be $n$ nonzero mutually $Q$-conjugate directions.
+For any $\underline{x}_0 \in \mathbb{R}^n$, $\{ \underline{x}_k \}_{k \geq 0}$ generated according to
+$$
+\underline{x}_{k+1} = \underline{x}_k + \alpha_k \underline{d}_k
+$$
+> with
+$$
+\alpha_k = - \frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k} \text{ and } \underline{g}_k = \nabla q(\underline{x}_k) = Q \underline{x}_k - \underline{b}
+$$
+> terminates to the (unique) global optimal solution $\underline{x}^*$ of $q(\underline{x})$ in at most $n$ iterations, that is:
+$$
+\underline{x}_n = \underline{x}_0 + \sum_{k=0}^{n-1} \alpha_k \underline{d}_k = \underline{x}^*.
+$$
+
+> **Proof**: since $\underline{d}_k$s are linearly independent, $\exists$ $\alpha_k$s such that
+$$
+\underline{x}^* - \underline{x}_0 = \alpha_0 \underline{d}_0 + \ldots + \alpha_{n-1} \underline{d}_{n-1}.
+$$
+> By multiplying both sides by $\underline{d}_k^T Q$ and exploiting $Q$-conjugacy, we get:
+$$
+\underline{d}_k^T Q (\underline{x}^* - \underline{x}_0) = \alpha_k \underline{d}_k^T Q \underline{d}_k \text{ iff } \alpha_k = \frac{\underline{d}_k^T Q (\underline{x}^* - \underline{x}_0)}{\underline{d}_k^T Q \underline{d}_k}.
+$$
+> Observe that $\underline{x}_k - \underline{x}_0 = \alpha_0 \underline{d}_0 + \ldots + \alpha_{k-1} \underline{d}_{k-1}$.
+Then:
+$$
+\underline{d}_k^T Q (\underline{x}_k - \underline{x}_0) = 0.
+$$
+> Finally:
+$$
+\alpha_k = \frac{\underline{d}_k^T Q (\underline{x}^* - \underline{x}_k + \underline{x}_k - \underline{x}_0)}{\underline{d}_k^T Q \underline{d}_k} = \frac{\underline{d}_k^T Q (\underline{x}^* - \underline{x}_k)}{\underline{d}_k^T Q \underline{d}_k} =
+$$
+$$
+= - \frac{\underline{d}_k^T (Q \underline{x}_k - \underline{b})}{\underline{d}_k^T Q \underline{d}_k} = - \frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}.
+$$
+
+- **Expanding subspace theorem**: let $\underline{d}_0, \ldots, \underline{d}_{n-1}$ be nonzero mutually $Q$-conjugate vectors. Then, for any $\underline{x}_0 \in \mathbb{R}^n$, $\{ \underline{x}_k \}_{k \geq 0}$ generated according to:
+$$
+\underline{x}_{k+1} = \underline{x}_k + \alpha_k \underline{d}_k \text{ with } \alpha_k = -\frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}
+$$
+
+---
+
+> is such that
+$$
+\underline{x}_k = \underline{x}_0 + \sum_{j=0}^{k-1} \alpha_j \underline{d}_j
+$$
+> <u>minimizes</u> $q(\underline{x}) = \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x}$, not only on the <u>line</u>
+$$
+\{ \underline{x} \in \mathbb{R}^n \ | \ \underline{x} = \underline{x}_{k-1} + \alpha \underline{d}_{k-1}, \alpha \in \mathbb{R} \}
+$$
+> but also on the <u>affine subspace</u> $V_k = \{ \underline{x} \in \mathbb{R}^n \ | \ \underline{x} = \underline{x}_0 + \text{span}\{ \underline{d}_0, \ldots, \underline{d}_{k-1} \} \}$.
+> In particular, $\underline{x}_n$ is the global optimum of $q(\underline{x})$ on $\mathbb{R}^n$.
+
+> **Proof**: recall the NS optimality condition for convex problems: since $q(\underline{x})$ is convex, $\underline{x}^*$ is a global minimum of $q(\underline{x})$ over the convex set $C \subseteq \mathbb{R}^n$ iff $\nabla q^T(\underline{x}^*) (\underline{x} - \underline{x}^*) \geq 0$ for all $\underline{x} \in C$.
+Furthermore $V_k$ is a convex set. We will prove that $\nabla q^T(\underline{x}_k)(\underline{x} - \underline{x}_k) \geq 0$ for all $\underline{x} \in V_k$, for every $k$.
+Then the result will follow by the remark above.
+Fix $k \in \{ 0, \ldots, n \}$.
+$$
+\nabla q(\underline{x}_k) = Q \underline{x}_k - \underline{b} = Q \left( \underline{x}_0 + \sum_{j=0}^{k-1} \alpha_j \underline{d}_j \right) - \underline{b} =
+$$
+$$
+= Q \underline{x}_0 + \sum_{j=0}^{k-1} \alpha_j Q \underline{d}_j - \underline{b} = \underline{g}_0 + \sum_{j=0}^{k-1} \alpha_j Q \underline{d}_j.
+$$
+> Let $\underline{x} \in V_k$, then $\underline{x} = \underline{x}_0 + \sum_{j=0}^{k-1} \lambda_j \underline{d}_j$ where $\lambda_j \in \mathbb{R}$ for all $j \in \{ 0, \ldots, k-1 \}$. Hence:
+$$
+\underline{x} - \underline{x}_k = \underline{x}_0 + \sum_{j=0}^{k-1} \lambda_j \underline{d}_j - \underline{x}_0 - \sum_{j=0}^{k-1} \alpha_j \underline{d}_j = \sum_{j=0}^{k-1} (\lambda_j - \alpha_j) \underline{d}_j.
+$$
+> Then:
+$$
+\nabla q^T(\underline{x}_k) (\underline{x} - \underline{x}_k) = \sum_{j=0}^{k-1} (\lambda_j - \alpha_j) \underline{g}_0^T \underline{d}_j + \sum_{i=0}^{k-1} \sum_{j=0}^{k-1} \alpha_i (\lambda_j - \alpha_j) \underline{d}_i^T Q \underline{d}_j =
+$$
+$$
+= \sum_{j=0}^{k-1} (\lambda_j - \alpha_j) \underline{g}_0^T \underline{d}_j + \sum_{j=0}^{k-1} \alpha_j (\lambda_j - \alpha_j) \underline{d}_j^T Q \underline{d}_j =
+$$
+$$
+= \sum_{j=0}^{k-1} (\lambda_j - \alpha_j) (\underline{g}_0^T \underline{d}_j - \frac{\underline{g}_j^T \underline{d}_j}{\underline{d}_j^T Q \underline{d}_j} \underline{d}_j^T Q \underline{d}_j) = \sum_{j=0}^{k-1} (\lambda_j - \alpha_j) (\underline{g}_0 - \underline{g}_j)^T \underline{d}_j.
+$$
+
+---
+
+> Finally, observe that:
+$$
+\underline{g}_0 - \underline{g}_j = Q \underline{x}_0 - \underline{b} - Q \underline{x}_j + \underline{b} = Q \underline{x}_0 - Q \underline{x}_0 - \sum_{i=0}^{j-1} \alpha_i Q \underline{d}_i = - \sum_{i=0}^{j-1} \alpha_i Q \underline{d}_i,
+$$
+> then:
+$$
+(\underline{g}_0 - \underline{g}_j)^T \underline{d}_j = - \sum_{i=0}^{j-1} \alpha_i \underline{d}_i^T Q \underline{d}_j = 0
+$$
+> by $Q$-conjugacy.
+If follows that
+$$
+\nabla q^T (\underline{x}_k) (\underline{x} - \underline{x}_k) = 0 \geq 0
+$$
+> as we wanted to prove.
+
+> **Corollary**: in conjugate direction method, the gradients $\underline{g}_k$ satisfy $\underline{g}_k^T \underline{d}_i = 0$ for all $i \in \{ 1, \ldots, k \}$.
+
+##### Conjugate gradient method for quadratic convex functions
+
+We still need a method to find $Q$-conjugate directions. The conjugate gradient method answer this problem.
+It works as follows.
+
+Initialization: choose $\underline{x}_0$ arbitrarily, $\underline{g}_0 = \nabla q(\underline{x}_0) = Q \underline{x}_0 - \underline{b}$, $\underline{d}_0 = - \underline{g}_0$ and $k \gets 0$.
+
+Iteration: $\underline{x}_{k+1} = \underline{x}_k + \alpha_k \underline{d}_k$ with $\alpha_k = -\frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}$ (_exact 1-D search_). Then:
+$$
+\underline{d}_{k+1} = - \underline{g}_{k+1} + \beta_k \underline{d}_k \text{ with } \beta_k = \frac{\underline{g}_{k+1}^T Q \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}.
+$$
+
+**Remarks**:
+- $\alpha_k = - \frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}$ minimizes $q(\underline{x})$ along the line through $\underline{x}_k$ generated by $\underline{d}_k$ (_this is implied by the expanding subspace theorem_).
+
+- The computational requirements are limited: NO matrix inversion.
+
+- The method is NOT invariant w.r.t. affine transformations of the coordinates.
+
+- **Theorem**: at each iteration $k$ in which the optimum solution of $q(\underline{x})$ has not yet been found ($\underline{g}_i \neq \underline{0}$ for $i \in \{ 0, \ldots, k \}$)
+>> i. $\underline{d}_0, \ldots, \underline{d}_{k+1}$ generated are mutually $Q$-conjugate.
+
+---
+
+>> ii. $\alpha_k = \frac{\underline{g}_k^T \underline{g}_k}{\underline{d}_k^T Q \underline{d}_k} (\neq 0 \text{ until we reach the optimum})$.
+
+>> iii. $\beta_k = \frac{\underline{g}_{k+1}^T (\underline{g}_{k+1} - \underline{g}_k)}{\underline{g}_k^T \underline{g}_k} = \frac{\underline{g}_{k+1}^T \underline{g}_{k+1}}{\underline{g}_k^T \underline{g}_k}$.
+
+> **Proof**:
+
+>> i. By induction on $k$, assuming that $\underline{d}_0, \ldots, \underline{d}_k$ are mutually $Q$-conjugate.
+Clearly true for the base case (we have only one vector $\underline{d}_0$).
+Inductive step: suppose that $\underline{d}_0, \ldots, \underline{d}_k$ are $Q$-conjugate.
+$$
+\underline{d}_{k+1}^T Q \underline{d}_k = [- \underline{g}_{k+1}^T + \beta_k \underline{d}_k^T] Q \underline{d}_k = - \underline{g}_{k+1}^T Q \underline{d}_k + \beta_k \underline{d}_k^T Q \underline{d}_k =
+$$
+$$
+= -\underline{g}_{k+1}^T Q \underline{d}_k + \left( \frac{\underline{g}_{k+1}^T Q \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k} \right) \underline{d}_k^T Q \underline{d}_k = - \underline{g}_{k+1}^T Q \underline{d}_k + \underline{g}_{k+1}^T Q \underline{d}_k = 0.
+$$
+>>  We need to verify that $\underline{d}_{k+1}^T Q \underline{d}_i = 0 \ \forall i \in \{ 0, \ldots, k-1 \}$.
+$\underline{d}_k^T Q \underline{d}_i = - \underline{g}_{k+1}^T Q \underline{d}_i + \beta_k \underline{d}_k^T Q \underline{d}_i$ with the induction assumption $\underline{d}_k^T Q \underline{d}_i = 0 \ \forall i \in \{ 0, \ldots, k-1 \}$.
+> Since $\underline{x}_{i+1} = \underline{x}_i + \alpha_i \underline{d}_i$ with $\alpha_i \neq 0$ (because of ii assuming we haven't reached the optimum yet [_we can apply it by ind. hp._])
+$$
+Q \underline{d}_i = \frac{1}{\alpha_i} (Q \underline{x}_{i+1} - Q \underline{x}_i) = \frac{1}{\alpha_i} (Q \underline{x}_{i+1} - \underline{b} - Q \underline{x}_i + \underline{b}) =
+$$
+$$
+= \frac{1}{\alpha_i} (\underline{g}_{i+1} - \underline{g}_i) \stackrel{\text{def of } \underline{d}_i}{=} \frac{1}{\alpha_i} (- \underline{d}_{i+1} + \beta_i \underline{d}_i + \underline{d}_i - \beta_{i-1} \underline{d}_{i-1})
+$$
+>> is a linear combination of $\underline{d}_{i+1}, \underline{d}_i$ and $\underline{d}_{i-1}$ ($Q \underline{d}_0$ only of $\underline{d}_1$ and $\underline{d}_0$ with $\underline{g}_0 = - \underline{d}_0$).
+Now $\underline{d}_0, \ldots, \underline{d}_k$ are mutually $Q$-conjugate, hence (by the expanding subspace property) $\underline{x}_{k+1}$ minimizes $q(\underline{x})$ on the subspace $V_{k+1}$ generated by $\underline{d}_0, \ldots, \underline{d}_k$ with $\underline{x}_0 \in V_{k+1}$.
+Therefore $\underline{g}_{k+1} = \nabla q(\underline{x}_{k+1})$ is orthogonal to $V_{k+1}$ (_this is what we proved in the proof of the expanding subspace theorem_) and $Q \underline{d}_i \in V_{k+1}$ for $i \in \{ 0, \ldots, k-1 \}$ (_this is what we just proved_). Hence $\underline{g}_{k+1}^T Q \underline{d}_i = 0$ as we wanted to prove.
+
+>> ii. Since $\underline{d}_k = - \underline{g}_k + \beta_{k+1} \underline{d}_{k-1}$, $\alpha_k = - \frac{\underline{g}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}$ we can rewrite
+$$
+\alpha_k = \frac{\underline{g}_k^T \underline{g}_k}{\underline{d}_k^T Q \underline{d}_k} - \beta_{k-1} \frac{\underline{g}_k^T \underline{d}_{k-1}}{\underline{d}_k^T Q \underline{d}_k}.
+$$
+
+---
+
+>> (_just plug the expression of $\underline{d}_k$ into that of $\alpha_k$_).
+
+>> But $\underline{g}_k^T \underline{d}_{k-1} = 0$ since $\underline{d}_0, \ldots, \underline{d}_{k-1}$ because of the expanding subspace property. Moreover, $\alpha_k \neq 0$, since $\underline{g}_k \neq \underline{0}$.
+
+>> iii. $\underline{g}_{k+1} - \underline{g}_k = Q (\underline{x}_{k+1} - \underline{x}_k) = \alpha_k Q \underline{d}_k$ implies that:
+$$
+\underline{g}_{k+1}^T Q \underline{d}_k = \frac{1}{\alpha_k} \underline{g}_{k+1}^T (\underline{g}_{k+1} - \underline{g}_k).
+$$
+>> According to ii
+$$
+\beta_k = \frac{\underline{g}_{k+1}^T Q \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k} = \frac{1}{\alpha_k} \frac{\underline{g}_{k+1}^T (\underline{g}_{k+1} - \underline{g}_k)}{\underline{d}_k^T Q \underline{d}_k} =
+$$
+$$
+\stackrel{\text{ii}}{=} \frac{\underline{d}_k^T Q \underline{d}_k}{\underline{g}_k^T \underline{g}_k} \frac{\underline{g}_{k+1}^T (\underline{g}_{k+1} - \underline{g}_k)}{\underline{d}_k^T Q \underline{d}_k} = \frac{\underline{g}_{k+1}^T (\underline{g}_{k+1} - \underline{g}_k)}{\underline{g}_k^T \underline{g}_k}.
+$$
+>> Since $\underline{g}_k \stackrel{\text{def. of } \underline{d}_k}{=} - \underline{d}_k + \beta_{k-1} \underline{d}_{k-1}$ belongs to the subspace generated by $\underline{d}_0, \ldots, \underline{d}_k$ and $\underline{g}_{k+1}$ is orthogonal to this subspace, we have $\underline{g}_{k+1}^T \underline{g}_k = 0$ and hence
+$$
+\beta_k = \frac{\underline{g}_{k+1}^T \underline{g}_{k+1}}{\underline{g}_k^T \underline{g}_k}.
+$$
+
+##### Conjugate direction methods
+
+Conjugate direction methods generalize the conjugate gradient method to arbitrary functions with large $n$. We must use formulae for $\alpha_k$ and $\beta_k$ that do not depend on the Hessian.
+
+$\alpha_k$ is computed through inexact 1-D search and $\underline{d}_{k+1} = - \nabla f(\underline{x}_{k+1}) + \beta_k \underline{d}_k$.
+
+The most popular formulae for $\beta_k$ are:
+- **Fletcher-Reeves**
+$$
+\beta_k^{\text{FR}} = \frac{||\nabla f(\underline{x}_{k+1})||^2}{||\nabla f(\underline{x}_k)||^2}.
+$$
+- **Polak-Ribière**
+$$
+\beta_k^{\text{PR}} = \frac{\nabla f^T(\underline{x}_{k+1}) (\nabla f(\underline{x}_{k+1}) - \nabla f(\underline{x}_k))}{||\nabla f(\underline{x}_k)||^2}.
+$$
+
+---
+
+**Remark**: $\underline{d}_k$ is a descent direction if we do exact 1-D search:
+$$
+\nabla f^T(\underline{x}_k) \underline{d}_k \stackrel{\text{def. of } \underline{d}_k}{=} - || \nabla f(\underline{x}_k) ||^2 + \beta_k \nabla f^T(\underline{x}_k) \underline{d}_{k-1} = - ||\nabla f(\underline{x}_k)||^2 < 0
+$$
+where the last inequality comes from the fact that the 1-D search is exact
+($0 = \phi'(\alpha_{k-1}) = \nabla f^T(\underline{x}_{k-1} + \alpha_{k-1} \underline{d}_{k-1}) \underline{d}_{k-1} = \nabla f^T(\underline{x}_{k})\underline{d}_{k-1}$).
+
+> **Remark**: for quadratic functions the method coincides with the CG method.
+
+> **Remark**: for non-quadratic functions, Polak-Ribière version turns out to be more efficient than Fletcher-Reeves one.
+
+Resume...
 
 ---
 
