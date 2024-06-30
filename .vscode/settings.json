@@ -28,6 +28,7 @@
         "CRAC",
         "Cristiano",
         "Datasphere",
+        "diagonalizable",
         "differenced",
         "DIMM",
         "distantiate",
@@ -43,8 +44,10 @@
         "invertibility",
         "ISOMAP",
         "JBOD",
+        "Kantorovich",
         "Levenberg",
         "Levinson's",
+        "Lipschitz",
         "Markovian",
         "marp",
         "Marquardt",
@@ -95,7 +98,8 @@
         "Vapnik",
         "VHDL",
         "VLIW",
-        "WLOG"
+        "WLOG",
+        "Zoutendijk"
     ],
     "cSpell.enableFiletypes": [
         "tex"

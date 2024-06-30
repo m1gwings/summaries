@@ -302,6 +302,206 @@ Observe that, by Cauchy-Schwarz inequality $|\nabla f^T(\underline{x}_k) \underl
 
 In particular, we call $\underline{d}_k = - \nabla f(\underline{x}_k)$ the **steepest descent direction**. Observe that the gradient method is a line search method of the form $\underline{d}_k = - D_k \nabla f(\underline{x}_k)$ where $D_k = I_n \ \forall k$. Since $I_n$ is clearly p.d., $\underline{d}_k$ is a descent direction.
 
+- **Theorem**: if gradient method is applied with exact 1-D search, the successive directions are orthogonal.
+
+> **Proof**: since $\alpha_k$ minimizes $\phi$:
+$$
+\underline{d}_{k+1}^T \underline{d}_k = \nabla f^T(\underline{x}_{k+1}) \underline{d}_k = \nabla f^T(\underline{x}_{k} + \alpha_k \underline{d}_k) \underline{d}_k = \phi'(\alpha_k) = 0.
+$$
+The result above shows that, if we were to apply exact 1-D search, gradient method would present a zig-zag trajectory and hence a very slow convergence.
+
+##### Convergence analysis
+
+Let's carry out the convergence analysis for quadratic strictly convex functions first.
+Remember that any $\mathcal{C}^2$ function can be well approximated around any local/global minimum by such a function.
+In particular, let
+$$
+f(\underline{x}) = \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x} \text{ with } Q \text{ p.d. }.
+$$
+The global minimum is the unique solution of $Q \underline{x} = \underline{b}$ ($\nabla f(\underline{x}) = \underline{0}$, _observe that this is a convex problem_) abd $\alpha_k$ can be determined explicitly:
+$$
+\phi(\alpha) = f(\underline{x}_k - \alpha \nabla f(\underline{x}_k)) = \frac{1}{2} (\underline{x}_k - \alpha \nabla f(\underline{x}_k))^T Q (\underline{x}_k - \alpha \nabla f(\underline{x}_k)) - \underline{b}^T (\underline{x}_k - \alpha \nabla f(\underline{x}_k)).
+$$
+Then:
+$$
+\phi'(\alpha) = - (\underline{x}_k - \alpha \nabla f(\underline{x}_k))^T Q \nabla f(\underline{x}_k) + \underline{b}^T \nabla f(\underline{x}_k).
+$$
+
+---
+
+Since $\nabla f(\underline{x}_k) = Q \underline{x}_k - \underline{b}$, then $\underline{b} = - \nabla f(\underline{x}_k) + Q \underline{x}_k$.
+Hence:
+$$
+\phi'(\alpha) = - (\underline{x}_k - \alpha \nabla f(\underline{x}_k))^T Q \nabla f(\underline{x}_k) + (-\nabla f(\underline{x}_k) + Q \underline{x}_k)^T \nabla f(\underline{x}_k) =
+$$
+$$
+= - \underline{x}_k Q \nabla f(\underline{x}_k) + \alpha \nabla f^T(\underline{x}_k) Q \nabla f(\underline{x}_k) - \nabla f^T(\underline{x}_k) \nabla f(\underline{x}_k) + \underline{x}_k^T Q \nabla f(\underline{x}_k) =
+$$
+$$
+= \alpha \nabla f^T(\underline{x}_k) Q \nabla f(\underline{x}_k) - \nabla f^T(\underline{x}_k) \nabla f(\underline{x}_k).
+$$
+Hence:
+$$
+\phi'(\alpha_k) = 0 \text{ iff } \alpha_k = \frac{\nabla f^T(\underline{x}_k) \nabla f(\underline{x}_k)}{\nabla f^T(\underline{x}_k) Q \nabla f(\underline{x}_k)} = \frac{\underline{d}_k^T \underline{d}_k}{\underline{d}_k^T Q \underline{d}_k}.
+$$
+
+Often we consider the convergence rate of $f(\underline{x}_k) \rightarrow f(\underline{x}^*)$ instead of that of $\underline{x}_k \rightarrow \underline{x}^*$ when $k \rightarrow + \infty$.
+
+- **Theorem**: if $H(\underline{x}^*)$ is p.d., $\underline{x}_k$ converges (super)linearly at $\underline{x}^*$ w.r.t $|f(\underline{x}_k) - f(\underline{x}^*)|$ iff it converges in the same way w.r.t. $||\underline{x}_k - \underline{x}^*||$.
+
+> **Proof**: first of all observe that, if $S \in \mathbb{R}^{n \times n}$ is a p.d. matrix, then, for every $\underline{y} \in \mathbb{R}^n$:
+$$
+\lambda_n(S) ||\underline{y}||^2 \leq \underline{y}^T S \underline{y} \leq \lambda_1(S) ||\underline{y}||^2
+$$
+> (_usual proof through spectral theorem_).
+Now, by second order Taylor expansion:
+$$
+f(\underline{x}) = f(\underline{x}^*) + \nabla f^T(\underline{x}^*) (\underline{x} - \underline{x}^*) + \frac{1}{2} (\underline{x} - \underline{x}^*)^T H(\underline{x}^*) (\underline{x} - \underline{x}^*) + o(||\underline{x} - \underline{x}^*||^2).
+$$
+> Remember that $\nabla f(\underline{x}^*) = \underline{0}$.
+> Then:
+$$
+\frac{\lambda_n(H(\underline{x}^*))}{2} ||\underline{x} - \underline{x}^*||^2 + o(||\underline{x} - \underline{x}^*||^2) \leq f(\underline{x}) - f(\underline{x}^*) \leq \frac{\lambda_1(H(\underline{x}^*))}{2} || \underline{x} - \underline{x}^* ||^2 + o(||\underline{x} - \underline{x}^*||^2).
+$$
+> Fix $\epsilon > 0$. By definition of $o(\cdot)$ we can find a neighborhood $\mathcal{N}(\underline{x}^*)$ s.t. for all $\underline{x} \in \mathcal{N}(\underline{x}^*)$:
+$$
+\frac{o(||\underline{x} - \underline{x}^*||^2)}{||\underline{x} - \underline{x}^*||^2} \in (-\epsilon, \epsilon),
+$$
+> which implies:
+$$
+o(||\underline{x} - \underline{x}^*||^2) \geq - \epsilon ||\underline{x} - \underline{x}^*||^2 \text{, and}
+$$
+$$
+o(||\underline{x} - \underline{x}^*||^2) \leq \epsilon ||\underline{x} - \underline{x}^*||^2.
+$$
+
+---
+
+> Then:
+$$
+\left( \frac{\lambda_n(H(\underline{x}^*))}{2} - \epsilon \right)||\underline{x} - \underline{x}^*||^2 \leq f(\underline{x}) - f(\underline{x}^*) \leq \left(\frac{\lambda_1(H(\underline{x}^*))}{2} + \epsilon \right)||\underline{x} - \underline{x}^*||^2.
+$$
+> Now, suppose that: $\underline{x}_k \rightarrow \underline{x}^*$ and
+$$
+||\underline{x}_{k+1} - \underline{x}^*|| \leq r_k ||\underline{x}_k - \underline{x}^*|| \ \forall k \geq k_0.
+$$
+> Then (_since $\underline{x}_k \rightarrow \underline{x}^*$_), there exists a $k_1$ s.t., for $k \geq k_1$, $\underline{x}_k \in \mathcal{N}(\underline{x}^*)$, and then, for $k \geq \max(k_0, k_1)$:
+$$
+|f(\underline{x}_{k+1}) - f(\underline{x}^*)| \stackrel{\underline{x}^* \text{ is a minimizer}}{=} f(\underline{x}_{k+1}) - f(\underline{x}^*) \leq \left( \frac{\lambda_1(H(\underline{x}^*))}{2} + \epsilon \right) || \underline{x}_{k+1} - \underline{x}^* ||^2 \leq
+$$
+$$
+\leq \left( \frac{\lambda_1(H(\underline{x}^*))}{2} + \epsilon \right) r_k^2  ||\underline{x}_k - \underline{x}^*||^2 \leq \frac{\frac{\lambda_1(H(\underline{x}^*))}{2} + \epsilon}{\frac{\lambda_n(H(\underline{x}^*))}{2}-\epsilon} r_k^2 (f(\underline{x}_k) - f(\underline{x}^*)) =
+$$
+$$
+= \frac{\lambda_1(H(\underline{x}^*)) + 2 \epsilon}{\lambda_n(H(\underline{x}^*)) - 2 \epsilon} r_k^2 |f(\underline{x}_k) - f(\underline{x}^*)|.
+$$
+> Observe that we can get as close to $\frac{\lambda_1(H(\underline{x}^*))}{\lambda_n(H(\underline{x}^*))}$ as we want by shrinking $\epsilon$. Anyway $\frac{\lambda_1(H(\underline{x}^*))}{\lambda_n(H(\underline{x}^*))} \geq 1$. If the convergence is superlinear this is not a problem, since the new rate still goes to 0. If the convergence is linear, then it could become sub-linear if $H(\underline{x}^*)$ is badly conditioned.
+
+> If we were to assume that e have (super)linear convergence in $f(\underline{x}_k) \rightarrow f(\underline{x}^*)$, the proof would be analogous.
+
+> **Remark**: this equivalence does not holds in general (e.g. functions non everywhere $\mathcal{C}^1$).
+
+For quadratic strictly convex functions $f(\underline{x}) = \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x}$ we can define the weighted norm $||\underline{x}||_Q^2 = \underline{x}^T Q \underline{x}$.
+
+> **Theorem**: if $f(\underline{x}) = \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x}$ with $Q$ p.d., $\frac{1}{2}||\underline{x} - \underline{x}^*||_Q^2 = f(\underline{x}) - f(\underline{x}^*)$ where $\underline{x}^*$ is the minimizer of $f$.
+
+> **Proof**: observe that $\nabla f(\underline{x}) = Q \underline{x} - \underline{b}$, and $\nabla f(\underline{x}^*) = \underline{0}$, then $Q \underline{x}^* = \underline{b}$, and so:
+$$
+\frac{1}{2}||\underline{x} - \underline{x}^*||_Q^2 = \frac{1}{2} (\underline{x} - \underline{x}^*)^T Q (\underline{x} - \underline{x}^*) = \frac{1}{2} \underline{x}^T Q \underline{x} - {\underline{x}^*}^T Q \underline{x} + \frac{1}{2} {\underline{x}^*}^T Q \underline{x}^* =
+$$
+$$
+= \frac{1}{2} \underline{x}^T Q \underline{x} - \underline{b}^T \underline{x} + \frac{1}{2} {\underline{x}^*}^T Q \underline{x}^* = f(\underline{x}) + \frac{1}{2} {\underline{x}^*}^T Q \underline{x}^*.
+$$
+
+---
+
+> Observe that:
+$$
+-f(\underline{x}^*) = - \frac{1}{2} {\underline{x}^*}^T Q \underline{x}^* - \underline{b}^T \underline{x}^* = - \frac{1}{2} {\underline{x}^*}^T \underline{b} - \underline{b}^T \underline{x}^* = \frac{1}{2} {\underline{x}^*}^T \underline{b} = \frac{1}{2} {\underline{x}^*}^T Q \underline{x}^*.
+$$
+> Then:
+$$
+\frac{1}{2}||\underline{x} - \underline{x}^*||_Q^2 = f(\underline{x}) - f(\underline{x}^*)
+$$
+> as we wanted to prove.
+
+Before proving an important theorem on the speed of the convergence of the gradient method for quadratic strictly convex, we need to present an intermediate result used in the proof.
+
+- **Kantorovich inequality**: if $Q$ is p.d., for each $\underline{x} \neq \underline{0}$, we have:
+$$
+\frac{(\underline{x}^T \underline{x})^2}{(\underline{x}^T Q \underline{x}) (\underline{x}^T Q^{-1} \underline{x}) (\underline{x}^T Q^{-1} \underline{x})} \geq \frac{4 \lambda_1(Q) \lambda_n(Q)}{(\lambda_1(Q) + \lambda_n(Q))^2}.
+$$
+
+> **Proof**: by spectral decomposition:
+$$
+\frac{(\underline{x}^T \underline{x})^2}{(\underline{x}^T Q \underline{x}) (\underline{x}^T Q^{-1} \underline{x})} = \frac{(\sum_{i=1}^n \alpha_i^2)^2}{\sum_{j=1}^n \lambda_j^2(Q) \alpha_j^2 \sum_{k=1}^n \frac{1}{\lambda_k^2(Q)} \alpha_k^2} =
+$$
+$$
+= \frac{1}{\sum_{j=1}^n \frac{\alpha_j^2}{\sum_{i=1}^n \alpha_i^2} \lambda_j(Q) \sum_{k=1}^n \frac{\alpha_k^2}{\sum_{i=1}^n \alpha_i^2}\frac{1}{\lambda_k(Q)}}.
+$$
+> Let $\xi_i = \frac{\alpha_i^2}{\sum_{j=1}^n \alpha_j^2}$ for $i \in \{ 1, \ldots, n \}$. Observe that $\xi_i \in [0, 1] \ \forall i \in \{ 1, \ldots, n \}$ and
+$$
+\xi_1 + \ldots + \xi_n = 1.
+$$
+> Then:
+$$
+\frac{(\underline{x}^T \underline{x})}{(\underline{x}^T Q \underline{x})(\underline{x}^T Q^{-1} \underline{x})} = \frac{1}{(\sum_{i=1}^n \xi_i \lambda_i(Q))(\sum_{i=1}^n \xi_i \frac{1}{\lambda_i(Q)})} = \frac{f(\sum_{i=1}^n \xi_i \lambda_i(Q))}{\sum_{i=1}^n \xi_i f(\lambda_i(Q))}
+$$
+> where $f(x) = \frac{1}{x}$ is a convex function if we restrict the domain to $\mathbb{R}^+$ (_just check the hessian_).
+> Let $l(x)$ be the line from $(\lambda_n(Q), f(\lambda_n(Q))), (\lambda_1(Q), f(\lambda_1(Q)))$:
+$$
+l(x) = f(\lambda_n(Q)) + \frac{f(\lambda_1(Q)) - f(\lambda_n(Q))}{\lambda_1(Q) - \lambda_n(Q)} (x - \lambda_n(Q)) \text{ for } x \in [\lambda_n(Q), \lambda_1(Q)].
+$$
+> Remember that, by following the convention of singular values: $\lambda_1(Q) \geq \ldots \geq \lambda_n(Q) > 0$.
+
+---
+
+> Then $\lambda_i(Q) \in [\lambda_n(Q), \lambda_1(Q)]$.
+We can always write $\lambda_i(Q)$ as:
+$$
+\lambda_i(Q) = \lambda_n(Q) + \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} (\lambda_1(Q) - \lambda_n(Q)) = \alpha_n \lambda_n(Q) + \alpha_1 \lambda_1(Q)
+$$
+> where $\alpha_n = 1 - \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} \geq 0$, $\alpha_1 = \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} \geq 0$ and $\alpha_n + \alpha_1 = 1$.
+> Then:
+$$
+f(\lambda_i(Q)) = f(\alpha_n \lambda_n(Q) + \alpha_1 \lambda_1(Q)) \leq \alpha_n f(\lambda_n(Q)) + \alpha_1 f(\lambda_1(Q)) =
+$$
+$$
+= \left( 1 - \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} \right) f(\lambda_n(Q)) + \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} f(\lambda_1(Q)) =
+$$
+$$
+= f(\lambda_n(Q)) + \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} (f(\lambda_1(Q)) - f(\lambda_n(Q))) = l(\lambda_i(Q)).
+$$
+> Hence:
+$$
+\sum_{i=1}^n \xi_i f(\lambda_i(Q)) \leq \sum_{i=1}^n \xi_i l(\lambda_i(Q)) = \sum_{i=1}^n \xi_i \left[ f(\lambda_n(Q)) + \frac{\lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)}(f(\lambda_1(Q)) - f(\lambda_n(Q))) \right] =
+$$
+$$
+\stackrel{\sum_{i=1}^n \xi_i = 1}{=} f(\lambda_n(Q)) + \frac{\sum_{i=1}^n \xi_i \lambda_i(Q) - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} (f(\lambda_1(Q)) - f(\lambda_n(Q))) = l (\sum_{i=1}^n \xi_i \lambda_i(Q)).
+$$
+
+> And so:
+$$
+\frac{(\underline{x}^T \underline{x})^2}{(\underline{x}^T Q \underline{x})(\underline{x}^T Q^{-1} \underline{x})} \geq \frac{f(\sum_{i=1^n \xi_i \lambda_i(Q)})}{l(\sum_{i=1}^n \xi_i \lambda_i(Q))} \stackrel{\lambda = \sum_{i=1}^n \xi_i \lambda_i(Q) \in [\lambda_n(Q), \lambda_1(Q)]}{=} \frac{f(\lambda)}{l(\lambda)} =
+$$
+$$
+= \frac{f(\lambda)}{f(\lambda_1(Q)) + \frac{\lambda - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} (f(\lambda_1(Q)) - f(\lambda_n(Q)))} = \frac{\frac{1}{\lambda}}{\frac{1}{\lambda_1(Q)} + \frac{\lambda - \lambda_n(Q)}{\lambda_1(Q) - \lambda_n(Q)} \left(\frac{1}{\lambda_1(Q)} - \frac{1}{\lambda_n(Q)}\right)} =
+$$
+$$
+= \frac{\lambda_n(Q) \lambda_1(Q)}{\lambda (\lambda_n(Q) + \lambda_1(Q)) - \lambda^2} \geq \frac{4 \lambda_n(Q) \lambda_1(Q)}{\frac{\lambda_n(Q) + \lambda_1(Q)}{2} (\lambda_n(Q) + \lambda_1(Q)) - \frac{(\lambda_n(Q) + \lambda_1(Q))^2}{4}} = \frac{4 \lambda_n(Q) \lambda_1(Q)}{(\lambda_n(Q) + \lambda_1(Q))^2}
+$$
+> where the last inequality comes from the fact that $\lambda (\lambda_n(Q) + \lambda_1(Q)) - \lambda^2 = \lambda [\lambda_n(Q) + \lambda_1(Q) - \lambda]$ attains its maximum at $\frac{\lambda_n(Q) + \lambda_1(Q)}{2}$ (_the average of the roots_).
+
+We're ready to introduce the theorem.
+- **Theorem**: if gradient method with <u>exact</u> 1_D search is applied to any quadratic strictly convex $f \in \mathcal{C}^2$, for any $\underline{x}_0$ we have $\lim_{k \rightarrow + \infty} \underline{x}_k = \underline{x}^*$ and
+$$
+||\underline{x}_{k+1} - \underline{x}^*||_Q^2 \leq \left( \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_1(Q) + \lambda_n(Q)} \right)^2 || \underline{x}_k - \underline{x}^* ||_Q^2.
+$$
+
+---
+
+> **Proof**: resume...
+
 ---
 
 #### Newton method
@@ -618,4 +818,97 @@ $$
 n \leq N + \log_2\left( \frac{\alpha_\max^{(N)} - \alpha_\min^{(N)}}{\delta} \right).
 $$
 
-Resume...
+### Global convergence of line search methods
+
+Suitable assumptions on $\alpha_k$ and $\underline{d}_k$ can guarantee global convergence.
+A **key aspect** is the angle $\theta_k$ between $\underline{d}_k$ and $- \nabla f(\underline{x}_k)$, or, more in detail:
+$$
+\cos(\theta_k) = - \frac{\nabla f^T(\underline{x}_k) \underline{d}_k}{||\nabla f(\underline{x}_k)|| ||\underline{d}_k||}.
+$$
+There is a general result which shows how far $\underline{d}_k$ can deviate from $-\nabla f(\underline{x}_k)$ and still give rise to globally convergent iterations.
+
+- **Zoutendijk theorem**: consider any line search method iteration with descent $\underline{d}_k$ and $\alpha_k$ satisfying Wolfe conditions. Suppose $f$ is bounded below on $\mathbb{R}^n$, $f \in \mathcal{C}^1$ on an open set $N$ containing $L_0 = \{ \underline{x} \in \mathbb{R}^n \ | \ f(\underline{x}) \leq f(\underline{x}_0)) \}$ and $\nabla f(\underline{x})$ is Lipschitz continuous on $N$, i.e., $\exists L > 0$ s.t.
+$$
+|| \nabla f(\underline{x}) - \nabla f(\underline{\overline{x}}) || \leq L || \underline{x} - \underline{\overline{x}} || \ \forall \underline{x}, \underline{\overline{x}} \in N.
+$$
+> Then
+$$
+\sum_{k \geq 0} \cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2 < +\infty.
+$$
+
+---
+
+> **Proof**: observe that $(\nabla f(\underline{x}_{k+1}) - \nabla f(\underline{x_k}))^T \underline{d}_k \geq c_2 \nabla f^T(\underline{x}_k) \underline{d}_k - \nabla f^T(\underline{x}_k) \underline{d}_k = (c_2 -1) \nabla f^T(\underline{x}_k) \underline{d}_k$ because of Wolfe (3) on $\underline{x}_{k+1}$.
+> At the same time, because of the Lipschitz continuity:
+$$
+(\nabla f(\underline{x}_{k+1}) - \nabla f(\underline{x}_k))^T \underline{d}_k \stackrel{\text{Cauchy-Schwarz}}{\leq} || \nabla f(\underline{x}_{k+1}) - \nabla f(\underline{x}_k) || || \underline{d}_k || \leq
+$$
+$$
+\stackrel{\text{Lipschitz continuity}}{\leq} L || \underline{x}_{k+1} - \underline{x}_k || || \underline{d}_k || = L || \alpha_k \underline{d}_k || || \underline{d}_k || = \alpha_k L || \underline{d}_k ||^2.
+$$
+> By combining the two inequalities, we obtain:
+$$
+\alpha_k L || \underline{d}_k ||^2 \geq (c_2 - 1) \nabla f^T(\underline{x}_k) \underline{d}_k \text{ iff}
+$$
+$$
+\alpha_k \geq \frac{c_2 - 1}{L} \frac{\nabla f^T(\underline{x}_k) \underline{d}_k}{|| \underline{d}_k ||^2}.
+$$
+> By substituting this inequality into Wolfe (2), we obtain:
+$$
+f(\underline{x}_{k+1}) \leq f(\underline{x}_k) + c_1 \alpha_k \nabla f^T(\underline{x}_k) \underline{d}_k \stackrel{\nabla f^T(\underline{x}_k) \underline{d}_k \leq 0}{\leq} f(\underline{x}_k) - c_1 \frac{1-c_2}{L} \frac{(\nabla f^T(\underline{x}_k) \underline{d}_k)^2}{||\underline{d}_k||^2} =
+$$
+$$
+\stackrel{\text{assuming } \nabla f(\underline{x}_k) \neq \underline{0}}{=} f(\underline{x}_k) - c_1 \frac{1-c_2}{L}\left( \frac{\nabla f^T(\underline{x}_k) \underline{d}_k}{||\nabla f(\underline{x}_k)|| ||\underline{d}_k||} \right)^2 ||\nabla f(\underline{x}_k)||^2 =
+$$
+$$
+= f(\underline{x}_k) - c_1 \frac{1-c_2}{L} \cos^2 (\theta_k) || \nabla f(\underline{x}_k) ||^2 = f(\underline{x}_k) - c \cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2,
+$$
+> where $c = c_1\frac{1-c_2}{L} > 0$.
+By summing this expression over all indices less than or equal to $k$, we obtain:
+$$
+f(\underline{x}_{k+1}) - f(\underline{x}_0) = \sum_{j=0}^k (f(\underline{x}_{j+1}) - f(\underline{x}_j)) \leq -c\sum_{j=0}^k \cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2.
+$$
+> Since $f$ is bounded below, we have that:
+$$
+f(\underline{x}_0) - f(\underline{x}_{k+1}) \leq f(\underline{x}_0) + M
+$$
+> for all $k$. Then:
+$$
+c \sum_{j=0}^k \cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2 \leq f(\underline{x}_0) + M.
+$$
+> Finally, since $\cos^2(\theta_k) ||\nabla f(\underline{x}_k)||^2 \geq 0$, $c \sum_{j=0}^k \cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2$ is a non-decreasing and bounded sequence, hence it must converge. Being $c > 0$, the result follows.
+
+---
+
+**Important remark**: Zoutendijk theorem implies that $\cos^2(\theta_k) || \nabla f(\underline{x}_k) ||^2 \rightarrow 0$ as $k \rightarrow + \infty$. Hence, if $\cos(\theta_k) \geq \delta > 0 \ \forall k \geq 0$, then it must be $\lim_{k \rightarrow +\infty} || \nabla f(\underline{x}_k) || = 0$, that is: $\lim_{k \rightarrow + \infty} \nabla f(\underline{x}_k) = \underline{0}$.
+As a consequence, the gradient method, with $\cos(\theta_k) = 1 \ \forall k$, satisfying Wolfe conditions, is globally convergent.
+
+- **Theorem**: if $D_k$ is symmetric and p.d. $\forall k \geq 0$ and $\exists$ a constant $M$ s.t.
+$$
+||D_k|| ||D_k||^{-1} \leq M \ \forall k \geq 0
+$$ 
+> (_bounded condition number_), then
+$$
+\cos(\theta_k) \geq \frac{1}{M}.
+$$
+> In such cases Newton and quasi-Newton methods are globally convergent.
+
+> **Proof**: since $D_k$ is symmetric, it is diagonalizable. Being p.d., its eigenvalues are strictly positive. Furthermore, if $\text{eig}(D_k) = \{ \lambda_1, \ldots, \lambda_n \}$ with $\lambda_1 \geq \ldots \geq \lambda_n \geq 0$, then:
+$$
+\text{eig}(D_k^{-1}) = \{ \frac{1}{\lambda_n}, \ldots, \frac{1}{\lambda_1} \}
+$$
+> with $\frac{1}{\lambda_n} \geq \ldots \geq \frac{1}{\lambda_1} > 0$.
+> Remember that $||D_k|| (= ||D_k||_2) = \lambda_1$ [_see NAMl summaries_].
+Analogously $||D_k||^{-1} = \frac{1}{\lambda_n}$.
+$$
+\cos(\theta_k) = \frac{- \nabla f^T(\underline{x}_k) \underline{d}_k}{||\nabla f(\underline{x}_k)|| || \underline{d}_k ||} = \frac{\nabla f^T(\underline{x}_k) D_k^{-1} \nabla f(\underline{x}_k)}{|| \nabla f(\underline{x}_k) || ||D_k^{-1} \nabla f(\underline{x}_k)||} \geq
+$$
+$$
+\stackrel{\frac{1}{||A \underline{x}||} \geq \frac{1}{||A|| ||\underline{x}||}}{\geq} \frac{\nabla f^T(\underline{x}_k) D_k^{-1} \nabla f(\underline{x}_k)}{||\nabla f(\underline{x}_k)|| ||D_k^{-1}|| ||\nabla f(\underline{x}_k)||} = \frac{\nabla f^T(\underline{x}_k) D_k^{-1} \nabla f(\underline{x}_k)}{||D_k^{-1}|| ||\nabla f(\underline{x}_k)||^2} =
+$$
+$$
+\stackrel{\text{spectral theorem}}{=} \frac{\sum_{i=1}^n \alpha_i \underline{v}_i^T \sum_{j=1}^n \frac{1}{\lambda_j} \underline{v}_j \underline{v}_j^T \sum_{k=1}^n \alpha_k \underline{v}_k}{||D_k^{-1}|| ||\nabla f(\underline{x}_k)||^2} = \frac{\sum_{i=1} \frac{\alpha_i^2}{\lambda_i}}{||D_k^{-1}|| ||\nabla f(\underline{x}_k)||^2} \geq
+$$
+$$
+\geq \frac{\frac{1}{\lambda_1} \sum_{i=1}^n \alpha_i^2}{||D_k^{-1}|| ||\nabla f(\underline{x}_k)||^2} = \frac{||\nabla f(\underline{x}_k)||^2}{\lambda_1 ||D_k^{-1}|| ||\nabla f(\underline{x}_k)||^2} = \frac{1}{||D_k|||D_k^{-1}||} \geq \frac{1}{M}.
+$$
