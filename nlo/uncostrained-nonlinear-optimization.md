@@ -500,7 +500,72 @@ $$
 
 ---
 
-> **Proof**: resume...
+> **Proof**: we proved before that the $\alpha_k$ provided by exact line search is:
+$$
+\alpha_k = \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k}
+$$
+> where $\underline{g}_k = Q \underline{x}_k - \underline{b} = \nabla f(\underline{x}_k)$.
+Then:
+$$
+||\underline{x}_{k+1} - \underline{x}^*||_Q^2 = ||\underline{x}_k - \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k}\underline{g}_k - \underline{x}^*||_Q^2  =
+$$
+$$
+= (\underline{x}_k - \underline{x}^*)^T Q (\underline{x}_k - \underline{x}^*) - 2 \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k} (\underline{x}_k - \underline{x}^*)^T Q \underline{g}_k + \left( \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k} \right)^2 \underline{g}_k^T Q \underline{g}_k =
+$$
+$$
+= ||\underline{x}_k - \underline{x}^*||_Q^2 - 2 \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k} (\underline{x}_k - \underline{x}^*)^T Q \underline{g}_k + \frac{(\underline{g}_k^T \underline{g}_k)^2}{\underline{g}_k^T Q \underline{g}_k}.
+$$
+> Observe that $Q \underline{x}^* = \underline{b}$ since $\nabla f(\underline{x}^*) = \underline{0}$, then $\underline{g}_k = Q \underline{x}_k - \underline{b} = Q (\underline{x}_k - \underline{x}^*)$ iff $\underline{x}_k - \underline{x}^* = Q^{-1} \underline{g}_k$.
+hence:
+$$
+||\underline{x}_{k+1} - \underline{x}^*||_Q^2 = ||\underline{x}_k - \underline{x}^*||_Q^2 - 2 \frac{\underline{g}_k^T \underline{g}_k}{\underline{g}_k^T Q \underline{g}_k} \underline{g}_k^T Q^{-1}Q \underline{g}_k + \frac{(\underline{g}_k^T \underline{g}_k)^2}{\underline{g}_k^T Q \underline{g}_k} =
+$$
+$$
+= ||\underline{x}_k - \underline{x}^*||_Q^2 - \frac{(\underline{g}_k^T \underline{g}_k)^2}{\underline{g}_k^T Q \underline{g}_k} = ||\underline{x}_k - \underline{x}^*||_Q^2 - \frac{(\underline{g}_k^T \underline{g}_k)^2}{(\underline{g}_k^T Q \underline{g}_k)(\underline{g}_k^T Q^{-1} \underline{g}_k)} (\underline{g}_k^T Q^{-1} \underline{g}_k) =
+$$
+$$
+= ||\underline{x}_k - \underline{x}^*||_Q^2 - \frac{(\underline{g}_k^T \underline{g}_k)^2}{(\underline{g}_k^T Q \underline{g}_k)(\underline{g}_k^T Q^{-1} \underline{g}_k)} (\underline{x}_k - \underline{x}^*)^T Q Q^{-1} Q (\underline{x}_k - \underline{x}^*) = 
+$$
+$$
+= ||\underline{x}_k - \underline{x}^*||_Q^2 - \frac{(\underline{g}_k^T \underline{g}_k)^2}{(\underline{g}_k^T Q \underline{g}_k)(\underline{g}_k^T Q^{-1} \underline{g}_k)} ||\underline{x}_k - \underline{x}^*||_Q^2 =
+$$
+$$
+= \left[1 - \frac{(\underline{g}_k^T \underline{g}_k)^2}{(\underline{g}_k^T Q \underline{g}_k)(\underline{g}_k^T Q^{-1} \underline{g}_k)} \right] ||\underline{x}_k - \underline{x}^*||_Q^2.
+$$
+> Finally, by kantorovich inequality:
+$$
+||\underline{x}_{k+1} - \underline{x}^*||^2_Q \leq \left[ 1 - \frac{4 \lambda_1(Q) \lambda_n(Q)}{(\lambda_1(Q) + \lambda_n(Q))^2} \right] ||\underline{x}_k - \underline{x}^*||_Q^2 = \left( \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_1(Q) + \lambda_n(Q)} \right)^2 ||\underline{x}_k - \underline{x}^*||_Q^2.
+$$
+
+---
+
+> **Remark**: if $\lambda_1(Q) = \lambda_n(Q)$ (i.e., $Q = \gamma I$ with $\gamma > 0$), the method "converges" in one iteration: $||\underline{x}_1 - \underline{x}^*||_Q^2 \leq 0$.
+
+> **Remark**: the upper bound is reached for some choices of $\underline{x}_0$.
+
+> **Remark**: the convergence is linear and the rate depends on the condition number $\kappa(Q) = \frac{\lambda_1(Q)}{\lambda_n(Q)}$:
+$$
+r = \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_1(Q) + \lambda_n(Q)} = \frac{\kappa(Q) - 1}{\kappa(Q) + 1}.
+$$
+> The closer is $\kappa(Q)$ to $1$, the smaller $r$; if the spectrum of $Q$ is very wide, then $\kappa(Q) \gg 1$ and $r \approx 1$.
+
+> **Remark**: remember that: $||\underline{x}_{k+1} - \underline{x}^*||_Q^2 = 2 (f(\underline{x}_k) - f(\underline{x}^*))$.
+By the theorem we proved before:
+$$
+||\underline{x}_{k+1} - \underline{x}^*||_2^2 \leq \frac{\lambda_1(Q) + 2 \epsilon}{\lambda_n(Q) - 2 \epsilon} \left( \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_1(Q) + \lambda_n(Q)} \right)^2 ||\underline{x}_k - \underline{x}^*||_2^2 =
+$$
+$$
+= \frac{\lambda_1(Q) + 2 \epsilon}{\lambda_1(Q) + \lambda_n(Q)} \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_1(Q) + \lambda_n(Q)} \frac{\lambda_1(Q) - \lambda_n(Q)}{\lambda_n(Q) - 2 \epsilon} ||\underline{x}_k - \underline{x}^*||_2^2.
+$$
+> For appropriate values of $\epsilon$, the coefficient above is the product of 3 positive terms, each smaller than 1. Hence the convergence is linear also in $\underline{x}_k \rightarrow \underline{x}^*s$.
+
+There are some result also for arbitrary nonlinear functions.
+- **Theorem**: if $f \in \mathcal{C}^2$ and gradient method with <u>exact</u> 1-D search converges to $\underline{x}^*$ with $H(\underline{x}^*)$ p.d., then:
+$$
+f(\underline{x}_{k+1}) - f(\underline{x}^*) \leq \left( \frac{\lambda_1(H(\underline{x}^*)) - \lambda_n(H(\underline{x}^*))}{\lambda_1(H(\underline{x}^*)) + \lambda_n(H(\underline{x}^*))} \right)^2 \left[ f(\underline{x}_k) - f(\underline{x}^*) \right].
+$$
+
+> **Remark**: we cannot expect better convergence with inexact (approximate) 1-D search. $\alpha_k$ minimizing $\phi(\alpha)$ might not be the best choice, we could try to "extract" 2nd order information about $f(\underline{x})$.
 
 ---
 
@@ -526,11 +591,217 @@ In particular, we call $\underline{d}_k = -H^{-1}(\underline{x}_k) \nabla f(\und
 If $H(\underline{x}_k)$ is p.d. and $\nabla f(\underline{x}_k) \neq \underline{0}$, $\underline{d}_k$ is a descent direction.
 If $H(\underline{x}_k)$ is NOT p.d., $\underline{d}_k$ may not be defined ($\not \exists H^{-1}(\underline{x}_k)$) or may be an ascent direction.
 
+In the "**pure**" Newton method. $\alpha_k = 1 \ \forall k$.
+
+If $f$ is quadratic and strictly convex, we reach the global minimum in a single iteration.
+
+- **Property**: Newton method is invariant w.r.t. affine and non singular coordinate changes.
+
+**Remark**: Newton method is NOT globally convergent, but we have very fast local convergence if $\underline{x}_0$ is sufficiently close to a desired solution.
+We will formalize this in a moment.
+
+##### Alternative interpretation
+
+There is an alternative interpretation of Newton's method in 1-D.
+Suppose that $f(x) \in \mathcal{C}^2$ and we look for $x^*$ s.t. $f'(x^*) = 0$.
+The _method of tangents_ (aka Newton-Raphson method) is a technique to determine the zeros of a 1-D function. We can apply it to $f'$, obtaining Newton's method.
+At iteration $k$, $f'(x)$ is approximated with the tangent at $x_k$:
+$$
+z = f'(x_k) + f''(x_k) (x - x_k).
+$$
+$x_{k+1}$ corresponds to the intersection with the $x$-axis: $x_{k+1} = x_k - \frac{f'(x_k)}{f''(x_k)}$.
+
+In the $n$-D case we want to determine a stationary point of $f(\underline{x})$ by solving the non linear system $\nabla f(\underline{x}) = \underline{0}$ with "Newton-Raphson" method.
+
+---
+
+##### Convergence analysis
+
+Before proving an important convergence theorem for Newton's method, we need some intermediate results.
+
+- **Second order multivariate Taylor's theorem with integral remainder**: suppose that $f \in \mathcal{C}^2(\mathbb{R}^n)$ and that $\underline{p} \in \mathbb{R}^n$.
+Then:
+$$
+\nabla f(\underline{x} + \underline{p}) = \nabla f(\underline{x}) + \int_0^1 \nabla f^2(\underline{x} + t \underline{p}) \underline{p} dt.
+$$
+
+> **Proof**: fix $i \in \{ 1, \ldots, n \}$. Let:
+$$
+\phi_i(t) = \frac{\partial f}{\partial x_i}(\underline{x} + t \underline{p}) \text{ for } t \in \mathbb{R}.
+$$
+> By the chain rule:
+$$
+\phi'(t) = \frac{\partial}{\partial \underline{x}} \left[ \frac{\partial f}{\partial x_i} \right](\underline{x} + t \underline{p}) \underline{o} = \begin{bmatrix} \frac{\partial^2 f}{\partial x_1 \partial x_i}(\underline{x} + t \underline{p}) & \cdots & \frac{\partial^2 f}{\partial x_n \partial x_i}(\underline{x} + t \underline{p})  \end{bmatrix} \underline{p},
+$$
+> which is continuous since $f \in \mathcal{C}^2(\mathbb{R}^n)$.
+Hence $\phi_i'$ is integrable and we can apply the FTC:
+$$
+\phi_i(1) = \phi_i(0) + \int_0^1 \phi_i'(t)dt \text{ iff}
+$$
+$$
+\frac{\partial f}{\partial x_i}(\underline{x} + \underline{p}) = \frac{\partial f}{\partial x_i}(\underline{x}) + \int_0^1 \begin{bmatrix} \frac{\partial^2 f}{\partial x_1 \partial x_i} (\underline{x} + t \underline{p}) & \cdots & \frac{\partial^2 f}{\partial x_n \partial x_i} (\underline{x} + t \underline{p}) \end{bmatrix} \underline{p} dt.
+$$
+Now, let's join all the partial derivatives in the gradient:
+$$
+\nabla f(\underline{x} + \underline{p}) = \nabla f(\underline{x}) + \int_0^1 {\nabla^2 f}^T(\underline{x} + t \underline{p}) \underline{p} dt = \nabla f(\underline{x}) + \int_0^1 \nabla^2 f(\underline{x} + t \underline{p}) \underline{p} dt.
+$$
+
+- **Theorem**: let $\underline{f} : [a, b] \rightarrow \mathbb{R}^n$ be an integrable function, Then:
+$$
+||\int_a^b \underline{f}(x)dx||_2 \leq \int_a^b ||\underline{f}(x)||_2 dx.
+$$
+
+> **Proof**: let
+$$
+\underline{v} = \int_a^b \underline{f}(x)dx.
+$$
+> Let's assume $\underline{v} \neq \underline{0}$, otherwise the statement is trivial by the integral comparison theorem.
+
+---
+
+> Then:
+$$
+||\underline{v}||_2^2 = \underline{v}^T \underline{v} = \underline{v}^T \int_a^b \underline{f}(x) dx = \int_a^b \underline{v}^T \underline{f}(x) dx \leq \int_a^b ||\underline{v}||_2 ||\underline{f}(x)||_2 dx = 
+$$
+$$
+= ||\underline{v}||_2 \int_a^b ||\underline{f}(x)||_2 dx \text{ iff}
+$$
+$$
+||\underline{v}|| \leq \int_a^b ||\underline{f}(x)||_2 dx
+$$
+> as we wanted to prove.
+
+- **Theorem**: suppose $f \in \mathcal{C}^2$ and $\underline{x}^*$ s.t. $\nabla f(\underline{x}^*) = \underline{0}$ and $H(\underline{x}^*)$ p.d. and $\exists L > 0$ s.t.
+$$
+||H(\underline{x}) - H(\underline{y})|| \leq L ||\underline{x} - \underline{y}|| \ \forall \underline{x}, \underline{y} \in \mathcal{N}(\underline{x}^*).
+$$
+> Then, for $\underline{x}_0$ sufficiently close to a local minimum:
+>> i. $\underline{x}_k \rightarrow \underline{x}^*$ with a <u>quadratic</u> convergence order;
+>> ii. $\nabla f(\underline{x}_k) \rightarrow 0$ <u>quadratically</u> when $k \rightarrow +\infty$.
+
+> **Proof**: from the definition of Newton step:
+$$
+\underline{d}_k = - \left[ \nabla^2 f(\underline{x}_k) \right]^{-1} \nabla f(\underline{x}_k).
+$$
+> Furthermore, by NS optimality condition, $\nabla f(\underline{x}^*) = \underline{0}$.
+Then:
+$$
+\underline{x}_k + \underline{d}_k - \underline{x}^* = \underline{x}_k - \underline{x}^* - [\nabla^2 f(\underline{x}_k)]^{-1} \nabla f(\underline{x}_k) =
+$$
+$$
+= [\nabla^2 f(\underline{x}_k)]^{-1} [\nabla^2 f(\underline{x}_k) (\underline{x}_k - \underline{x}^*) - (\nabla f(\underline{x}_k) - \nabla f(\underline{x}^*))].
+$$
+> Assume that $\underline{x}_k \in \mathcal{N}(\underline{x}^*)$. By Taylor's theorem:
+$$
+||\nabla^2 f(\underline{x}_k) (\underline{x}_k - \underline{x}^*) - (\nabla f(\underline{x}_k) - \nabla f(\underline{x}^*))|| = 
+$$
+$$
+= ||\nabla^2 f(\underline{x}_k) (\underline{x}_k - \underline{x}^*) - \int_0^1 \nabla^2 f(\underline{x}^* + t(\underline{x}_k - \underline{x}^*))(\underline{x}_k - \underline{x}^*) dt|| =
+$$
+$$
+= ||\int_0^1 \left\{ \nabla f^2(\underline{x}_k) - \nabla^2 f(\underline{x}^* + t(\underline{x}_k - \underline{x}^*)) \right\} (\underline{x}_k - \underline{x}^*) dt|| \leq
+$$
+$$
+\leq \int_0^1 || \nabla^2 f(\underline{x}_k) - \nabla^2 f(\underline{x}^* + t(\underline{x}_k - \underline{x}^*)) (\underline{x}_k - \underline{x}^*) || dt \leq
+$$
+$$
+\leq \int_0^1 || \nabla^2 f(\underline{x}_k) - \nabla^2 f(\underline{x}^* + t(\underline{x}_k - \underline{x}^*))|| || \underline{x}_k - \underline{x}^* || dt \leq
+$$
+
+---
+
+$$
+\leq \int_0^1 L ||t (\underline{x}_k - \underline{x}^*)|| || \underline{x}_k - \underline{x}^* || dt = L ||\underline{x}_k - \underline{x}^*||^2 \int_0^1 t dt = \frac{L}{2} ||\underline{x}_k - \underline{x}^*||^2.
+$$
+
+> We will take for true the following result: "Since $\nabla^2 f(\underline{x}^*)$ is non-singular, there is a radius $\rho > 0$ s.t. $||[\nabla^2f(\underline{x})]^{-1}|| \leq 2 ||[\nabla^2 f(\underline{x}^*)]^{-1}||$ for all $\underline{x} \in \mathcal{B}_\rho(\underline{x}^*) \subseteq \mathcal{N}(\underline{x}^*)$. This should follow from the fact that (if $\mathcal{B}_r(\underline{x}^*) \subseteq \mathcal{N}(\underline{x}^*)$) the Lipschitz continuity of $\nabla^2 f(\underline{x})$ implies the continuity of its entries, which imply the continuity of the determinant. Then $\nabla^2 f(\underline{x})$ is invertible in a neighborhood since $\nabla^2 f(\underline{x}^*)$ is, furthermore the entries of $\nabla^2 f^{-1}(\underline{x})$ are continuous in $\mathcal{N}(\underline{x}^*)$ (remember the formula for the inversion of a matrix with the determinant which requires only the sum, product, and reciprocal of continuous quantities). Hence the maximum of the eigenvalues of $\nabla^2 f^{-1}(\underline{x})$ is continuous since the roots of a polynomial are continuous in its coefficients [_this is the hardest part to formalize_] and the maximum of continuous functions is continuous, and so $||\nabla^2 f^{-1}(\underline{x})||$ is continuous. _Edit: I think that we can exploit the fact that every norm is continuous, hence we can skip the part about the roots of the polynomial_".
+Then, by combining the results:
+$$
+||\underline{x}_{k+1} - \underline{x}^*|| = ||\underline{x}_k + \underline{d}_k - \underline{x}^*|| =
+$$
+$$
+= ||[\nabla^2 f(\underline{x}_k)]^{-1} [\nabla^2 f(\underline{x}_k) (\underline{x}_k - \underline{x}^*) - (\nabla f(\underline{x}_k) - \nabla f(\underline{x}^*))]|| \leq 
+$$
+$$
+\leq ||[\nabla^2 f(\underline{x}_k)]^{-1}|| ||[\nabla^2 f(\underline{x}_k) (\underline{x}_k - \underline{x}^*) - (\nabla f(\underline{x}_k) - \nabla f(\underline{x}^*))]|| \leq
+$$
+$$
+\leq 2 ||[\nabla^2 f(\underline{x}^*)]^{-1}|| \frac{L}{2} ||\underline{x}_k - \underline{x}^*|| = \tilde{L} || \underline{x}_k - \underline{x}^* ||^2
+$$
+> with $\tilde{L} = ||[\nabla^2 f(\underline{x}^*)]^{-1}||L$.
+Now suppose that $\underline{x}_0 \in \mathcal{B}_{\min\left(\rho, \frac{1}{2\tilde{L}}\right)}(\underline{x}^*) \subseteq \mathcal{B}_\rho(\underline{x}^*) \subseteq \mathcal{N}(\underline{x}^*)$. Then, the hypothesis to apply the inequality above are satisfied:
+$$
+||\underline{x}_1 - \underline{x}^*|| \leq \tilde{L} || \underline{x}_0 - \underline{x}^* ||^2 \leq \tilde{L} \frac{1}{4 \tilde{L}^2} = \frac{1}{4 \tilde{L}}.
+$$
+> Furthermore:
+$$
+||\underline{x}_1 - \underline{x}^*|| \leq \tilde{L} || \underline{x}_0 - \underline{x}^* || ||\underline{x}_0 - \underline{x}^*|| \leq \frac{\tilde{L}}{2 \tilde{L}} || \underline{x}_0 - \underline{x}^* ||,
+$$
+> hence also $\underline{x}_1$ satisfies the hypotheses to apply the inequality.
+> It is easy to see by induction that:
+$$
+||\underline{x}_k - \underline{x}^*|| \leq \frac{1}{2^{2^k} \tilde{L}}
+$$
+> which implies $\underline{x}_k \rightarrow \underline{x}^*$.
+Hence we have quadratic convergence.
+
+---
+
+> By using the relation $\underline{x}_{k+1} - \underline{x}_k = \underline{d}_k$ and $\nabla f(\underline{x}_k) + \nabla^2 f(\underline{x}_k) \underline{d}_k = \underline{0}$, we obtain that:
+$$
+||\nabla f(\underline{x}_{k+1})|| = || \nabla f(\underline{x}_{k+1}) - \nabla f(\underline{x}_k) - \nabla^2 f(\underline{x}_k) \underline{d}_k || =
+$$
+$$
+= ||\int_0^1 \nabla^2 f(\underline{x}_k + t (\underline{x}_{k+1} - \underline{x}_k)) (\underline{x}_{k+1} - \underline{x}^*)dt - \nabla^2 f(\underline{x}_k) \underline{d}_k|| =
+$$
+$$
+= ||\int_0^1 [\nabla^2 f(\underline{x}_k + t \underline{d}_k) - \nabla^2 f(\underline{x}_k)] \underline{d}_k dt|| \leq  \int_0^1 ||\nabla^2 f(\underline{x}_k + t \underline{d}_k) - \nabla^2 f(\underline{x}_k)|| ||\underline{d}_k|| dt \leq
+$$
+$$
+\leq \int_0^1 L t ||\underline{d}_k||^2 dt = \frac{L}{2} ||\underline{d}_k||^2 = \frac{L}{2} ||[\nabla^2 f(\underline{x}_k)]^{-1} \nabla f(\underline{x}_k)||^2 \leq
+$$
+$$
+\leq \frac{L}{2} ||[\nabla^2 f(\underline{x}_k)]^{-1}||^2 ||\nabla f(\underline{x}_k)||^2 \leq \frac{L}{2}4 ||[\nabla^2 f(\underline{x}^*)]^{-1}||^2 ||\nabla f(\underline{x}_k)||^2 = 2 \tilde{L} ||\nabla f(\underline{x}_k)||^2
+$$
+> as we wanted to prove.
+(Observe that, by what we proved before, we're guaranteed that $\underline{x}_{k+1}$, $\underline{x}_k$ and all the points in the segment which connects them, satisfy all the hypothesis required to apply the inequalities).
+
+##### Modification and extensions
+
+1. If $\alpha_k = 1$ does not satisfy Wolfe (or other) conditions, then we can apply inexact 1-D search.
+
+2. To guarantee global convergence
+$$
+\underline{d}_k = - D_k \nabla f(\underline{x}_k)
+$$
+> with $D_k \neq [\nabla^2 f(\underline{x}_k)]^{-1}$. If $D_k$ is symmetric and p.d, $\underline{d}_k$ is a descent direction. We can make a trade-off between steepest descent and Newton directions:
+$$
+D_k = (\epsilon_k I + \nabla^2 f(\underline{x}_k))^{-1}
+$$
+> where $\epsilon_k > 0$ is the smallest value such that the eigenvalues of $\epsilon_k I + \nabla^2 f(\underline{x}_k)$ are positive. It coincides with "pure" Newton method when getting closer to a local minimum.
+
+3. **Trust region methods**: the idea is the following, we simultaneously determine $\underline{d}_k$ and $\alpha_k$ by minimizing a local quadratic approximation $q_k(\underline{x})$ at $\underline{x}_k$ over a trust region on which $q_k(\underline{x})$ provides a good approximation of $f(\underline{x})$.
+For example $\mathcal{B}_k = \{ \underline{x} \in \mathbb{R}^n \ | \ ||\underline{x} - \underline{x}_k|| \leq \Delta_k \}$. In general, the trust region subproblem: $\min_{\underline{x} \in \mathcal{B}_k} q_k(\underline{x})$ can be solved in closed form or it has low computational requirements.
+
+---
+
+> The trust region size (e.g. $\Delta_k$) is updated adaptively during the iterations based on an estimate of the quality (e.g. $\max |f(\underline{x} - q_k(\underline{x}))|$) of the quadratic approximation over it.
+
+---
+
+#### Conjugate direction methods
+
+The aim of this method it to aim at a faster convergence than gradient method and lower computational load than Newton method.
+As usual, let's consider the quadratic strictly convex case first:
+$$
+
+$$
+
 ---
 
 ### Step length
 
-TO guarantee global convergence, an <u>approximate solution</u> $\alpha_k$ of line search:
+To guarantee global convergence, an <u>approximate solution</u> $\alpha_k$ of line search:
 $$
 \min_{\alpha \geq 0} \phi(\alpha) = f(\underline{x}_k + \alpha \underline{d}_k)
 $$
