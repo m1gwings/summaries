@@ -425,3 +425,234 @@ $$
 > - if a saddle point exists: we can solve (D) and derive optimal $\underline{x}^*$ of (P) by minimizing $L(\underline{x}, \underline{u}^*)$ over $X$, ensuring $q_i(\underline{x}^*) \leq 0$ and $u_i^* g_i(\underline{x}^*) = 0 \ \forall i \in I$.
 > - if no saddle point exists: optimal $\underline{u}^*$ of (D) gives a lower bound $w(\underline{u}^*)$ for $f(\underline{x}^*)$. Find $\underline{u}^* \geq \underline{0}$ maximizing $w(\underline{u})$ by using the <u>subgradient method</u> that generates $\underline{u}^k \rightarrow \underline{u}^*$ when $k \rightarrow +\infty$.
 For each $\underline{u}^k$, we have a lower bound $w(\underline{u}^k)$ for $f(\underline{x}^*)$ and we determine $\underline{x}^k$ that minimizes $L(\underline{x}, \underline{u}^k)$ over $X$.
+
+---
+
+### Subgradient method
+
+The **subgradient method** is a technique which allows to optimize not-everywhere differentiable convex/concave functions.
+Because of the previous results, we can use it to solve the dual problem (D).
+
+In particular, consider the problem $\min_{\underline{x} \in \mathbb{R}^n} f(\underline{x})$ with $f$ convex.
+The method works as follows:
+
+We start from an arbitrary $\underline{x}_0$.
+At $k$-th iteration: consider $\underline{\gamma}_k \in \partial f(\underline{x}_k)$ and set
+$$
+\underline{x}_{k+1} = \underline{x}_k - \alpha_k \underline{\gamma}_k
+$$
+with $\alpha_k > 0$.
+
+**Remark**: we should not do 1-D search because for non-differentiable functions a subgradient $\underline{\gamma} \in \partial f(\underline{x})$ is not necessarily a descent direction!
+
+The following result holds.
+
+- **Theorem**: if $f$ is convex, $\lim_{||\underline{x}|| \rightarrow +\infty} f(\underline{x}) = +\infty$, $\lim_{k \rightarrow +\infty} \alpha_k = 0$ and $\sum_{k=0}^{\infty} \alpha_k = \infty$, the subgradient method terminates after a finite number of iterations with an optimal solution $\underline{x}^*$ or the infinite sequence $\{ \underline{x}_k \}$ admits a sequence converging to $\underline{x}^*$.
+
+> **Remark on step-size**: in practice $\{ \alpha_k \}$ as above (e.g. $\alpha_k = \frac{1}{k}$) are too slow. An option is $\alpha_k = \alpha_0 \rho^k$ for a given $\rho < 1$. A more popular one (for min problems) is:
+$$
+\alpha_k = \epsilon_k \frac{f(\underline{x}_k) - \tilde{f}}{||\underline{\gamma}_k||^2}
+$$
+> where $0 < \epsilon_k < 2$ and $\hat{f}$ is either the optimal value $f(\underline{x}^*)$ or an estimate.
+
+> **Remark on stopping criterion**: the usual stopping criterion is having a prescribed maximum number of iterations (even if $\underline{0} \in \partial f(\underline{x}_k)$, it may not be considered at $\underline{x}_k$).
+
+> **Remark**: we need to store the best solution $\underline{x}_k$ found.
+
+---
+
+## Second order optimality conditions
+
+Consider the generic nonlinear program:
+$$
+\text{(P) }
+
+\begin{matrix}
+\min f(\underline{x}) \\
+\text{s.t. } g_i(\underline{x}) \leq 0 \ \forall i \in I = \{ 1, \ldots, m \} \\
+h_l(\underline{x}) = 0 \ \forall l \in L = \{ 1, \ldots, k \} \\
+\underline{x} \in X \subseteq \mathbb{R}^n
+\end{matrix}
+$$
+with $f$, $g_i$s and $h_i$s of class $\mathcal{C}^2$ and $X$ an open subset of $\mathbb{R}^n$.
+
+The Lagrange function is:
+$$
+L(\underline{x}, \underline{u}, \underline{v}) = f(\underline{x}) + \sum_{i=1}^m u_i g_i(\underline{x}) + \sum_{l=1}^k v_l h_l(\underline{x}) = f(\underline{x}) + \underline{u}^T \underline{g}(\underline{x}) + \underline{v}^T \underline{h}(\underline{x})
+$$
+with $\underline{u} \geq \underline{0}$ and $\underline{v} \in \mathbb{R}^k$.
+
+The Hessian sub-matrix w.r.t. the variables $\underline{x}$ is:
+$$
+\nabla^2_{\underline{x} \underline{x}} L(\underline{x}, \underline{u}, \underline{v}) = \nabla^2_{\underline{x} \underline{x}} f(\underline{x}) + \sum_{i=1}^m u_i \nabla^2_{\underline{x} \underline{x}} g_i(\underline{x}) + \sum_{l=1}^k v_l \nabla^2_{\underline{x} \underline{x}}
+ h_l(\underline{x}).
+$$
+
+- **Second order KKT necessary conditions**: if $\underline{\overline{x}}$ is a local minimum of (P) and $\nabla g_i(\underline{\overline{x}})$, with $i \in I(\underline{\overline{x}})$ and $\nabla h_l(\underline{\overline{x}})$ with $l \in L$ are linearly independent, then $\underline{\overline{x}}$ and some $(\underline{\overline{u}}, \underline{\overline{v}})$ satisfy the KKT conditions:
+$$
+\begin{matrix}
+\nabla_{\underline{x}} L(\underline{x}, \underline{u}, \underline{v}) = \underline{0} \\
+\underline{g}(\underline{x}) \leq \underline{0} \\
+\underline{h}(\underline{x}) = \underline{0} \\
+\underline{u}^T \underline{g}(\underline{x}) \geq 0 \\
+\underline{u} \geq \underline{0}, \underline{v} \in \mathbb{R}^k.
+\end{matrix}
+$$
+> Moreover, every $\underline{d} \in \mathbb{R}^n$ s.t.
+$$
+\nabla g_i^T(\underline{\overline{x}}) \underline{d} \leq 0 \ \forall i \in I(\underline{\overline{x}}) \\
+\nabla h_l^T(\underline{\overline{x}}) \underline{d} = 0 \ \forall l \in L
+$$
+> must satisfy:
+$$
+\underline{d}^T \nabla^2_{\underline{x} \underline{x}} L(\underline{\overline{x}}, \underline{\overline{u}}, \underline{\overline{v}}) \underline{d} \geq 0. 
+$$
+
+---
+
+- **Second order KKT sufficient conditions**: let $\underline{\overline{x}}$ satisfies with $(\underline{\overline{u}}, \underline{\overline{v}})$ the previous KKT conditions.
+If
+$$
+\underline{d}^T \nabla_{\underline{x} \underline{x}}^2 L(\underline{\overline{x}}, \underline{\overline{u}}, \underline{\overline{v}}) \underline{d} > 0
+$$
+> for each $\underline{d} \neq \underline{0}$ s.t.
+$$
+\begin{matrix}
+\nabla g_i^T(\underline{\overline{x}}) \underline{d} = 0 \ \forall i \in I^+ \\
+\nabla g_i^T(\underline{\overline{x}}) \underline{d} \leq 0 \ \forall i \in I^0 \\
+\nabla h_l^T(\underline{\overline{x}}) \underline{d} = 0 \ \forall l \in L
+\end{matrix}
+$$
+> where $I^+ = \{ i \in I \ | \ u_i > 0 \}$ and $I^0 = \{ i \in I \ | \ u_i = 0 \}$,
+then $\underline{\overline{x}}$ is a strict local minimum of (P).
+
+## Quadratic programming
+
+In **quadratic programming**, we want to optimize a quadratic function subject to linear constraints:
+$$
+\text{(P) }
+\begin{matrix}
+\min \frac{1}{2} \underline{x}^T Q \underline{x} + \underline{c}^T \underline{x} \\
+\text{s.t. } \underline{a}_i^T \underline{x} \leq b_i \ \forall i \in I \\
+\underline{a}_i^T \underline{x} = b_i \ \forall i \in E \\
+\underline{x} \in \mathbb{R}^n
+\end{matrix},
+$$
+> where $Q \in \mathbb{R}^{n \times n}$.
+
+Without loss of generality we can assume $Q$ symmetric (if $\overline{Q}$ is not symmetric we have the same function if we substitute it with $\frac{1}{2} (\overline{Q} + \overline{Q}^T)$).
+
+The difficulty depends on $Q$: if $Q$ is positive (semi)definite, (P) is convex, otherwise can have a large number of local optima.
+
+QPs are the simplest NLP problems besides Linear Programs. Efficient QP algorithms are available.
+
+### QP with only equality constraints
+
+Consider
+$$
+\min \left\{ \frac{1}{2} \underline{x}^T Q \underline{x} + \underline{c}^T \underline{x} \ | \ A \underline{x} = \underline{b} \right\}
+$$
+where $A \in \mathbb{R}^{m \times n}$.
+
+---
+
+Since we have only linear equations, CQ assumption is satisfied at every feasible point and simple KKT conditions hold:
+$$
+\begin{matrix}
+Q \underline{x} + \underline{c} + \sum_{i=1}^m u_i \underline{a}_i = \underline{0} \\
+A \underline{x} = \underline{b}
+\end{matrix}.
+$$
+
+> **Remark**: complementary slackness constraints are automatically satisfied (_we only have equalities_).
+
+Observe that the KKT conditions in this case consist in a linear system:
+$$
+\begin{bmatrix}
+Q & A^T \\
+A & O
+\end{bmatrix} \begin{bmatrix}
+\underline{x} \\
+\underline{u} \\
+\end{bmatrix} = \begin{bmatrix}
+- \underline{c} \\
+\underline{b}
+\end{bmatrix}.
+$$
+
+**Remark**: if $A$ is full rank and $Q$ is p.d. on subspace $\{ \underline{x} \in \mathbb{R}^n \ | \ A \underline{x} = \underline{0} \}$, the matrix is non-singular.
+
+#### Null-space method
+
+In the null-space method we determine $Z \in \mathbb{R}^{n \times (n-m)}$ whose columns span the null space $\{ \underline{x} \in \mathbb{R}^n \ | \ A \underline{x} = \underline{0} \}$ of $A$.
+$Z$ can be computed by (sub)matrix factorization of $A$ (if $A$ is sparse, by LU factorization)
+For example, assume that the first $m$ columns of $A$ are linearly independent, through Gaussian elimination we bring $A$ into $\begin{bmatrix} I_m & B \end{bmatrix}$. Then $A \underline{x} = \underline{0}$ iff $\underline{x}_1 = - B \underline{x}_2$ with $\underline{x} = \begin{bmatrix} \underline{x}_1^T & \underline{x}_2^T \end{bmatrix}^T$. Then
+$$
+\text{ker}(A) = \left\{ \begin{bmatrix} - B \underline{x}_2 \\ \underline{x}_2 \end{bmatrix} \ | \ \underline{x}_2 \in \mathbb{R}^{n-m} \right\} = \left\{ \begin{bmatrix} -B \\ I_{n-m} \end{bmatrix} \underline{x}_2 \ | \ \underline{x}_2 \in \mathbb{R}^{n-m} \right\}.
+$$
+
+Given any feasible $\underline{x}_0$, other feasible solution
+$$
+\underline{x} = \underline{x}_0 + Z \underline{w}
+$$
+for an appropriate $\underline{w} \in \mathbb{R}^{n-m}$.
+
+The the original QP with only equality constraints is equivalent to an unconstrained problem:
+$$
+\min_{\underline{w} \in \mathbb{R}^{n-m}} \frac{1}{2} (\underline{x}_0 + Z \underline{w})^T Q (\underline{x}_0 + Z \underline{w}) + \underline{c}^T (\underline{x}_0 + Z \underline{w}) \equiv
+$$
+$$
+\equiv \frac{1}{2} \underline{w}^T (Z^T Q Z) \underline{w} + (Q \underline{x}_0 + \underline{c})^T Z \underline{w}.
+$$
+If $Z^T Q Z$ is p.d., then $\exists !$ optimal $\underline{w}^*$ obtained by solving:
+$$
+(Z^T Q Z) \underline{z} = - Z^T (Q\underline{x}_0 + \underline{c}).
+$$
+
+---
+
+### QP with equality and inequality constraints
+
+#### Active-set method
+
+The **active-set method** is a technique for solving generic QP problems (with both equalities and inequalities).
+
+The idea is the following: we want to determine $I(\underline{x^*}) = \{  i \in I \ | \ \underline{a}_i^T \underline{x}^* = b_i \}$ where $\underline{x}^*$ is an optimal solution, by solving a sequence of QPs with only equality constraints.
+
+We will focus on the version of the method for <u>convex problems</u>, which works as follows.
+
+Initialization: find an initial feasible $\underline{x}_0$ (_we can use phase 1 of the Simplex method since the feasible region is the same as LPs_) and choose $W_0 \subseteq \{ i \in I \ | \ \underline{a}_i^T \underline{x}_0 = b_i \} \cup E$ of the active constraints at $\underline{x}_0$ with $E \subseteq W_0$.
+
+Iteration $k$: given the current feasible $\underline{x}_k$, determine $\underline{d}_k$ by solving the subproblem
+$$
+\min \{ q(\underline{x}_k + \underline{d}) \ | \ \underline{a}_i^T (\underline{x}_k + \underline{d}) = b_i \ \forall i \in W_k \},
+$$
+where $W_k$ is the current _working set_, with $W_k \subseteq \{ i \in I \ | \ \underline{a}_i^T \underline{x}_k = b_i \} \cup E$.
+The subproblem is equivalent to $\min \{ q(\underline{x}_k + \underline{d}) \ | \ \underline{a}_i^T \underline{d} = 0 \ \forall i \in W_k \}$ since $\underline{a}_i^T \underline{x}_k = b_i \ \forall i \in W_k$.
+
+**Remark**: if $Z^T Q Z$ is p.d. (always true if $Q$ is p.d.), the subproblem has a unique solution $\underline{d}_k$ which we can find with the null-space method.
+
+- If $\underline{d}_k \neq \underline{0}$, we determine the largest $\alpha$ satisfying all constraints not in $W_k$. Let $i \not \in W_k$ with $\underline{a}_i^T \underline{d}_k > 0$, then:
+$$
+\underline{a}_i^T (\underline{x}_k + \alpha_k \underline{d}_k) \leq b_i \text{ iff } \alpha_k \leq \frac{b_i - \underline{a}_i^T \underline{x}_k}{\underline{a}_i^T \underline{d}_k}.
+$$
+> Hence it must be: $\alpha_k = \min \{ 1, \min_{i \not \in W_k, \underline{a}_i^T \underline{d}_k > 0} \frac{b_i - \underline{a}_i^T \underline{x}_k}{\underline{a}_i^T \underline{d}_k} \}$ (_the $1$ accounts for the case in which $\underline{x} + \underline{d}_k$ is feasible_).
+Now we can set $\underline{x}_{k+1} = \underline{x}_k + \alpha_k \underline{d}_k$.
+Furthermore $W_{k+1} = W_k \cup \{ i' \}$ where $i'$ is the index of <u>one</u> of the constraints becoming active at $\underline{x}_{k+1}$. (_It can be that two constraints become active at the same time_).
+
+- If $\underline{d}_k = \underline{0}$, $\underline{x}_k$ is a minimum over the subspace defined by $W_k$ and we set $\underline{x}_{k+1} = \underline{x}_k$.
+The KKT conditions applied to the subproblem imply that there are multipliers $\underline{u}^k$ such that:
+$$
+Q \underline{x}_k + \underline{c} + \sum_{i \in W_k} u_i^k \underline{a}_i = \underline{0}.
+$$
+
+---
+
+> If $u_i^k \geq 0$ for every $i \in W_k \cap I$ then $\underline{x}_k$ is a local optimum of original QP (remember that we assumed the problem to be convex, hence KKT conditions are also sufficient).
+Else $W_{k+1} = W_k \setminus \{ i' \}$ where $i'$ is the index with the <u>most negative</u> $u_i^k$.
+
+- **Theorem**: if $Q$ is p.d. ($q$ strictly convex), the method (with anti-cycling rule) finds an optimal solution within a finite number of iterations.
+
+> **Remark**: there is a finite number of working sets.
+
+**Extension to non-convex problems**: if $Q$ has some negative eigenvalues, the active-set method for convex QP can be adapted by modifying $\underline{d}_k$ and $\alpha_k$ in certain situations.
