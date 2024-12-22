@@ -53,7 +53,7 @@ The most famous _task in unsupervised learning_ is **clustering**, whose aim is 
 
 ## Deep Learning
 
-- **Deep Learning** is an approach to Machine Learning which aims at learning simultaneously a model to solve the given task and an optimized (wrt the task) representation of the data. The name comes from the fact that we're moving the learning process _deeper_: we not only learn the model, but also the representation.
+- **Deep Learning** is an approach to Machine Learning which aims at learning simultaneously a model to solve the given task and an optimized (w.r.t. the task) representation of the data. The name comes from the fact that we're moving the learning process _deeper_: we not only learn the model, but also the representation.
 
 In order to understand why Deep Learning differs significantly from previous approaches, we need to describe the usual process to solve a problem in traditional Machine Learning.
 Traditional Machine Learning algorithms work reasonably well under the assumption that the input space $\mathcal{X}$ is a vector space with "low dimensionality". Hence, instead of feeding the algorithm with raw data, like images of different classes of objects (which have a really high dimensionality), we compute a few _hand-crafted features_ (either directly from the physical objects, like measuring height and width, or by pre-processing the images). From the bias-variance tradeoff viewpoint, in this way we're introducing some bias in the model (since the features have been computed _a-priori_), but we're reducing its variance, since, in low-dimensional vector space, we need less samples to cover the relevant region of the space at a certain average density (this is known as the _curse of dimensionality_).
