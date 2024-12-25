@@ -48,13 +48,17 @@ Furthermore, such an $\underline{w}_\text{ext}^*$ exists iff the classes in the 
 
 The result we just stated in the greatest weakness of the perceptron: it does not work anymore if the dataset isn't linearly separable; and this happens very often in practice.
 
+#### Formal derivation of the Hebbian learning rule
+
+[Read ML notes: "Linear classification", p. 5.](http://localhost:8080/ml/linear-classification.md#5)
+
+---
+
 ## Feed Forward Neural Networks
 
 As we remarked, the inability of the perceptron to handle non-linear datasets is due to the fact that it is a linear classifier. Indeed, the score which determines how a sample will be classified, i.e. the scalar product on which we apply the $\text{sign}$ function, is linear w.r.t. the features of the input. **Feed Forward Neural Networks** try to solve this issue by introducing non-linearities in this relationship.
 
 - In particular a **Feed Forward Neural Network** (**FFNN**) is a layered model in which each layer takes a vector as input and produces one vector with size $s_l$ as output.
-
----
 
 > The input of the first layer is the input of the model $\underline{x}$, while the output of the last layer $\underline{h}_L$ is the output of the model. Each layer performs the following computation:
 $$
@@ -74,6 +78,8 @@ s_{l-1} \cdot s_l + s_l = (s_{l-1} + 1) s_l \text{;}
 $$
 for the number of parameters in the first layer we've to substitute $s_{l-1}$ with $I$ which is the dimensionality of the input.
 
+---
+
 ### Activation functions
 
 There are several activation functions which we can choose for each layer of the network depending on our needs.
@@ -83,8 +89,6 @@ There are several activation functions which we can choose for each layer of the
 - The **linear activation** function is $g(a) = a$; its _derivative_ is $g'(a) = 1$.
 
 This activation is used in the last layer when we're facing a regression task since its range is the whole $\mathbb{R}$.
-
----
 
 This activation is almost never used for intermediate layers since it's possible to show that the composition of linear functions is still linear, hence, the additional intermediate layer employing this activation function would not add expressive power to the model.
 
@@ -108,6 +112,8 @@ $$
 
 This activation has very similar properties w.r.t. the sigmoid. It differs for the range which is $(-1, 1)$ and, for this reason, it is used for binary classification problems where the positive class is associated with $1$, while the negative class is associated with $-1$.
 
+---
+
 #### Softmax activation
 
 - The **softmax activation** function takes as input a vector (which is the "pre-activation" of the last layer) and produces a vector as output. In particular, the $k$-th output is:
@@ -116,8 +122,6 @@ h_k = \frac{\exp(z_k)}{\sum_{j=1}^s \exp(z_j)}.
 $$
 
 Each entry in the output produced by this activation takes value in $(0, 1)$. Furthermore the sum of the entries is always $1$. For this reason the results of this activation are interpreted as probability vectors. In particular, we use the softmax activation when we're dealing with a multi-class classification problem in which the targets are one-hot encoded.
-
----
 
 ### Approximation properties of FFNNs
 
@@ -142,14 +146,15 @@ In the regression setting we assume that:
 $$
 t_i|x_i \sim \mathcal{N}(\text{FFNN}(x_i|\theta^*), \sigma^2) \text{,}
 $$
+
+---
+
 that is, there exists a set of "_true_" parameters $\theta^*$ s.t. the conditional distribution of the target given the input is gaussian with mean corresponding to the output of the network and variance $\sigma^2$.
 
 To estimate (learn) the parameters $\theta^*$ we can rely on the usual maximum likelihood estimation framework. In particular, the likelihood function is:
 $$
 L(\theta, \sigma^2) = \prod_{i=1}^N \mathcal{N}(t_i | \text{FFNN}(x_i|\theta), \sigma^2).
 $$
-
----
 
 Then:
 $$
@@ -169,7 +174,7 @@ The assumptions for the classification problem are similar, in particular, for b
 $$
 t_i|x_i \sim \text{Be}(\text{FFNN}(x_i|\theta^*)).
 $$
-Observe that the expression above is well define if the FFNN has a single neuron in output with sigmoid activation.
+Observe that the expression above is well defined if the FFNN has a single neuron in output with sigmoid activation.
 
 In this case:
 $$
@@ -179,13 +184,14 @@ Then:
 $$
 \log L(\theta) = \sum_{i=1}^N \left[ t_i \log \text{FFNN}(x_i|\theta) + (1-t_i)\log (1-\text{FFNN}(x_i|\theta))\right].
 $$
+
+---
+
 Observe that maximizing the log-likelihood w.r.t. $\theta$ is equivalent ot minimizing the following **loss function**:
 $$
 E(\theta) = \text{CCE}(\theta) = - \sum_{i=1}^N \left[ t_i \log \text{FFNN}(x_i|\theta) + (1-t_i)\log (1-\text{FFNN}(x_i|\theta))\right].
 $$
 This is known as **Categorical Cross-Entropy**.
-
----
 
 #### Minimizing the loss function
 
@@ -193,8 +199,7 @@ As we've seen, training FFNNs consists in minimizing loss functions of the form:
 $$
 E(\theta) = \sum_{i=1}^N e(t_i, \text{FFNN}(x_i|\theta))
 $$
-where $e : \mathbb{R}^{s_L} \times \mathbb{R}^{s_L} \rightarrow \mathbb{R}^+_0$ computes the error due to a single sample.
-
+where $e(t, p) : \mathbb{R}^{s_L} \times \mathbb{R}^{s_L} \rightarrow \mathbb{R}^+_0$ computes the error of the prediction $p$ knowing the ground truth target $t$.
 In particular, we carry out such minimization iteratively, through **gradient descent** (**GD**). The update rule is:
 $$
 \theta^{(k+1)} = \theta^{(k)} - \eta \cdot \frac{d E(\theta)}{d \theta} (\theta^{(k)}) = \theta^{(k)} - \eta \cdot \sum_{i=1}^N \frac{d}{d \theta} \left[ e(t_i, \text{FFNN}(x_i | \theta)) \right](\theta^{(k)}).
@@ -208,14 +213,15 @@ We will provide the missing details in a separated set of notes, namely "Additio
 ##### Computing derivatives
 
 The computation of derivatives is carried out through a set of techniques which take the name of **automatic differentiation** (**AD**). [_For more details check the NAML summaries_].
-Automatic differentiation allows to compute the exact value of the derivative of a function w.r.t. one of its input variables, evaluated at a certain point. The "only" requirement of AD techniques is the knowledge of the _computational graph_ of the function, which is a representation of the function as a DAG in which each node represents an intermediate result of the computation obtained by applying an _elementary function_, i.e. a function for which we know the analytical expression for all its partial derivatives, to the intermediate results associated with its predecessors. The nodes with no predecessors represent the inputs of the function, while the nodes with no successors represent the outputs of the function.
-Let $v_1$ and $v_2$ be the intermediate results associated to two nodes in the computational graph, then, it follows (not directly) from the chain rule that:
-$$
-\frac{\partial v_1}{\partial v_2} = \sum_{P \text{ path from } v_1 \text{ to } v_2} \ \prod_{(u, w) \in P} \frac{\partial w}{\partial u}.
-$$
+Automatic differentiation allows to compute the exact value of the derivative of a function w.r.t. one of its input variables, evaluated at a certain point. The "only" requirement of AD techniques is the knowledge of the _computational graph_ of the function, which is a representation of the function as a DAG in which each node represents an intermediate result of the computation obtained by applying an _elementary function_, i.e. a function for which we know the analytical expression for all its partial derivatives, to the intermediate results associated with its predecessors.
 
 ---
 
+The nodes with no predecessors represent the inputs of the function, while the nodes with no successors represent the outputs of the function.
+Let $v_1$ and $v_2$ be the intermediate results associated to two nodes in the computational graph, then, it follows (not directly) from the chain rule that:
+$$
+\frac{\partial v_1}{\partial v_2} = \sum_{P \text{ path from } v_2 \text{ to } v_1} \ \prod_{(u, w) \in P} \frac{\partial w}{\partial u}.
+$$
 $\frac{\partial w}{\partial u}$ takes the name of **derivative on the edge**, indeed we can associate each edge on the DAG with one such derivative, and it's also useful to write its expression directly on top of the corresponding edge in the DAG. This makes it easier to find the overall expression stated before.
 Usually, the value of derivatives on the edge depend on intermediate values used in the computation of the function. For this reason we carry out automatic differentiation in the following way.
 - In the **forward step** we compute all the intermediate results till the outputs.
@@ -225,5 +231,19 @@ This process is what is nowadays called **back-propagation**. Observe that back-
 
 Finally, observe that the usual representation of FFNNs (which we depicted previously) is very similar to a computational graph. The main difference is that, since we want to differentiate w.r.t. weights and biases, these should appear as nodes since they would corresponds to inputs of the function. Luckily this is a minor issue, indeed, when we are differentiating w.r.t. a certain weight, we can treat all the others as fixed constants. The only thing that we have to keep in mind is that, in the last step of the process, i.e. when we reach the edge corresponding to the weight w.r.t. we are differentiating during the backward step, the derivative on the edge is w.r.t. that weight, instead of being w.r.t. the variable associated with the predecessor node.
 
+---
+
 ##### GD variations
 
+Gradient descent is rarely implemented exactly as we described it before.
+
+- **Momentum**: one common variation is _momentum_, which allows to avoid some local minima. The update rule becomes:
+$$
+\theta^{(k+1)} = \theta^{(k)} - \eta \cdot \frac{d E}{d \theta}(\theta^{(k)}) - \alpha \cdot \frac{d E}{d \theta}(\theta^{(k-1)}).
+$$
+> In this way we keep some inertia in parameters update.
+
+- **SGD**: another variation which is always adopted is _Stochastic Gradient Descent_. For large datasets (i.e. $N \gg 1$), the computation of $\frac{d E}{d \theta}$ becomes prohibitively expensive since it scales linearly with $N$.
+
+> This problem is alleviated as follows: instead of considering all the samples of the dataset when computing the loss, we randomly select a subset of them at each iteration. In particular, if the subset has size $1$ we get the original SGD, if the subset has a size greater than $1$, but smaller than $N$, we name it **mini-batch gradient descent**.
+In analogy with these conventions, the original gradient descent is also known as **Batch gradient descent**.
