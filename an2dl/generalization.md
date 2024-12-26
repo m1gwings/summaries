@@ -45,3 +45,7 @@ The fact that the evaluation on the validation set is optimistically biased coul
 To prevent the problem we use a technique known as **cross-validation**. It works as follows: instead of splitting the "non-test" data in training and validation, we split it in $k$ folds. Then we iterate for each fold: in each iteration we train a model on all the folds except the current one and use the current fold for evaluation. At the end we average the results of the evaluations. This approach is more robust w.r.t. a fixed validation set, but also more computationally expensive.
 In particular robustness is proportional with $k$, but the same holds for computational requirements.
 When $k = N$ we talk about **Leave One Out** (**LOO**) **cross-validation**, otherwise we refer to it as **$k$-fold cross-validation**.
+
+## Hyper-parameters tuning
+
+As we remarked previously, if we want to compare different model classes, we need a validation set. Observe that we change model class not only when we completely change the family of models (i.e. NNs vs SVMs), but also when we modify the so-called **hyper-parameters** of the same family of models. Examples of hyper-parameters in the NNs family are the number of layers and the number of neurons inside hidden layers.
