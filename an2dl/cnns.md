@@ -295,3 +295,116 @@ The quality of the features learned from data is usually such that the distance 
 ---
 
 For this reason we can use pre-trained feature extractor to build an image search engine which, given an image, provides all the similar ones. This works simply by returning the $k$ nearest neighbors of the input image in the latent space.
+
+## Famous CNN architectures
+
+In this section we will describe famous CNN architectures introduced after the traditional one (_LeNet-5_) we extensively treated.
+
+### AlexNet
+
+**AlexNet** is an architecture developed by Alex Krizhevsky at al. in 2012 and won the ImageNet competition. It is quite similar to LeNet-5: there are
+- 5 convolutional layers (with rather large filter: $11 \times 11$, $5 \times 5$),
+- 3 dense layers.
+
+To counteract overfitting, they introduced:
+- ReLU;
+- dropout, weight decay and norm layers (not used anymore);
+- max-pooling.
+
+The first convolutional layer had 96 $11 \times 11$ filters, with stride $4$.
+The output were **two** volumes of $55 \times 55 \times 48$ **separated over two GTX 580 GPUs**. The reason behind this choice is just to improve the parallelism on the available physical hardware. Most connections are among feature maps of the same GPU, which will be mixed at the last layer.
+
+At the end they also trained an ensemble of 7 models to drop the error by $3 \%$.
+
+### VGG
+
+The **VGG16**, introduced in 2014 is a deeper variant of the AlexNet convolutional structure. Smaller filters are used and the network is deeper.
+The paper presents a thorough study of the role of network depth.
+Adding more convolutional layers is feasible due to the **use of very small ($3 \times 3$) convolution filters in all layers**.
+The **idea** is that <u>multiple</u> $3 \times 3$ convolutions in a sequence achieve the same receptive field with less parameters and more non-linearities than larger filters in a single layer.
+For example consider stacking 3 convolutional layers with $3 \times 3$ filters vs one single convolutional layer with $7 \times 7$ filters. The receptive field is of the same size, but the first option has less parameters and more non-linearities.
+
+---
+
+### Network in Network
+
+The **Network in Network** paper introduced two new blocks, namely: **MLPconv layers** and **GAP**.
+
+**MLPconv** stands for Multi-Layer Perceptron convolution (where Multi-Layer Perceptron is a term sometimes used as a synonym of FFNN). These are an alternative to convolutional layers. In particular they use a stack of FC layers followed by ReLU which are applied to the input volume in a **sliding manner**, trying to mimic the behavior of convolution. As convolution, they still preserve sparsity and weight sharing. Each layer features a **more powerful functional approximation** that a convolutional layer than a convolutional layer which is obtained by stacking a linear operation with ReLU. These kind of layers are not very much used nowadays.
+
+**GAP** stands for **Global Average Pooling**.GAP layers try to substitute the FC layer at the end of the network. The **idea** is that, instead of feeding the last volume, after flattening, to an FC layer, we take the average of each channel and activate the resulting 1D vector through soft-max. Observe that we need to make sure that the number of channels in the last volume matches the number of categories of the problem (this is easily achieved by setting properly the number of filters of the last convolutional layer). Alternatively we can use an hidden layer to adjust feature dimension after the GAP.
+Observe that a FC layer corresponds to a multiplication against a **trainable dense matrix**, while GAP corresponds to a multiplication (_of the flattened final volume_) against a **block diagonal**, **non trainable matrix**.
+
+The rationale behind GAP is the following: FC layers are prone to overfitting since they have many parameters.
+The summarize, the advantages of GAP are the following:
+- there are no parameters to optimize, the network is lighter and thus less prone to overfitting;
+- there is more interpretability since it creates a direct connection between channels and classes output;
+- <u>the network can be used to classify images of different sizes</u>, indeed, the shape of the output is **independent from the spatial extent of the input**.
+
+Another important advantage of GAP is that **it increases invariance to shifts**. Indeed, the features extracted by the convolutional part of the network are invariant to shift of the input image, but those computed by dense layers after flattening are not (different input neurons are connected by different weights).
+Therefore, a CNN trained on centered images might not be able to correctly classify shifted ones. The GAP solves this problem: the shifted image will produce in the last channel the same features of the original image, just shifted, and average is invariant to the shift (unless part of the features gets "shifted outside the spatial extent of the last volume").
+
+The whole Network in Network (NiN) architecture stacks MLPconv layers with max-pooling and a GAP layer with softmax at the end of the network.
+
+---
+
+#### Global pooling layers
+
+We can generalize the idea of GAP to **Global Pooling Layers**: which are layers that perform a global operation on each channel, **along the spatial components**. They return one single value per channel. The usual pooling operations are average (for the GAP), or the maximum (for the GMP).
+
+### InceptionNet
+
+**InceptionNet** is a family of architectures which try to answer the following problem: **image features might appear at different scales**, and it is difficult to **define the right filter size**.
+In particular, this is done through the introduction of a new block: the **inception module**. In an inception module multiple convolutions and pooling operations are run in parallel.
+Different convolutions have different filter size, the final results are merged by depth-wise concatenation of the volumes.
+All the blocks preserve the spatial dimension by zero padding for convolutions or by [**fractional stride**](https://www.tensorflow.org/api_docs/python/tf/nn/fractional_max_pool) for max-pooling. Observe that in this way the activation map grows much in depth.
+A usual configuration is to have in parallel: $1 \times 1$ convolution, $3 \times 3$ convolution, $5 \times 5$ convolution, and $3 \times 3$ max-pooling.
+Inception modules of this kind are very computationally expensive, and computational problems will get significantly worse when stacking multiple layers due to the increase of the depth of volumes.
+What is usually done to alleviate the problem is to reduce the number of input channels thanks to $1 \times 1$ convolutional layers before the $3 \times 3$ and $5 \times 5$ convolutions. Using these $1 \times 1$ convolutional layers is referred to a **bottleneck layer**. Furthermore, adding $1 \times 1$ convolutional layers increases the number of non-linearities.
+
+GoogLeNet is an architecture of the InceptionNet family developed in 2014. It is a stack of 27 layers considering pooling ones. At the beginning there are two blocks of convolution + pooling layers. Then, there is a stack of 9 inception modules. There is no fully connected layer at the end, just a GAP, then a linear classifier activated by softmax.
+The network was so deep that the gradient w.r.t. parameters in the early stage would vanish. To solve the problem, two additional classification heads had been attached to the network at intermediate layers, and the corresponding losses where used during training. The rationale is that in this way we force intermediate layers to provide meaningful features for classification as well. Furthermore the magnitude of the gradient of the loss associated with classification heads closers to the input has a significative magnitude even when taken w.r.t. the parameters of the first layers.
+These classification heads are of course removed at inference time.
+
+---
+
+### ResNet
+
+**ResNet** architecture has been introduced after the following **empirical observation**: increasing network depth by stacking an increasingly number of layers, at some point, starts worsening the performance of the model, but this is NOT due to overfitting, since the same trend is shown both in training and validation error.
+In principle adding more layers shouldn't be harmful since the unneeded layers at the end of the network can learn the identity mapping, and thus the network would become equivalent to a shallower one. The issue of deeper models is that they are harder to optimize: the additional layers fail to learn the identity mapping.
+The **idea** behind ResNet is to try to solve the problem directly by making it easier for a layer to learn the identity mapping, This is achieved through **identity shortcut connections**. They work as follows: we add to the output $\tilde{O}$ of a "weight layer" (like convolutional layers), the value of the input $I$. The final result is $O = \tilde{O} + I$. In this way the weight layer has to learn the best residual $O - I$. The advantage is that the residual of the identity map is 0, which is easily obtained by setting the weights of the weight layer to 0.
+Networks of this kind can still be trained through back-propagation.
+Observe that, for the model to work, $I$ and $\tilde{O}$ must have the same size, this is usually achieved through additional $1 \times 1$ convolutional layers to adjust the number of channels in the volume.
+In very deep architecture $1 \times 1$ convolutional layers are used to reduce the computational load as was done in InceptionNet: we reduce the number of channels with a $1 \times 1$ convolution, then we apply a convolutional layer with larger filters (like $3 \times 3$), and finally we restore the number of channels with a $1 \times 1$ convolution. 
+
+### MobileNets
+
+MobileNets are a family of architectures designed to reduce the number of parameters and of operations, to embed networks in mobile applications. The issue preventing the use of networks in mobile devices is that convolutional layers have (still) quite a few parameters, and are also quite computationally demanding.
+
+The new addition is the **separable convolution**, which is a convolution made in two steps:
+1. first we do **depth-wise convolution**, which is like 2D convolution on each channel of the input independently (we use a different 1-channel filter for each channel of the input);
+2. then we do **point-wise convolution** which combines the output of depth-wise convolution (which has the same dimensions of the input) through $N_F$ filters that are $1 \times 1$.
+
+Adopting the usual notation, the number of parameters in a separable convolution is:
+$$_
+K \cdot H \cdot W + N_F \cdot K
+$$
+
+---
+
+The number of operations (products) in traditional convolution (with padding "same") is $N_F \cdot H \cdot W \cdot K \cdot R \cdot C$.
+Separable convolutions instead require $K \cdot H \cdot W \cdot R \cdot C$ for depth-wise convolution, and $N_F \cdot K \cdot R \cdot C$ for point-wise convolution.
+
+### Wide ResNet
+
+In **Wide ResNet** we increase the number of filters in the blocks by scaling them by a factor $k$ and we reduce the number of layers.
+
+### ResNeXt
+
+In **ResNeXt** the **ResNet module** has been made wider by adding multiple pathways in parallel; the results are added together at the end.
+It is similar to the inception module, but all the paths share the same topology.
+
+### DenseNet
+
+In each block of a **DenseNet**, **each convolutional layer takes as input the output of all the previous layers**: there are short connections between convolutional layers of the network; each layer is connected to every other in a feed-forward fashion.
+This alleviates the vanishing gradient problem and promotes feature re-use since each feature is spread through the network.
