@@ -138,3 +138,29 @@ The easiest approach is the **patch-based** way: we prepare a training set for c
 The training happens as usual with mini-batch SGD, each batch is composed of a set of patches drawn randomly. It is possible to resample patches for solving class imbalance. This approach is **very inefficient** since convolutions on overlapping patches are repeated many times.
 
 A wiser approach is the **full-image** one. This approach can be used when we directly train a FC-CNN from the beginning which produces segmentation maps. In this scenario we can directly compute the error of the produced segmentation map against the ground truth. This is very similar to patch-wise training were the patches are taken all from the same image. The advantage of this approach is that it is much more efficient. Unfortunately the patches are not really taken at random as in the previous case and it is not possible to adjust the sampling to handle class imbalance. We can try to tackle the first problem by increasing a bit the variance of the loss on the mini-batches through a random masking of some of the patches. For the second problem, the only way to account for class imbalance is weighting the loss over different labels.
+
+---
+
+## Instance segmentation
+
+- **Instance segmentation** is the task of assigning to an input image $I$:
+    - **multiple labels** $\{ l_i \}$ from a fixed set of categories $\Lambda$, each corresponding to **an instance of an object belonging to the corresponding category**;
+    - the coordinates $\{ (x, y, h, w)_i \}$ of the **bounding box enclosing each object**;
+    - the **set of pixels** $S$ in each bounding box corresponding to that label.
+
+> In formulas, we want to learn the following map:
+$$
+I \mapsto \{ (x, y, h, w, l, S)_1, \ldots, (x, y, h, w, l, S)_N \}.
+$$
+
+Instance segmentation combines the challenges of _object detection_ (since there are multiple instances present in the image), and _semantic segmentation_ (associate a label to each pixel) separating each object instance.
+
+### Mask R-CNN
+
+**Mask R-CNN** extends _Faster R-CNN_ [_check the notes about object detection_] by adding a branch for predicting an object mask in parallel with the existing branch for bounding box recognition. It is like performing semantic segmentation inside each ROI.
+
+### Feature Pyramid Network
+
+We cab stack the intermediate volumes of a classical CNN as in a pyramid, with the initial volumes with large spatial extent at the abase and the final volumes with smaller spatial extent on top.
+In **Feature Pyramid Networks** (**FPNs**) we want to create a feature pyramid that has strong semantics at all scales.
+The FPN architecture is very similar to U-Net: we have the usual down-sampling path and a learnable up-sampling path. The **main difference** is that we do prediction from the outputs of **each** up-sampling stage (instead of using only the last one as it's done in U-net). In the particular case of instance segmentation, we pass each output of an up-sampling stage to a RPN [_check the notes about object detection_]. Outputs at different up-sampling stages allow to detect objects at different scales.
