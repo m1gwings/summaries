@@ -93,8 +93,35 @@ This is equivalent in terms of loss function, but provides a stronger gradient d
 
 ### Vector arithmetic
 
-...
+The input space of the generator shows vector space properties w.r.t. the semantics of generated samples. For example,  let $\underline{z}_\text{sw}$ be a seed which generates a smiling woman, $\underline{z}_\text{nw}$ a seed which generates a neutral woman, and, finally, $\underline{z}_\text{nm}$ a seed which generates a neutral man.
+Than
+$$
+\underline{z}_\text{sm} = \underline{z}_\text{nm} + (\underline{z}_\text{sw} - \underline{z}_\text{nw})
+$$
+is a seed which generates a smiling man. 
 
 ### Conditional GANs
 
+Suppose each image in $S$ is connected with any auxiliary information $y$, such as class labels. We want to insert this information to steer image generation.
+We can concatenate it (one-hot encoded) at the end of the input noise in the hope that the generator $\mathcal{G}$ will learn to generate an image of the same class.
+To promote this process, we also **append the label information in a one-hot-encoded channel at the end of real images** and generated images as well. This will alow the discriminator to easily classify as "fake" generated images whose content is NOT consistent with the encoded class label. Indeed, such consistency is guaranteed on real images.
+
 ### Anomaly detection for GANs
+
+GANs can successfully establish a mapping between random variables and the manifold of images. We might have a wonderful anomaly detection model if:
+- we train a GAN generator $\mathcal{G}$ to generate normal images,
+- we invert the GAN mapping and get $\mathcal{G}^{-1}$.
+
+---
+
+Indeed, even if we don't know the distribution of the manifold of images, we know the distribution of the seeds. Thus, by computing the likelihood of $\mathcal{G}^{-1}(\underline{s})$ according to $\phi_\underline{z}$ we get an estimate of the likelihood of $\underline{s}$ according to $\phi_\underline{s}$.
+Unfortunately, it is not possible to invert $\mathcal{G}$, we need to train some neural network for this purpose.
+
+This is done in the **BidirectionalGAN** (**BiGAN**) model. In particular, in a BiGAN we add an encoder $\mathcal{E}$ to the adversarial game which brings an image back to the space of "noise vectors". It can be used to reconstruct an input image $\underline{s}$ (as in auto-encoders) by computing $\mathcal{G}(\mathcal{E}(\underline{s}))$.
+The discriminator $\mathcal{D}$ takes as input a tuple $(\underline{s}, \underline{z})$, which corresponds to $(\mathcal{G}(\underline{z}), \underline{z})$ for generated images, and to $(\underline{s}, \mathcal{E}(\underline{s}))$ for real images.
+In principle, the encoder $\mathcal{E}(\cdot)$ can be used for anomaly detection by computing the likelihood of $\phi_\underline{z}(\mathcal{E}(\underline{s}))$ and consider as anomalous all the images $\underline{s}$ corresponding to a **low likelihood** (provided that $\phi_\underline{z}$ was not a uniform distribution).
+Another option is to use the output of the discriminator as anomaly score: $\mathcal{D}(\underline{s}, \mathcal{E}(\underline{s}))$, since the discriminator will consider the anomalous samples as fake.
+However, there are more effective anomaly scores, like:
+$$
+A(\underline{s}) = (1-\alpha) || \mathcal{G}(\mathcal{E}(\underline{s})) - \underline{s} ||_2 + \alpha || f(\mathcal{D}(\underline{s}, \mathcal{E}(\underline{s}))) - f(\mathcal{D}(\mathcal{G}(\mathcal{E}(\underline{s})), \mathcal{E}(\underline{s}))) ||_2.
+$$
