@@ -11,39 +11,7 @@ Cristiano Migali
 
 </div>
 
-## Excursus on sequence modeling
-
-Up to now we've considered only **static models**, i.e. models which take as input a vector $\underline{x} \in \mathbb{R}^n$. In this set of notes we will deal with **sequential data**, i.e. data described as sequences of $\tau$ values $\{ \underline{x}^{(t)} \}_{t=1}^\tau$ where $\underline{x}^{(t)} \in \mathbb{R}^n$ and $\tau$ can verify between samples.
-
-There are different ways to deal with **sequential data**.
-In particular we distinguish between:
-- **memory-less models**, and
-- **models with memory**.
-
-### Memory-less models
-
-In **memory-less models** we use just a **fixed size** portion of the input sequence to make predictions. Usually this portion is taken from the end of the sequence and its size is known as lag.
-
-#### Auto-regressive models
-
-**Auto-regressive** models are memory-less models which, given a sequence in input, try to predict the next value relying only on the last $k$ values of the sequence. The prediction is usually obtained through a linear model which takes as input $\underline{x}^{(\tau-k+1)}, \ldots, \underline{x}^{(\tau)}$.
-
-#### FFNNs
-
-We can use FFNNs as memory-less models. In particular, given an input sequence $\{ \underline{x}^{(t)} \}_{t=1}^\tau$ and the corresponding outputs $\{\underline{y}^{(t)} \}_{t=1}^\tau$ we can feed the last $k$ values of both sequences ($\underline{x}^{(\tau-k+1)}, \ldots, \underline{x}^{(\tau)}, \underline{y}^{(\tau-k+1)}, \ldots, \underline{y}^{(\tau)}$) to a FFNN to predict the next output $\underline{y}^{(\tau+1)}$.
-
-### Models with memory
-
-**Models with memory** rely on an hidden state $\underline{h}^{(t)}$ to compress information regarding the whole sequence $\underline{x}^{(1)}, \ldots, \underline{x}^{(t)}$. The output of the model depends on the hidden state (and, sometimes, on the input). The hidden state is computed recursively through a function which takes as input the current input and the state at the previous step and produces the current state:
-$$
-\underline{h}^{(t)} = f(\underline{x}^{(t)}, \underline{h}^{(t-1)}).
-$$
-
----
-
-## The model
-
-- **Recurrent Neural Networks** (**RNNs**) are a _model with memory_ where the function $f$ which computes the current hidden state given the current input and the previous state is implemented as a NN.
+- **Recurrent Neural Networks** (**RNNs**) are a _model with memory_ [_check the set of notes about sequential data problems_] where the function $f$ which computes the current hidden state given the current input and the previous state is implemented as a NN.
 
 RNN describe dynamical systems with non-linear dynamics.
 
@@ -51,7 +19,7 @@ RNN describe dynamical systems with non-linear dynamics.
 
 Graphically, the recurrent relation described by $f$ is represented through recurrent connections between the neurons of the network.
 
-### How to train RNNs
+## How to train RNNs
 
 Given a dataset of input sequences $\{ \underline{x}^{(t)} \}_{t=1}^\tau$ and target output sequences $\{ \underline{y}^{(t)} \}_{t=1}^\tau$ we can train a RNN to learn the IO relationship under the usual supervised learning paradigm.
 In particular, we can compare the predictions of the network with the ground truth outputs through a loss function which we minimize iteratively with SGD.
@@ -72,7 +40,7 @@ Observe that, due to the unrolling, each parameter of the network will be connec
 
 ---
 
-### Issues with long term IO relationships
+## Issues with long term IO relationships
 
 The back-propagation through time algorithm has issues when we want to learn long term IO relationships (i.e. the output at time $t$ depends on the input at time $t-k$ with $k \gg 1$) and $f$ is modeled as a standard FFNN.
 The issue is related to vanishing gradient.
@@ -103,13 +71,13 @@ An alternative activation could be the ReLU function. But it has null gradients 
 
 Another approach is to use a linear activation for $a_s$. Here we do NOT have the vanishing gradient problem, but the behavior of the network would "simply" be to accumulate the input.
 
-### Dealing with the vanishing gradient problem
+---
 
-#### Long Short-Term Memories (LSTM)
+## Dealing with the vanishing gradient problem
+
+### Long Short-Term Memories (LSTM)
 
 **LSTMs** solve the problem of vanishing gradient designing a memory cell which allows to _write_, _keep_, and _read_ information. This implemented through logistic and linear units with multiplicative interactions.
-
----
 
 A gating mechanism allows to determine the operations to execute on the memory.
 - Information gets into the cell whenever its _write_ gate is on.
@@ -144,7 +112,9 @@ $$
 h_t = o_t \odot \tanh(C_t).
 $$
 
-#### Gated Recurrent Unit (GRU)
+---
+
+### Gated Recurrent Unit (GRU)
 
 **GRU** is a slight variation of LSTM in which the keep and write gates are merged into a single update gate $z_t$ and the cell state and hidden state are merged in $h_t$. There are also some other modifications. The resulting equations are:
 $$
@@ -156,16 +126,14 @@ h_t = (1-z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
 \end{cases}.
 $$
 
----
-
-### Bidirectional RNNs
+## Bidirectional RNNs
 
 Due to the structure of the recurrence $\underline{h}^{(t)} = f(\underline{x}^{(t)}, \underline{h}^{(t-1)})$, RNNs learn IO relationships which are **causal**, i.e. the predicted output $\hat{\underline{y}}^{(t)}$ depends only on the values in the input sequence from time $1$ to time $t$. Sometimes we want to do predictions exploiting the information in the whole sequence (even future values). We can do so through bi-directional RNNs. We use two RNNs, one that runs "forward" and computes the hidden state $\underline{h}^{(t)} = f_1(\underline{x}^{(t)}, \underline{h}^{(t-1)})$ and the other which runs "backward" and computes the hidden state $\underline{g}^{(t)} = f_2(\underline{x}^{(t)}, \underline{g}^{(t+1)})$. At the end, the prediction at time $t$ depends on both $\underline{h}^{(t)}$ and $\underline{g}^{(t)}$:
 $$
 \hat{\underline{y}}^{(t)} = o(\underline{h}^{(t)}, \underline{g}^{(t)}).
 $$
 
-### Initialization
+## Initialization
 
 When initializing RNNs, we need to specify an initial state $\underline{h}^{(0)}$.
 We could choose a fixed value as initialization like $\underline{h}^{(0)}$. However it is better to treat the initial state as a **learnable parameter vector** which we can optimize through back-propagation.
