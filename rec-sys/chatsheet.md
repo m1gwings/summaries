@@ -227,7 +227,15 @@ def recall(recommended_items, relevant_items):
 ### Average precision
 
 ```
+def average_precision(recommended_items, relevant_items):
+    is_relevant = np.in1d(recommended_items, relevant_items,
+        assume_unique=True)
+    
+    precisions = np.cumsum(is_relevant) /\
+        (1 + np.arange(is_relevant.size))
 
+    return np.sum(is_relevant * precisions) /\
+        relevant_items.size
 ```
 
 </div>
