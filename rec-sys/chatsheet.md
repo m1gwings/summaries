@@ -243,6 +243,21 @@ def average_precision(recommended_items, relevant_items):
 
 ---
 
+## Recommender template and utilities
+<div class="multiple-columns">
+<div class="column">
+
+</div>
+<div class="column">
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
 ## Pandas
 
 <div class="multiple-columns">
