@@ -89,3 +89,16 @@ $$
 s_{i,j} = \frac{(\vec{i} - \vec{\overline{r}})\cdot(\vec{j} - \vec{\overline{r}})}{||\vec{i} - \vec{\overline{r}}||_2 ||\vec{j} - \vec{\overline{r}}||_2 + t}.
 $$
 Observe that _adjusted cosine_ is **different** w.r.t. _Pearson correlation_.
+
+### Other ways to compute similarity
+
+#### Association rules
+
+**Association rules** are a technique used in the data mining field to extract from a relational dataset of transaction the conditional probability $p(i|j)$ that item $i$ is in a transaction knowing that item $j$ is in the same transaction.
+We can exploit this technique in the recommender systems world by estimating the probability that a user will like item $i$ knowing that it likes item $j$.
+The technique prescribe to predict the probability as follows:
+$$
+p(i|j) \approx \frac{|\{ u \in \mathcal{U} \ | \ u \text{ likes items } i \text{ and } j \}|}{|\{ u \in \mathcal{U} \ | \ u \text{ likes item } j \}|}.
+$$
+We can interpret this estimated conditional probability as a similarity measure $s_{i,j}$ that we can exploit as usual to make predictions.
+Observe that this similarity metric is NOT symmetric.
