@@ -102,3 +102,228 @@ p(i|j) \approx \frac{|\{ u \in \mathcal{U} \ | \ u \text{ likes items } i \text{
 $$
 We can interpret this estimated conditional probability as a similarity measure $s_{i,j}$ that we can exploit as usual to make predictions.
 Observe that this similarity metric is NOT symmetric.
+
+### ML for item-based collaborative filtering
+
+The core idea which allows to cast _item-based collaborative filtering_ as a ML problem is that, instead of using an _heuristic_ to compute the similarity matrix, we can **learn it from the data**.
+
+In particular, to define a ML problem, we need to specify the **parameters we want to learn** (in this case the matrix $S$), and the differentiable **loss functions** $E$ to minimize.
+We have various options for our loss function.
+Unfortunately, most of the metrics that we've seen so far are NOT differentiable and thus can't be optimized with standard iterative optimization algorithms.
+
+---
+
+#### Sparse Linear Method for Top-$N$ RS (SLIM)
+
+In the **SLIM** method we use the **Mean Square Error** (**MSE**) as a loss function. In particular, we compute the MSE w.r.t. the ground truth.
+This loss function is differentiable and intuitive, unfortunately, as we remarked when talking about RS evaluation, if suffers from the MAR assumption.
+
+In formulas, the loss function is defined as:
+$$
+E(S, R) = \sum_{(u, i) \in \mathcal{U} \times \mathcal{I} \ | \ r_{u,i} > 0} (r_{u,i} - \tilde{r}_{u,i}(R, S))^2
+$$
+where
+$$
+\tilde{r}_{u,i}(R, S) = \sum_{j \in \mathcal{I}} r_{u,j} \cdot s_{j,i}.
+$$
+
+Observe that, if we allowed $s_{i,j} = \delta_{i,j}$ we would get a minimizer of the above loss which is however completely useless since, in production, we can't assume that we already know the rating of user $u$ for item $i$. For this reason we force $s_{i,i} = 0 \ \forall i \in \mathcal{I}$.
+Furthermore, as in usual Ridge regression, we add a penalization term on the squared entries of similarity matrix.
+The result is:
+$$
+E(S, R) = \sum_{(u, i) \in \mathcal{U} \times \mathcal{I} \ | \ r_{u,i} > 0} \left(r_{u,i} - \sum_{j \in \mathcal{I} \ \{ i \} } r_{u,j} \cdot s_{j,i} \right)^2 + \lambda \sum_{i, j \in \mathcal{I}, i \neq j} s_{i,j}^2
+$$
+where $\lambda$ is an hyper-parameter which tunes the amount of regularization.
+
+Sometimes we also add a penalization term on the absolute value of the entries, as is done in Lasso regression. When we use both regularizations, we get the so-called elastic net.
+$$
+E(S, R) = \sum_{(u, i) \in \mathcal{U} \times \mathcal{I} \ | \ r_{u,i} > 0} \left(r_{u,i} - \sum_{j \in \mathcal{I} \ \{ i \} } r_{u,j} \cdot s_{j,i} \right)^2 + \lambda_2 \sum_{i, j \in \mathcal{I}, i \neq j} s_{i,j}^2 + \lambda_1 \sum_{i, j \in \mathcal{I}, i \neq j} |s_{i,j}|.
+$$
+
+The minimization of the loss function happens through SGD.
+1. We sample a data point $(u, i) \in \mathcal{U} \times \mathcal{I} \ | \ r_{u,i} > 0$.
+2. We compute the gradient of the loss for the sampled data point.
+In particular, let $s_i = (s_{j,i})_{j \in \mathcal{I}}$ be the $i$-th column of $S$, let $r_u = (r_{u,j})_{j \in \mathcal{I}}$ be the $u$-th row of the URM.
+Then, the loss for the sampled data point is (we ignore the parameters not-used for the prediction even in the regularization):
+$$
+E_{u,i}(S, R) = (r_{u,i} - r_u \cdot s_i)^2 + \lambda_1 || s_i ||_1  + \lambda_2 || s_i ||_2^2.
+$$
+
+---
+
+> Then:
+$$
+\frac{\partial E_{u,i}}{\partial s_i}(S, R) = -2(r_{u,i} - r_u \cdot s_i)r_u + \lambda_1 \text{sign}(s_i) + 2 \lambda_2 s_i.
+$$
+
+3. Finally we update the parameters by moving in the direction opposite to the gradient:
+$$
+s_i = s_i - l \cdot \frac{\partial E_{u,i}}{\partial s_i}(S, R)
+$$
+> where $l$ is known as learning rate.
+
+This process has to be iterated.
+
+---
+
+## Matrix factorization
+
+The **idea** behind matrix factorization methods is to estimate from the data a set of features $\mathcal{K}$, known as _latent features_, which are useful for recommendations. In particular, we can associate to each user $u$ a vector $\vec{x}_u = (x_{u,k})_{k \in \mathcal{K}}$ in which each entry represents how much user $u$ likes feature $k$. Analogously, we can associate to each item $i$ a vector $\vec{y}_i = (y_{i,k})_{k \in \mathcal{K}}$ in which each entry represents how much feature $k$ is important in item $i$.
+Once we know these vectors, we can predict ratings simply as the scalar product between $\vec{x}_u$ and $\vec{y}_i$:
+$$
+\tilde{r}_{u,i} = \vec{x}_u \cdot \vec{y}_i.
+$$
+
+We can stack the vectors $\vec{x}_u$ in a matrix $X = (x_{u,k})_{u \in \mathcal{U}, k \in \mathcal{K}} \in \mathbb{R}^{|\mathcal{U}| \times |\mathcal{K}|}$, and the vectors $\vec{y}_i$ in a matrix $Y = (y_{i,k})_{k \in \mathcal{K}, i \in \mathcal{I}} \in \mathbb{R}^{|\mathcal{K}| \times |\mathcal{I}|}$. $X$ is known as **user-feature matrix**, while $Y$ is known as **feature-item matrix**.
+Then:
+$$
+\tilde{R} = (\tilde{r}_{u,i})_{u \in \mathcal{U}, i \in \mathcal{I}} = X Y.
+$$
+
+The matrices $X, Y$ can be found using many different machine learning methods, by optimizing a loss function.
+This matrix factorization model has $|\mathcal{K}| (|\mathcal{U}| + |\mathcal{I}|)$ parameters, typically much fewer than an item-based CF model. Furthermore, the number of parameters can be controlled by choosing $K = |\mathcal{K}|$, which is an hyper-parameter to be properly tuned.
+
+If we choose $K$ big and we have few ratings there is a risk of overfitting.
+
+Conversely, if $K$ is small the personalization capabilities are reduced. The system is biased towards popular items and, for $K = 1$, we get a behavior similar to the top-popular recommender.
+
+As always, we usually add regularization terms to the loss function.
+
+### Gradient descent for a MF model
+
+As remarked before, we can find $X$ and $Y$ through the following optimization problem:
+$$
+X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_F^2 + \lambda_x || X ||_F^2 + \lambda_y || Y ||_F^2 \right).
+$$
+$\lambda_x$ and $\lambda_y$ need to be tuned carefully, their value strongly impacts the effectiveness of the system.
+If $\lambda_x$ and $\lambda_y$ are low, there is an high risk of overfitting. Conversely, if $\lambda_x$ and $\lambda_y$ are high, the matrices will be filled with zeroes.
+
+Again, the minimization of the loss function happens through SGD.
+
+1. We sample a data point $(u, i) \in \mathcal{U} \times \mathcal{I} \ | \ r_{u,i} > 0$.
+
+---
+
+2. We compute the gradient of the loss for the sampled point. Observe that the loss for the sampled data point can be expressed as:
+$$
+E_{u,i}(X, Y, R) = (r_{u,i} - \vec{x}_u \cdot \vec{y}_i)^2 + \lambda_x || \vec{x}_u ||_2^2 + \lambda_y || \vec{y}_i ||.
+$$
+> Then:
+$$
+\frac{\partial E}{\partial \vec{x}_u}(X, Y, R) = -2(r_{u,i} - \vec{x}_u \cdot \vec{y}_i) \vec{y}_i + 2 \lambda_x \vec{x}_u;
+$$
+$$
+\frac{\partial E}{\partial \vec{y}_i}(X, Y, R) = -2(r_{u,i} - \vec{x}_u \cdot \vec{y}_i)\vec{x}_u + 2 \lambda_y \vec{y}_i.
+$$
+3. Finally, we update the parameters by moving in the direction opposite to the gradient:
+$$
+\vec{x}_u = \vec{x}_u - l \frac{\partial E}{\partial \vec{x}_u}(X, Y, R);
+$$
+$$
+\vec{y}_i = \vec{y}_i - l \frac{\partial E}{\partial \vec{y}_i}(X, Y, R).
+$$
+
+Observe that, again, we're **relying on the MAR assumption**.
+
+### Funk SVD
+
+Another way to solve the optimization function we introduced before, i.e.
+$$
+X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_F^2 + \lambda_x || X ||_F^2 + \lambda_y || Y ||_F^2 \right)
+$$
+is to use the **alternating least squares** technique.
+It works as follows:
+1. we initialize $X$ and $Y$ randomly;
+2. we fix the value of $X$ and optimize for $Y$ (this becomes a least squares problem which can be solved analytically);
+3. we fix the value of $Y$ and optimize for $X$;
+4. we go back to 2 until we get to a point where the improvements are very small.
+
+Furthermore, in **Funk SVD**, the latent factors <u>are NOT computed all at once</u>.
+In particular:
+1. we start with $K = 1$ and find the first vector in $X$ and $Y$ through alternating least squares;
+2. we increase $K$ and optimize for the new vectors in $X$ and $Y$ through alternating least squares;
+3. we go back to 2 until we reach the desired value for $K$.
+
+---
+
+Learning one latent factor at a time is efficient and reduces overfitting.
+
+The cons of Funk SVD are that:
+- it relies on the MAR assumption;
+- it works well for rating prediction but poorly for Top-$N$;
+- there are no latent factors for new users or new items: we need to retrain the model.
+
+### SVD++
+
+SVD++ changes the way in which we compute predictions. In particular, in SVD++ we take into account the item and user bias as in global effects:
+$$
+\tilde{r}_{u,i} = \mu + b_u + b_i + \vec{x}_u \cdot \vec{y}_i.
+$$
+**Important remark**: the values for $\mu$, $b_u$, and $b_i$ are learned as parameters.
+Indeed, SVD++ solves the following optimization problem:
+$$
+\mu^*, b_u^*, b_i^*, X^*, Y^* = \arg \min_{\mu, b_u, b_i, X, Y} \left( ||R-\tilde{R}||_F^2 + \lambda_x ||X||_F^2 + \lambda_y ||Y||_F^2 \right).
+$$
+
+The model has $K (|\mathcal{U}| + |\mathcal{I}|) + |\mathcal{U}| + \mathcal{I} + 1$ parameters.
+The optimization is done through SGD.
+
+Observe that also SVD++ relies on the MAR assumption, this makes it unsuitable for Top-$N$.
+Furthermore, SVD++ is still memory-based, thus we need to recompute $X$ and $Y$ for each new user and item.
+
+### Asymmetric SVD
+
+As we already remarked, in SVD++ and FunkSVD we <u>do NOT have latent factors for new users</u>. **Asymmetric SVD** solves the problem by introducing new item latent factors $Z \in \mathbb{R}^{|\mathcal{I}| \times |\mathcal{K}|}$ which can be used to estimate the user latent factors from the ratings that we've at out disposal:
+$$
+x_{u,k} = \vec{r}_u \cdot \vec{z}_k
+$$
+where $\vec{z}_k = (z_{i,k})_{i \in \mathcal{I}}$.
+Observe that, to compute $x_{u,k}$, we just need the user profile; thus this method is model-based.
+
+The predicted ratings matrix becomes:
+$$
+\tilde{R} = X Y = R Z Y.
+$$
+This model has $2 K |\mathcal{I}|$ parameters.
+
+This method is called **asymmetric** because matrices $Z$ and $Y$ can be multiplied to obtain a similarity matrix that is likely NOT symmetric.
+
+---
+
+#### Asymmetric SVD with Global Effects
+
+A variation of the method uses **learned global effects** in the predictions:
+$$
+\tilde{r}_{u,i} = \mu + b_u + b_i + \sum_{k \in \mathcal{K}} \sum_{j \in \mathcal{I}} r_{u,j} \cdot z_{j,k} \cdot y_{i,k}.
+$$
+This model has $2 K |\mathcal{I}| + |\mathcal{U}| + |\mathcal{I}| + 1$ parameters.
+
+### PureSVD: Singular Value Decomposition
+
+In **PureSVD** we apply the SVD decomposition to the URM, obtaining:
+$$
+R = U \Sigma V^T.
+$$
+The columns of $U$ correspond to latent features.
+The rows of $V^T$ correspond to categories.
+
+The SVD decomposition is truncated at rank $K$, in particular we select the $K$ highest singular values and the remaining ones are set to 0:
+$$
+R = U \Sigma V^T \approx U_K \Sigma_K V_K^T.
+$$
+
+In virtue of the **Eckart-Young-Mirsky theorem**, the approximation obtained through truncated SVD is the best rank $K$ approximation of the original matrix.
+
+Using full-rank SVD doesn't allow to filter out the noise from the URM. This is instead done through truncated SVD.
+
+Let $P = U \Sigma$, then, due to the orthonormality of $V$,
+$$
+R V = = U \Sigma V^T V = U \Sigma = P.
+$$
+Finally,
+$$
+R = U \Sigma V^T = P V^T = R V V^T = R S
+$$
+with $S = V V^T$. Thus PureSVD is equivalent to an item-based CF model where $S = V V^T$.
+
+By using truncated SVD, PureSVD optimizes the Frobenious norm. The Frobenious norm accounts for all values of $R$, including the missing ratings which are treated as zeroes. Thus, **PureSVD relies on the Missing-as-Negative assumption**.
