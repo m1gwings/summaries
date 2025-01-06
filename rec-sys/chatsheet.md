@@ -22,6 +22,7 @@ The SciPy utilities to deal with sparse matrices are contained in the `sparse` s
 from scipy.sparse import *
 ```
 
+Some methods common to sparse matrices are:
 - **`todense`**: method which allows to convert a sparse matrix to a dense one.
 - **`nnz`**: attribute with the number of non-zero entries.
 
@@ -147,7 +148,7 @@ interactions_df['ItemID'] = interactions_df['ItemID']\
 </div>
 <div class="column">
 
-Finally, we can build the URM in COO form using the COO constructor which takes `data, (row, column)` as parameters:
+Now, we can build the URM in COO form using the COO constructor which takes `data, (row, column)` as parameters:
 ```
 URM = coo_matrix(interactions_df['Interaction'].values,
     (interactions_df['UserID'].values,
@@ -310,9 +311,16 @@ class Recommender(object):
     def recommend(self, user_id, at=5):
         ...
 ```
-
-</div>
-<div class="column">
+For example, a random recommender would be:
+```
+class RandomRecommender(object):
+    def fit(self, URM_train):
+        self.n_items = URM_train.shape[1]
+    
+    def recommend(self, user_id, at=5):
+        recommended_items = np.random.choice(self.n_items, at)
+        return recommended_items
+```
 
 </div>
 <div class="column">
@@ -329,8 +337,254 @@ class Recommender(object):
 
 ### Top popular recommender
 
+```
+class TopPopRecommender(object):
+    def fit(self, URM_train):
+        items_popularity = np.ediff1d(URM_train.tocsc().indptr)
+        self.popular_items = np.argsort(items_popularity)
+        self.popular_items = np.flip(self.popular_items)
+    
+    def recommend(self, user_id, at=5):
+        recommended_items = self.popular_items[:at]
+        return recommended_items
+```
+
+### Global effects recommender
+
+```
+class GlobalEffectsRecommender(object):
+    def fit(self, URM_train):
+        self.mu = URM_train.sum() / URM_train.nnz
+        unbiased_URM_train = URM_train - self.mu
+        col_nnz = np.ediff1d(URM_train.tocsc().indptr)
+        self.item_bias = unbiased_URM_train.sum(axis=0) / col_nnz
+        unbiased_URM_train -= self.item_bias[np.newaxis, :]
+        row_nnz = np.ediff1d(URM_train.tocsr().indptr)
+        self.user_bias = unbiased_URM_train.sum(axis=1) / row_nnz
+    
+    def recommend(self, user_id, at=5):
+        # This implementation is inefficient!
+        predicted_ratings = self.item_bias + mu + \
+            self.user_bias[user_id]
+        best_items = np.argsort(predicted_ratings)
+        best_items = np.flip(best_items)
+        return best_items[:at]
+
+```
+
 </div>
 <div class="column">
+
+</div>
+</div>
+
+---
+
+## Content-based filtering
+
+<div class="multiple-columns">
+<div class="column">
+
+### Building an ICM from a `DataFrame` of items
+
+We can build an ICM starting from a `pandas.DataFrame` named `items_df` with `columns`: `["ItemID", "FeatureID"]` analogously to what we did for the URM.
+In particular, we take the IDs from the items both from the `interactions_df` and the `items_df`.
+```
+cont_item_IDs, item_IDs = pd.factorize(
+    pd.concat(interactions_df['ItemID'], items_df['ItemID'],
+    ignore_index=True).unique())
+item_indices = pd.Series(cont_item_IDs, index = item_IDs)
+```
+We can do the same for features:
+```
+cont_feature_IDs, feature_IDs = pd.factorize(
+    items_df['FeatureID'].unique())
+feature_indices = pd.Series(cont_feature_IDs, index = feature_IDs)
+```
+Finally, we apply the usual map in the `DataFrame`s:
+```
+interactions_df['ItemID'] = interactions_df['ItemID'] \
+    .map(item_indices)
+items_df['ItemID'] = items_df['ItemID'].map(item_indices)
+items_df['FeatureID'] = items_df['FeatureID'].map(feature_indices)
+```
+We're ready to build the `ICM`:
+```
+ICM = coo_matrix(np.ones(len(items_df['ItemID'].unique())),
+        (items_df['ItemID'].values, items_df['FeatureID'].values)) \
+        .tocsr()
+```
+
+</div>
+<div class="column">
+
+### Computing KNN cosine similarity
+
+Fix an item ID, a shrink term, and a value for `k`:
+```
+item_id = 42
+shrink = 10
+k = 100
+```
+The computation is:
+```
+numerator_vector = ICM[item_id] @ ICM.T
+norms = (ICM ** 2).sum(axis=0).sqrt()
+denominator = norms[item_id] * norms + shrink
+
+cosine_similarity = numerator_vector / denominator
+cosine_similarity[item_id] = 0.
+
+not_KNN = np.argsort(-cosine_similarity)[k:]
+cosine_similarity[not_KNN] = 0.
+```
+We can compute teh similarity for all the items by vectorizing the code in blocks.
+
+### CBF recommender
+```
+class CBFRecommender(object):
+    def fit(self, URM_train, ICM):
+        self.S = cosine_similarity(ICM)
+        self.URM_train = URM_train
+
+    def recommend(self, user_id, at=5):
+        user_profile = self.URM_train[user_id]
+        predicted_ratings = user_profile @ self.S
+        best_items = np.argsort(-predicted_ratings)
+        return best_items[:at]
+```
+
+</div>
+</div>
+
+---
+
+<div class="multiple-columns without-title">
+<div class="column">
+
+### TF-IDF
+
+Let's see how we can compute an ICM with **TF-IDF** values.
+
+```
+n_items = ICM.shape[0]
+items_per_feature = np.ediff1d(ICM.tocsc().indptr)
+IDF = np.log(n_items/items_per_feature)
+TF = ICM / np.ediff1d(ICM.tocsr().indptr)[np.newaxis, :]
+TF_IDF_ICM = TF * IDF[:, np.newaxis]
+```
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+## Collaborative filtering
+<div class="multiple-columns">
+<div class="column">
+
+### Item-based collaborative filtering
+
+We can compute the similarity matrix, as we explained for content-based filtering.
+```
+class ItemBasedCollRecommender(object):
+    def fit(self, URM_train):
+        self.S = cosine_similarity(URM)
+        self.URM_train = URM_train
+
+    def recommend(self, user_id, at=5):
+        user_profile = self.URM_train[user_id]
+        predicted_ratings = user_profile @ self.S
+        best_items = np.argsort(-predicted_ratings)
+        return best_items[:at]
+```
+
+### User-based collaborative filtering
+```
+class ItemBasedCollRecommender(object):
+    def fit(self, URM_train):
+        self.S = cosine_similarity(URM.T)
+        self.URM_train = URM_train
+
+    def recommend(self, user_id, at=5):
+        user_profile = self.URM_train[user_id]
+        predicted_ratings = user_profile @ self.S
+        best_items = np.argsort(-predicted_ratings)
+        return best_items[:at]
+```
+
+</div>
+<div class="column">
+
+### SLIM
+We'll provide an implementation of the routine which learns the SLIM similarity matrix.
+```
+def SLIM_similarity(URM_train, learning_rate=1e-6, epochs=100000,
+                    reg_1=1e-3, reg_2=1e-3):
+    n_items = URM_train.shape[1]
+    S = np.zeros((n_items, n_items), dtype=np.float32)
+    for e in range(epochs):
+        sample_index = np.random.randint(URM_train.nnz)
+
+        URM_train_coo = URM_train.tocoo()
+        user_id = URM_train_coo.row[sample_index]
+        item_id = URM_train_coo.col[sample_index]
+        true_rating = URM_train_coo.data[sample_index]
+
+        predicted_rating = URM_train[user_id] @ S[:, item_id]
+        prediction_error = true_rating - predicted_rating
+
+        items_in_user_profile = \
+            URM_train.indices[URM_train.indptr[user_id]:\
+            URM_train.indptr[user_id+1]]
+        ratings_in_user_profile = URM_train[user_id,
+            items_in_user_profile]
+        gradient = - 2*prediction_error*ratings_in_user_profile + \
+            reg_1*np.sign(S[:, items_in_user_profile].flatten()) + \
+            2*reg_2*S[:, items_in_user_profile].flatten()
+        S[:, items_in_user_profile] -= learning_rate * gradient
+
+        S[item_id, item_id] = 0.
+
+        return S
+```
+
+</div>
+</div>
+
+---
+
+## Matrix factorization
+<div class="multiple-columns">
+<div class="column">
+
+SGD loop similar to SLIM...
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+## Hyperparameter tuning
+<div class="multiple-columns">
+<div class="column">
+
+### Grid search
+
+We check all possible values for the hyperparameters...
+
+### Random search
+
+We sample the values...
+
+### 
+
 
 </div>
 <div class="column">
@@ -360,6 +614,8 @@ class Recommender(object):
 - `map`
 
 - `DataFrame['column'].values`
+
+- `concat`
 
 </div>
 <div class="column">
