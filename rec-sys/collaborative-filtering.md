@@ -193,9 +193,9 @@ As always, we usually add regularization terms to the loss function.
 
 As remarked before, we can find $X$ and $Y$ through the following optimization problem:
 $$
-X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_F^2 + \lambda_x || X ||_F^2 + \lambda_y || Y ||_F^2 \right).
+X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_2^2 + \lambda_x || X ||_2^2 + \lambda_y || Y ||_2^2 \right).
 $$
-$\lambda_x$ and $\lambda_y$ need to be tuned carefully, their value strongly impacts the effectiveness of the system.
+$\lambda_x$ and $\lambda_y$ need to be tuned carefully, their value strongly impacts the effectiveness of the system. **Important**: the $|| \cdot ||_2$ is NOT the usual $2$-norm; it is the Frobenious norm in which we consider only relevant items.
 If $\lambda_x$ and $\lambda_y$ are low, there is an high risk of overfitting. Conversely, if $\lambda_x$ and $\lambda_y$ are high, the matrices will be filled with zeroes.
 
 Again, the minimization of the loss function happens through SGD.
@@ -229,7 +229,7 @@ Observe that, again, we're **relying on the MAR assumption**.
 
 Another way to solve the optimization function we introduced before, i.e.
 $$
-X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_F^2 + \lambda_x || X ||_F^2 + \lambda_y || Y ||_F^2 \right)
+X^*, Y^* = \arg \min_{X, Y} \left( || R - XY ||_2^2 + \lambda_x || X ||_2^2 + \lambda_y || Y ||_2^2 \right)
 $$
 is to use the **alternating least squares** technique.
 It works as follows:
@@ -262,7 +262,7 @@ $$
 **Important remark**: the values for $\mu$, $b_u$, and $b_i$ are learned as parameters.
 Indeed, SVD++ solves the following optimization problem:
 $$
-\mu^*, b_u^*, b_i^*, X^*, Y^* = \arg \min_{\mu, b_u, b_i, X, Y} \left( ||R-\tilde{R}||_F^2 + \lambda_x ||X||_F^2 + \lambda_y ||Y||_F^2 \right).
+\mu^*, b_u^*, b_i^*, X^*, Y^* = \arg \min_{\mu, b_u, b_i, X, Y} \left( ||R-\tilde{R}||_2^2 + \lambda_x ||X||_2^2 + \lambda_y ||Y||_2^2 \right).
 $$
 
 The model has $K (|\mathcal{U}| + |\mathcal{I}|) + |\mathcal{U}| + \mathcal{I} + 1$ parameters.
