@@ -327,3 +327,117 @@ $$
 with $S = V V^T$. Thus PureSVD is equivalent to an item-based CF model where $S = V V^T$.
 
 By using truncated SVD, PureSVD optimizes the Frobenious norm. The Frobenious norm accounts for all values of $R$, including the missing ratings which are treated as zeroes. Thus, **PureSVD relies on the Missing-as-Negative assumption**.
+
+---
+
+## Bayesian Personalized Ranking (BPR)
+
+In this section, we will see **Bayesian Personalized Ranking**, which is another technique used to optimize the quality metrics of a recommender.
+
+So far, we have focused our attention on optimizing the mean square error. But, from now on, we will focus on optimizing the so-called pairwise ranking.
+In particular, our goal is to estimate the rating of user $u$ for items $i$ and $j$, where $i$ is relevant for user $u$ and $j$ is NOT, in such a way that the estimated rating for item $i$ is greater than the estimated rating for item $j$. In this way, the estimated pairwise ranking will be identical to the true pairwise ranking.
+We can cast this into an optimization problem where we maximize the probability
+$$
+p(\tilde{r}_{u,i} > \tilde{r}_{u,j} | u) \text{ where } i \text{ is relevant, and } j \text{ is NOT.}
+$$
+Furthermore, we will <u>assume</u> that such probability takes the following functional form:
+$$
+p(\tilde{r}_{u,i} > \tilde{r}_{u,j} | u) = \sigma(x_{u,i,j})
+$$
+where $\sigma(x) = \frac{1}{1+\exp(-x)}$ is the sigmoid function, and $x_{u,i,j}$ is defined as $x_{u,i,j} = \tilde{r}_{u,i} - \tilde{r}_{u,j}$. Thus, we wish to maximize the difference.
+
+The predicted ratings $\tilde{r}_{u,i}, \tilde{r}_{u,j}$ depend on the parameters of our model; we highlight this dependence as $\tilde{r}_{u,i}(\theta), \tilde{r}_{u,j}(\theta)$. Thus, the same holds for $x_{u,i,j}$ which becomes $x_{u,i,j}(\theta)$.
+
+We assume the probabilities for each pair of items are independent (this assumption clearly doesn't hold in reality). Let $\mathcal{I}^+ = \{ i \in \mathcal{I} \ | \ r_{u,i} > 0 \}$, $\mathcal{I}^- = \mathcal{I} \setminus \mathcal{I}^+$. Then, the objective function becomes:
+$$
+\prod_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \sigma(x_{u,i,j}(\theta)).
+$$
+The optimization problem is:
+$$
+\theta^* = \arg \max_\theta \left[ \prod_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \sigma(x_{u,i,j}(\theta)) \right]
+$$
+$$
+= \arg \max_\theta \left[ \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \log \sigma(x_{u,i,j}(\theta)) \right]
+$$
+$$
+= \arg \min_\theta \left[ - \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \log \sigma(x_{u,i,j}(\theta)) \right].
+$$
+
+As usual, the final loss may include regularization terms:
+$$
+E(\theta) = - \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \log \sigma(x_{u,i,j}(\theta)) + \lambda || \theta ||_2^2 + \ldots .
+$$
+
+---
+
+As usual, we can optimize this loss through gradient descent.
+In particular, remembering that $\sigma'(x) = \sigma(x)(1-\sigma(x))$:
+$$
+\frac{d E}{d \theta}(\theta) = - \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \frac{1}{\sigma(x_{u,i,j}(\theta))} \frac{d}{d \theta}\left[ \sigma(x_{u,i,j}(\theta)) \right]
+$$
+$$
+= - \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} \frac{1}{\sigma(x_{u,i,j}(\theta))} \sigma(x_{u,i,j}(\theta)) (1-\sigma(x_{u,i,j}(\theta)))\frac{d x_{u,i,j}}{d\theta}(\theta)
+$$
+$$
+= - \sum_{u \in \mathcal{U}, i \in \mathcal{I}^+, j \in \mathcal{I}^-} (1-\sigma(x_{u,i,j}(\theta))) \frac{d x_{u,i,j}}{d\theta}(\theta).
+$$
+
+Of course, we still need to compute the gradient $\frac{d x_{u,i,j}}{d\theta}(\theta)$ based on the model we're training.
+
+### BPR optimizes ranking
+
+We define, analogously to what we did for precision and recall,
+$$
+\text{fallout}(n) = \frac{\text{FP}(n)}{\text{FP}(n) + \text{TN}(n)}.
+$$
+Then, analogously to what we did for the average precision, we can define the **Area Under the Curve** (**AUC**) as the area under the **ROC** which is the curve we obtain on the plain recall (on the $y$-axis) vs fallout (on the $x$-axis).
+
+**It is possible to show that BPR minimizes the AUC**.
+
+### BPR for SLIM
+
+In **SLIM**,
+$$
+x_{u,i,j}(S) = \vec{r}_u \cdot \vec{s}_i - \vec{r}_u \cdot \vec{s}_j = \vec{r}_u \cdot (\vec{s}_i - \vec{s}_j).
+$$
+Then:
+$$
+\frac{\partial x_{u,i,j}}{\vec{s}_i}(S) = \vec{r}_u;
+$$
+$$
+\frac{\partial x_{u,i,j}}{\vec{s}_j}(S) = -\vec{r}_u.
+$$
+
+**Important remark**: to be precise we use Stochastic Gradient Descent instead of plain Gradient Descent.
+
+---
+
+### BPR for Matrix Factorization
+
+In **Matrix factorization** approaches:
+$$
+x_{u,i,j}(X, Y) = \vec{x}_u \cdot \vec{y}_i - \vec{x}_u \cdot \vec{y}_j = \vec{x}_u \cdot (\vec{y}_i - \vec{y}_j).
+$$
+Then:
+$$
+\frac{\partial x_{u,i,j}}{\partial \vec{x}_u}(X, Y) = \vec{y}_i - \vec{y}_j;
+$$
+$$
+\frac{\partial x_{u,i,j}}{\partial \vec{y}_i}(X, Y) = \vec{x}_u;
+$$
+$$
+\frac{\partial x_{u,i,j}}{\partial \vec{y}_j}(X, Y) = - \vec{x}_u.
+$$
+
+### BPR variants
+
+Several variants and evolutions of BPR exist, for example **WARP** (Weighted Approximate-Rank Pairwise) loss.
+The **idea behind WARP** is that, when sampling $u, i, j$, we check if the mode predictions would already produce the right ranking, if so, we draw another $j$. In particular, we look for training samples that <u>violate</u> the correct ranking.
+
+### BPR popularity bias
+
+**BPR exhibits a <u>very strong</u> popularity bias**:
+- popular items will be sampled a lot, their predictions will tend to be high;
+- unpopular items will be sampled rarely, their predictions will tend to be low.
+
+Offline evaluation often uses test data splits that exhibit popularity bias (the same of the training data). BPR may look good offline but perform poorly online.

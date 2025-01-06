@@ -238,14 +238,96 @@ def average_precision(recommended_items, relevant_items):
         relevant_items.size
 ```
 
+### Utility to evaluate a recommender system
+
+```
+# We pass as paramether the recommender class
+
+def evaluate_algorithm(URM_test, recommender_object, at=5):
+    
+    cumulative_precision = 0.0
+    cumulative_recall = 0.0
+    cumulative_AP = 0.0
+    
+    num_eval = 0
+
+
+    for user_id in range(URM_test.shape[0]):
+
+        relevant_items = URM_test.indices[URM_test.indptr[user_id]\
+            :URM_test.indptr[user_id+1]]
+        
+        if len(relevant_items)>0:
+            
+            recommended_items = recommender_object\
+                .recommend(user_id, at=at)
+            num_eval+=1
+```
+
 </div>
 </div>
 
 ---
 
-## Recommender template and utilities
+<div class="multiple-columns without-title">
+<div class="column">
+
+```
+            cumulative_precision += \
+                precision(recommended_items, relevant_items)
+            cumulative_recall += \
+                recall(recommended_items, relevant_items)
+            cumulative_AP += \
+                AP(recommended_items, relevant_items)
+            
+    cumulative_precision /= num_eval
+    cumulative_recall /= num_eval
+    MAP = cumulative_AP / num_eval
+    
+    print("Recommender results are: Precision = {:.4f}," + \
+        " Recall = {:.4f}, MAP = {:.4f}".format(
+        cumulative_precision, cumulative_recall, MAP))
+```
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+## Recommender template
 <div class="multiple-columns">
 <div class="column">
+
+We can implement a recommender system by defining a class like the following:
+```
+class Recommender(object):
+    def fit(self, URM_train):
+        ...
+    
+    def recommend(self, user_id, at=5):
+        ...
+```
+
+</div>
+<div class="column">
+
+</div>
+<div class="column">
+
+</div>
+</div>
+
+---
+
+## Non-personalized algorithms
+
+<div class="multiple-columns">
+<div class="column">
+
+### Top popular recommender
 
 </div>
 <div class="column">
