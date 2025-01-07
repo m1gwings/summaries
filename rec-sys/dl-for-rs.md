@@ -141,3 +141,139 @@ where $W_u^\mathcal{U}$ and $W_i^\mathcal{I}$ are user and item latent factors.
 
 Observe that a **two tower model with one-hot encoded input is memory-based**. Thus, we cannot integrate new users or new interactions without retraining it.
 **However**, the issue can be overcame if one uses other encodings, for example the entire user profile. In that case, the model becomes equivalent to AsymmetricSVD.
+
+## Graph Convolutional Networks
+
+The **idea** of Graph Convolutional Networks (GNN) is to learn user and item embeddings by leveraging the graph structure of the interaction data.
+
+We could say that they merge latent factor models and graph-based ones.
+
+We work with the usual bi-partite (or tri-partite) graph, but each user and item is associated with an embedding, denoted respectively with $e_u$ and $e_i$.
+
+The **assumption** is that nodes that are close in the graph are similar, therefore they should have similar embeddings.
+
+In particular, given a new item or user, we want to be able of computing its embedding by aggregating (for example with an average) the embeddings of the nodes attached to it.
+
+Formally, the embedding of a node can be defined as:
+$$
+e_u^{(h)} = a\left( e_u^{(h-1)}; e_i^{(h-1)} \ | \ i \in \mathcal{I} \text{ is s.t. } (u, i) \in \mathcal{U} \times \mathcal{I}, r_{u,i} > 0 \right);
+$$
+$$
+e_i^{(h)} = a\left( e_i^{(h-1)}; e_u^{(h-1)} \ | \ u \in \mathcal{U} \text{ is s.t. } (u, i) \in \mathcal{U} \times \mathcal{I}, r_{u,i} > 0 \right)
+$$
+where $a$ is called the **aggregation function**.
+
+This aggregation process on a graph is called **graph convolution**.
+
+The fact that embeddings depend on their value at the previous step is known as self-connection.
+
+---
+
+At an high level, the method works as follows:
+0. initialize user and item embeddings $E^{(0)}$;
+1. sample a data point;
+2. apply $h$ hops of graph convolution on the nodes;
+3. using $E^{(h)}$ compute the **prediction** and gradients;
+4. go back to step 1.
+
+This architecture where the embedding of each node is propagated in the graph and is used to compute other embeddings is called **message passing**.
+The "message" is the node embedding.
+
+We need to answer the following questions:
+- How do we choose the **aggregation function**?
+- How many hops do we perform?
+
+### LightGCN: Light Graph Convolutional Network
+
+**LightGCN** is a very simple GCN model for recommendation.
+It uses a **weighted mean** as aggregation function.
+The loss function is **BPR**.
+It **does NOT** include self-connections.
+
+In particular:
+$$
+E_u^{(h)} = \sum_{i \ | \ r_{u,i} > 0} \frac{1}{\sqrt{d_u d_i}} E_i^{(h-1)};
+$$
+$$
+E_i^{(h)} = \sum_{i \ | \ r_{u,i} > 0} \frac{1}{\sqrt{d_u d_i}} E_u^{(h-1)}.
+$$
+
+We can represent this process with the formalism of random walks. Let $G \in \mathcal{R}^{|N| \times |N|}$ be the adjacency matrix. We define:
+$$
+\hat{G} = (\hat{g}_{x,y})_{x \in N, y \in N} = \left( \frac{g_{x,y}}{\sqrt{d_x d_y}} \right)_{x \in N, y \in N}
+$$
+as the **normalized adjacency matrix**.
+Then:
+$$
+E^{(h)} = \hat{G} E^{(h-1)}.
+$$
+The prediction is computed as:
+$$
+\tilde{r}_{u,i} = E_u^{(h)} \cdot E_i^{(h)}.
+$$
+
+---
+
+In matricial form, the process becomes:
+0. initialize the embeddings $E^{(0)}$;
+1. apply $h$ convolution steps $E^{(h)} = \hat{G}^h E^{(0)}$;
+2. draw a BPR sample $u,i,j$ such that $r_{u,i} > 0$ and $r_{u,j} = 0$;
+3. compute the prediction $\tilde{r}_{u,i} = E_u^{(h)} \cdot E_i^{(h)}$ and $\tilde{r}_{u,j} = E_u^{(h)} E_j^{(h)}$;
+4. apply the gradient step of BPR.
+
+### Advantages of GCN
+
+Graph convolution methods have many advantages:
+- they can work on **different types of graphs**;
+- can accommodate different **aggregation** functions that may have parameters themselves;
+- can accommodate different **loss** functions. 
+
+The disadvantages of GCN method is that:
+- they have **enormous computational cost**;
+- they can exhibit **high popularity bias**.
+
+Furthermore, in their basic form they are **not very effective** for collaborative filtering.
+
+The computational cost of GCN comes from the fact that convolution requires matrix product of the whole adjacency matrix. Due to its high density, $\hat{G}^h$ is not computed, rather the product is iterated $h$ times.
+Observe that each product requires $O(2 |\mathcal{U}| \mathcal{I} K)$ operations.
+
+Let's understand where does the popularity bias come from.
+From the spectral theorem:
+$$
+E^{(h)} = \hat{G}^h E^{(0)} = (V \Sigma V^T)^h E^{(0)} = V \Sigma^h V^T E^{(0)}.
+$$
+Thus we're raising the eigenvalues to the power of $h$. In this way small eigenvalues get dampened and we end up considering only frequent relationships, i.e. popularity bias.
+
+We can alleviate this problem through a so-called **filter function** which modifies the eigenvalues before the convolution:
+$$
+E^{(h)} = V f(\Sigma)^h V^T E^{(0)}.
+$$
+
+---
+
+**Graph-Filter Collaborative Filtering** (**GF-CF**) is an item-based collaborative filtering model that uses filter functions.
+
+Since small singular values disappear during convolution, we compute analytically the item-item transition probability based on the truncated singular values.
+
+In particular:
+1. we normalize the URM
+$$
+\hat{r}_{u,i} = \frac{r_{u,i}}{\sqrt{d_u d_i}};
+$$
+2. we compute the truncated SVD decomposition:
+$$
+\hat{R} \approx U_k \Sigma_k V_k^T;
+$$
+3. we compute the item-item similarity:
+$$
+S = \hat{R}^T \hat{R} + \alpha D_\mathcal{I}^{-\frac{1}{2}} V_k V_k^T D_\mathcal{I}^{\frac{1}{2}}.
+$$
+
+Advantages:
+- **fast computation** of the similarity and **very effective**;
+- **flexible**, can extend it to change the exponent of the degree matrix.
+
+Disadvantages:
+- the similarity is **dense**;
+- applying KNN is difficult, a large number of neighbors is required.
+
