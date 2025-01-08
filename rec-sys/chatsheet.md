@@ -322,6 +322,17 @@ class RandomRecommender(object):
         return recommended_items
 ```
 
+### Utility to remove "seen" items from recommendations
+
+```
+def remove_seen(user_id, best_items):
+    seen_items = self.URM_train.indices[self.URM_train\
+        .indptr[user_id]:self.URM_train.indptr[user_id+1]]
+    to_remove = np.in1d(seen_items, best_items,
+        assume_unique=True)
+    return best_items[np.logical_not(to_remove)]
+```
+
 </div>
 <div class="column">
 
@@ -557,33 +568,11 @@ def SLIM_similarity(URM_train, learning_rate=1e-6, epochs=100000,
 
 ---
 
-## Matrix factorization
-<div class="multiple-columns">
+<div class="multiple-columns without-title">
 <div class="column">
 
-SGD loop similar to SLIM...
+### Matrix factorization
 
-</div>
-<div class="column">
-
-</div>
-</div>
-
----
-
-## Hyperparameter tuning
-<div class="multiple-columns">
-<div class="column">
-
-### Grid search
-
-We check all possible values for the hyperparameters...
-
-### Random search
-
-We sample the values...
-
-### 
 
 
 </div>
@@ -594,44 +583,7 @@ We sample the values...
 
 ---
 
-## Pandas
-
-<div class="multiple-columns">
-<div class="column">
-
-- `read_csv`
-
-- `df.columns`
-
-- `df.head`
-
-- `df.unique()`
-
-- `df.factorize`
-
-- `Series`
-
-- `map`
-
-- `DataFrame['column'].values`
-
-- `concat`
-
-</div>
-<div class="column">
-
-</div>
-<div class="column">
-
-</div>
-</div>
-
----
-
-<div class="multiple-columns">
-<div class="column">
-
-</div>
+<div class="multiple-columns without-title">
 <div class="column">
 
 </div>
