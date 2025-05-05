@@ -44,6 +44,6 @@ In particular:
 
 Finally, computing has large slices that qualify as science, engineering, and mathematics. But no one of those slices tells the whole story of the field.
 
-## Criticism
+## Comment
 
 It is not sufficient to show that the elements of a group have some properties and that another element has the same properties to argue that the other element belongs to the group. We should instead give a characterization of the group by listing the properties necessary and sufficient for an element to belong to the group and then show that a certain element enjoys such properties. In the specific case which is treated in the article, in my opinion, it would have been better to give a definition of what is science and show that computing satisfies the required properties. In particular there should have been a focus on the scientific method and how this is implemented in computing disciplines.
