@@ -3,13 +3,15 @@ marp: true
 theme: summary
 math: mathjax
 ---
-# Summary of "Experiments in Computing: A Survey"
+# Tedre 2014
 
 <div class="author">
 
 Cristiano Migali
 
 </div>
+
+## Summary
 
 The paper studies the **role of experiments** in **computer science** and, in particular, it studies the so-called _experimental computer science_.
 It tries to answer the following question: "What do computer scientists mean when they talk about experiments in computer science?".

@@ -3,13 +3,15 @@ marp: true
 theme: summary
 math: mathjax
 ---
-# Summary of "Computing: The Fourth Great Domain of Science"
+# Denning and Rosenbloom 2009
 
 <div class="author">
 
 Cristiano Migali
 
 </div>
+
+## Summary
 
 The article tries to answer to the following question: "can _computer science_ rightfully claim a place at the **table of science**?".
 
