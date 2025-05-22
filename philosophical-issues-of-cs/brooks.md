@@ -39,3 +39,9 @@ Finally, the author ends the part by stating the criteria of success of a tool p
 - It must be so _productive_ that a full professor _will use_ it.
 
 Indeed, the tool-building collaborations are a success when the senior collaborating scientists use the tools for their personal work. "Ph.D. student can and will use any crummy tools that inch their theses along".
+
+---
+
+## Comment
+
+TODO...
