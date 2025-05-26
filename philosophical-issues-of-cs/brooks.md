@@ -3,7 +3,7 @@ marp: true
 theme: summary
 math: mathjax
 ---
-# Summary of Brooks 1996
+# Brooks 1996
 
 <div class="author">
 

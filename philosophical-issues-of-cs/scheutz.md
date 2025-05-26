@@ -3,7 +3,7 @@ marp: true
 theme: summary
 math: mathjax
 ---
-# Summary of Scheutz 2002
+# Scheutz 2002
 
 <div class="author">
 

@@ -98,3 +98,7 @@ To summarize, the troubles of typical algorithmic reasoning are the following:
 3. how algorithms can be used to defer accountability;
 4. the struggle to preserve the robustness of the procedure through additional provisions;
 5. the situated and selective rendering of actions as unethical when challenged by an outside intervention.
+
+## Comment
+
+
