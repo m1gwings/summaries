@@ -3,7 +3,7 @@ marp: true
 theme: summary
 math: mathjax
 ---
-# Summary of Newell and Simon
+# Summary of Newell and  1976
 
 <div class="author">
 
