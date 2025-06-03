@@ -11,6 +11,12 @@ Cristiano Migali
 
 </div>
 
+<div class="centered-definition-expression">
+
+(_adapted from Prof. Michele Carminati's slides_)
+
+</div>
+
 The basic **security requirements** are captured in the **CIA** paradigm for information security, which states 3 requirements:
 - **Confidentiality**: the information can be accessed only by authorized entities;
 - **Integrity**: the information can be modified only by authorized entities, and only in the way such entities are entitled to modify it;

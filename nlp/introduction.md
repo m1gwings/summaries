@@ -11,6 +11,12 @@ Cristiano Migali
 
 </div>
 
+<div class="centered-definition-expression">
+
+(_adapted from Prof. Mark Carman's slides_)
+
+</div>
+
 The **goal** of **NLP** is to process natural (human) language.
 Human language is:
 -  **compositional**: it allows to express thoughts in sentences comprising **subjects**, **verbs**, and **objects**.
