@@ -112,4 +112,40 @@ Word embeddings can be seen as a form of **matrix decomposition**. Consider a sq
 
 To reduce computational complexity, the skip gram version was simplified into a binary classification model in which the model was given word pairs and had to predict if they belonged to the corpus or were _negative examples_ which were added artificially.
 
-### Glove
+### GloVe
+
+An alternative technique for embedding if **GloVe**. The aim is to give a probabilistic interpretation to translation in embedding space. For example, the translation in space from "steam" to "ice" should increase the chance of seeing the word "solid". So, the projection of "ice" minus "steam" onto the vector "solid" should be function of conditional probabilities:
+$$
+(\mathbf{w}_\text{ice} - \mathbf{w}_\text{steam})^T \widetilde{\mathbf{w}}_\text{solid} \approx f\left( \frac{\mathbb{P}[\text{solid} \ | \ \text{ice}]}{\mathbb{P}[\text{solid} \ | \ \text{steam}]} \right).
+$$
+This can be achieved by fitting the following objective:
+$$
+\mathbf{w}_i^T \widetilde{\mathbf{w}}_k + b_i + \widetilde{b}_k = \log(X_{ik})
+$$
+where $\mathbf{w}_i$ and $\widetilde{\mathbf{w}}_k$ are the embedding vectors, $b_i$ and $b_k$ are the biases, and $X_{ik}$ is their co-occurrence count.
+The objective is approximated by minimizing a weighted least squares objective, with some ticks needed for convergence.
+
+### Properties of word embeddings
+
+Word embeddings have many **interesting properties**.
+
+- **Semantic clustering**: neighbors in the embedding space are **semantically related** to one another.
+
+- **Translation is meaningful**: certain directions in the space have meaning, which means that **semantics** is often **additive** and **analogies** are encoded in the embedding (e.g. _man_ is to _woman_ as _king_ is to _queen_).
+
+- **Discovery of all sorts of relationships between words**: including part-of-speech (e.g. help → helpful, pain → painful), type-of relationships (e.g. red, green, blue → colors), synonyms (e.g. brave $\approx$ courageous), geographic (e.g. Chicago + state → Illinois).
+
+---
+
+### Uses of word embeddings
+
+The low-dimensional representation provided by word-embeddings causes similar terms to share similar descriptions and allows a model to **generalize** from semantically related **examples**.
+
+Since embeddings place similar concepts close together, they are useful for discovering implied (but unknown) properties of them.
+
+### Sub-word embeddings
+
+Word embeddings work well if the vocabulary is fixed: they cannot deal with new words in the test set.
+If we see a new word: e.g. a made-up word like **hippopotamification** (the act of magically turning someone into a hippopotamus), we don't have an embedding for it and we must ignore it despite the fact that we can guess its meaning from the letters contained in it.
+
+**Fasttext** has been introduced to solve this problem. Words are split into fixed-length character sequences. It learns embeddings for character $n$-grams and combines the embeddings to form words. This approach deals nicely with morphologically related terms.
