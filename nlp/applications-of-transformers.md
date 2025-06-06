@@ -27,7 +27,7 @@ We ca distinguish between 3 main architectures for transformers.
 ## Fine-tuning transformers
 
 It is possible to fine-tune the transformer architectures to learn specific tasks.
-A recent approach involves fine-tuning a single model to perform multiple tasks: researchers have found that multi-task model often **outperformed** task specific models on their task of specialty.
+A recent approach involves fine-tuning a single model to perform multiple tasks: researchers have found that multi-task model often **outperformed** task specific models on their task of specialty. This is known as **instruction tuning**.
 
 ## Further uses
 
