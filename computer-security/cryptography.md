@@ -21,7 +21,7 @@ Cristiano Migali
 
 ## History of cryptography
 
-Cryptography was born in ancient society, when writing became more common, and hidden writing became a need. In particular it was born for commercial (e.g. the recipe for lacquer on clay tablets) or military uses. It was designed by humans, for human computers: algorithms were computed by hand ì, with pen and paper.
+Cryptography was born in ancient society, when writing became more common, and hidden writing became a need. In particular it was born for commercial (e.g. the recipe for lacquer on clay tablets) or military uses. It was designed by humans, for human computers: algorithms were computed by hand, with pen and paper.
 
 In 1553, for the first time Bellaso separates the encryption method from the key.
 
@@ -37,7 +37,7 @@ In the 20th century, mechanical computation changed cryptography. First rotor ma
 
 In 1949 Shannon proved that a **mathematically unbreakable** cipher exists.
 
-In 1955 Nash argues that **computationally secure** ciphers are ok. The rationale is the following. Consider a cipher with a finite, $\lambda$ bit long, key. Assume that the attacker effort to break the cipher is $\Theta(2^\lambda)$, while the owner of the key takes $\Theta(\lambda^2)$ to compute the cipher. The computational gap gets unsurmountable for large values of $\lambda$.
+In 1955 Nash argues that **computationally secure** ciphers are ok. The rationale is the following. Consider a cipher with a finite, $\lambda$ bit long, key. Assume that the attacker effort to break the cipher is $\Theta(2^\lambda)$, while the owner of the key takes $\Theta(\lambda^2)$ to compute the ciphertext. The computational gap gets unsurmountable for large values of $\lambda$.
 
 ---
 
@@ -82,7 +82,7 @@ $$
 $$
 In other words, seeing the ciphertext gives us _no information_ on what the corresponding plaintext could be. The definition is not constructive, so it makes sense to ask if a perfect cipher exists.
 The answer is given by the following theorem due to Shannon.
-- Any symmetric cipher $(\mathbf{P}, \mathbf{K}, \mathbf{C}, \mathbb{E}, \mathbb{D})$ with $|\mathbf{P}| = |\mathbf{K}| = |\mathbf{C}|$ is perfectly secure if and only if:
+- **Theorem**: any symmetric cipher $(\mathbf{P}, \mathbf{K}, \mathbf{C}, \mathbb{E}, \mathbb{D})$ with $|\mathbf{P}| = |\mathbf{K}| = |\mathbf{C}|$ is perfectly secure if and only if:
 > - every key is used with probability $\frac{1}{|\mathbf{K}|}$;
 > - a unique key maps a given plaintext into a given ciphertext: for all $(\text{ptx}, \text{ctx}) \in \mathbf{P} \times \mathbf{C}$ there exists a unique $k \in \mathbf{K}$ s.t. $\mathbb{E}(\text{ptx}, k) = \text{ctx})$;
 > - each key must be at least as long as the plaintext.
@@ -104,3 +104,91 @@ Real cryptosystems rely on the **computational security assumption**. The idea i
 Now we list some computationally hard problems.
 A first example is **factor large integers**. If $p$ and $q$ are two **large primes**, computing $n = p q$ is easy, but retrieving $p$ and $q$ from $n$ is slow (you need to use the quadratic sieve field: you try all primes until you get the smaller between $p$ and $q$).
 Another example is the **discrete logarithm**. Given $x$, $a$, $p$, it is easy to compute $y = a^x \mod p$, but knowing $y$, it is **difficult** to compute $x$.
+
+In order to prove that a cryptosystem is computational secure, we need to carry out the following steps:
+1. Define the ideal attacker behavior.
+2. Assume a given computational problem is hard.
+3. Prove that any non ideal attacker solves the hard problem.
+
+### Cryptographically safe pseudorandom number generators
+
+In order to build a cipher which resemble an OTP, preserving practicality, we may want to expand a finite-length key. Now we define an object which can achieve such objective.
+
+- A **CSPRNG** is a deterministic function $\text{PRNG} : \{ 0, 1 \}^\lambda \rightarrow \{ 0, 1 \}^{\lambda + l}$ whose output cannot be distinguished from uniform sampling of $\{ 0, 1 \}^{\lambda + l}$ in $\Theta(\text{poly}(\lambda))$. $l$ is known as the **stretch**.
+
+In practice we have only candidate CSPRNG. Indeed we have no proof that a PRNG exists, proving such a thing would imply $P \neq NP$.
+
+CSPRNG are usually realized starting from another building block: **PseudoRandom Permutations** (**PRPs**), in turn defined starting from **PseudoRandom Functions** (**PRFs**).
+Consider the set of functions $\mathbf{F} = \{ f : \{ 0, 1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}} \}$. A uniformly samples function $f \sim \mathbf{F}$ can be encoded in a $2^{\text{in}}$ entries table, each entry _out_ bit wide. Then: $|\mathbf{F}| = 2^{\text{out} \cdot 2^{\text{in}}}$.
+
+- A **PseudoRandom Function** (PRF) is a function $\text{prf}_{\text{seed}} : \{ 0,1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}}$ which is parameterized by a $\lambda$ bit seed. The entire function is described by the value of the seed. It cannot be told apart from a random function $f \sim \mathbf{F}$ in $\text{poly}(\lambda)$.
+
+- A **PseudoRandom Permutation** is a bijective PRF which produces outputs of the same dimension of the inputs: $\text{prf}_{\text{seed}} : \{ 0, 1 \}^{\text{len}} \rightarrow \{ 0, 1 \}^{\text{len}}$.
+
+Observe that such function can be represented as a sequence with $2^{\text{len}}$ elements, each one being a string of $\text{len}$ bits. Thus, such a function, is a permutation of the sequence with all the strings of $\text{len}$ bits.
+Operatively speaking, these functions act on a block of bits in input and produce a block of bits in output of the same size which looks unrelated from the input. Furthermore, the behavior of such functions is fully identified by the seed.
+
+---
+
+No formally proven PRP exists. Again, its existence would imply $P \neq NP$.
+PRPs are typically constructed as follows.
+1. Compute a small bijective boolean function $f$ of the input and the key (_here with bijective we mean that fixing the key and trying all possible inputs we get all possible outputs, no matter the fixed key_).
+2. Compute $f$ again between the previous output and the key.
+3. Repeat $2$ until you're satisfied.
+
+Concrete PRPs go by the historical name of **block ciphers**. They are considered broken if, with less than $2^\lambda$ operations, they can be told apart from a PRP, e.g. via:
+- Deriving the input corresponding to an output without the key.
+- Deriving the key identifying the PRP or reducing the amount of plausible ones.
+- Identifying non-uniformities in their outputs.
+
+The key length $\lambda$ is chosen to be large enough so that computing $2^\lambda$ guesses is not **practically feasible**.
+The following are numbers of operations which provide practically acceptable unfeasibility, according to different standards.
+- **Legacy level security**: at least $2^{80}$ boolean operations.
+- **5 to 10 years security**: at least $2^{256}$ boolean operations.
+- **Long term security**: at least $2^{256}$ boolean operations.
+
+Now we list some **widespread block ciphers**.
+- **Advanced Encryption Standard** (**AES**): it work on 128 bit blocks. There are 3 key lengths: 128, 192, and 256 bits.
+- **Data Encryption Algorithm** (**DEA**, a.k.a. DES): it is the legacy standard by NIST. The key is too short (just 56 bits). It is patches via triple encryption, which has $\lambda = 112$ equivalent security. This is still found in some legacy systems, and officially deprecated.
+
+#### Electronic CodeBook (ECB) mode
+
+One of the simplest way to use a block cipher for encryption is the **Electronic CodeBook** (**ECB**) **mode**. If the plaintext has lees bits than the block size, we simply pad it and pass it in input to the block cipher. Conversely, we split the input in blocks with the right number of bytes and encode each block with the same key.
+In this approach we use the same key for each block, leaking information. Furthermore we preserve the structure of the plaintext: two blocks in the plaintext with the same value, will have the same value also in the ciphertext.
+
+#### Counter (CTR) mode
+
+One way of solving the issues of ECB mode is to use **Counter** (**CTR**) **mode**.
+
+---
+
+In counter mode we use the block cipher to encrypt the values of a counter which starts from 0 and increases by 1 for each block in the plaintext, using still each time the same key. The output is a PRNG assuming that the block cipher is a PRP.
+The output of such mechanism is combined in XOR with the plaintext, simulating an OTP where the key is pseudo-random instead of being random. Observe that there is nothing special in the starting point of the counter, but it must be agreed between who encrypts and who decrypts.
+
+This cipher is sufficient to guarantee confidentiality against **ciphertext-only attacks**. Unfortunately the CTR mode of operation is <u>insecure against **chosen-plaintext attacks**</u> since the encryption is deterministic: the same plaintext is always mapped to the same ciphertext.
+
+To solve the issue, there are 3 different approaches.
+- **Rekying**: change the key for each block with a ratchet (_see later_).
+- **Randomize** the encryption by add removable randomness to the encryption changing the mode of employing the PRP.
+- **Numbers used ONCE** (**NONCEs**): pick a NONCE as the counter starting point. The NONCE is public.
+
+#### Symmetric ratcheting
+
+This mechanism takes the name from its mechanical counterpart: it is not possible to roll-back the procedure. The idea is to start with a $\lambda$ bit seed and use a PRNG with $2 \lambda$ stretch to generate a sequence of keys. The first $\lambda$ bits in output from the PRNG are the $i$-th key. The second $\lambda$ bits are used as seed to generate the next key and the next seed. The first input to the PRNG is the original seed. Thus, each block is encrypted with a different key.
+
+### Malleability and active attackers
+
+With the ciphers that we have seen so far, making changes to the ciphertext (not knowing the key) maps to predictable changes in the decrypted plaintext. This fact can be creatively abused to build decryption attacks. We want to avoid this fact, adding a mechanism to ensure **data integrity**.
+
+One standard mechanism to provide <u>**integrity**</u> are **Message Authentication Codes** (**MACs**). The idea is to add a small piece of information (tag) to the encrypted message that allows to test for message integrity.
+**Important**: MACs do NOT provide data authentication.
+
+- A **MAC** is constituted by a pair of functions:
+> - COMPUTE_TAG(string, key): returns the tag for the input string;
+> - VERIFY_TAG(string, tag, key): returns true or false.
+
+Observe that this method does not provide authentication **since** both the sender and the receiver can craft valid tags.
+
+---
+
+Resume from CBC (Cipher Block Chaining) MAC.
