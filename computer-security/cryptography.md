@@ -320,4 +320,27 @@ The sequence of verifications required to check the validity of a certificate is
 
 ## Fundamentals of information theory
 
+_Shannon_'s information theory is a way to mathematically frame communication. It provides a way to quantify information.
+A communication takes place between two **endpoints**:
+- a _sender_: made of an information source and an encoder;
+- a _receiver_: made of an information destination and a decoder.
 
+Information is carried by a channel in the form of a sequence of **symbols** of a **finite alphabet**.
+The receiver gets information only through the channel.
+It will be uncertain on what the next symbol is, until the symbol arrives. Thus we model the sender as a **random variable**. Acquiring information is modeled as getting to know an outcome of a random variable $X$. The amount of information depends on the distribution of $X$. Intuitively, the closer is $X$ to a uniform distribution, the higher the amount of information I get from knowing an outcome.
+Encoding maps each outcome as a finite sequence of symbols. More symbols should be needed when more information is sent.
+
+We need a way to measure uncertainty with the following desirable properties:
+- it should be a non-negative measure;
+- "combining uncertainties" should result in addition of the corresponding measures.
+
+- Let $X$ be a discrete random variable with $n$ outcomes in $\{ x_0, \dots, x_{n-1} \}$ with $p_i = \mathbb{P}[X = x_i]$. The **entropy** of $X$ is $H(X) = -\sum_{i=0}^{n-1} p_i \log_b p_i$. The measurement unit of entropy depends on the base $b$ of the logarithm: typical case for $b=2$ is bits.
+
+---
+
+- **Shannon's noiseless coding theorem**: it is possible to encode the outcomes of $n$ i.i.d. variables, each one with entropy $H(X)$, into no less than $nH(X)$ bits. If $< nH(X)$ bits are used, some information will be lost.
+
+A consequence of this theorem is that arbitrarily compression of bit strings is impossible without loss. Cryptographic hashes must discard some information.
+Another consequence is that guessing a piece of information (i.e., one outcome of $X$) is at least as hard as guessing a $H(X)$ bit long bit string.
+
+- The **min-entropy** of $X$ is defined as $H_\infty(X) = -\log(\max_{i=1}^{n-1} p_i)$. Intuitively, it is the probability of random variable with uniform distribution, where the probability of each outcome is $\max_{i=1}^{n-1} p_i$. Guessing the most common outcome of $X$ is at least as hard as guessing a $H_\infty(X)$ bit long bit string.
