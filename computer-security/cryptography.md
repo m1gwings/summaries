@@ -114,29 +114,29 @@ In order to prove that a cryptosystem is computational secure, we need to carry 
 
 In order to build a cipher which resemble an OTP, preserving practicality, we may want to expand a finite-length key. Now we define an object which can achieve such objective.
 
-- A **CSPRNG** is a deterministic function $\text{PRNG} : \{ 0, 1 \}^\lambda \rightarrow \{ 0, 1 \}^{\lambda + l}$ whose output cannot be distinguished from uniform sampling of $\{ 0, 1 \}^{\lambda + l}$ in $\Theta(\text{poly}(\lambda))$. $l$ is known as the **stretch**.
+- A **CSPRNG** is a deterministic function $\text{PRNG} : \{ 0, 1 \}^\lambda \rightarrow \{ 0, 1 \}^{\lambda + l}$ whose output cannot be distinguished from uniform sampling of $\{ 0, 1 \}^{\lambda + l}$ in $O(\text{poly}(\lambda))$. $l$ is known as the **stretch**.
 
 In practice we have only candidate CSPRNG. Indeed we have no proof that a PRNG exists, proving such a thing would imply $P \neq NP$.
 
 CSPRNG are usually realized starting from another building block: **PseudoRandom Permutations** (**PRPs**), in turn defined starting from **PseudoRandom Functions** (**PRFs**).
-Consider the set of functions $\mathbf{F} = \{ f : \{ 0, 1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}} \}$. A uniformly samples function $f \sim \mathbf{F}$ can be encoded in a $2^{\text{in}}$ entries table, each entry _out_ bit wide. Then: $|\mathbf{F}| = 2^{\text{out} \cdot 2^{\text{in}}}$.
+Consider the set of functions $\mathbf{F} = \{ f : \{ 0, 1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}} \}$. A uniformly sampled function $f \sim \mathbf{F}$ can be encoded in a $2^{\text{in}}$ entries table, each entry _out_ bit wide. Then: $|\mathbf{F}| = 2^{\text{out} \cdot 2^{\text{in}}}$.
 
-- A **PseudoRandom Function** (PRF) is a function $\text{prf}_{\text{seed}} : \{ 0,1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}}$ which is parameterized by a $\lambda$ bit seed. The entire function is described by the value of the seed. It cannot be told apart from a random function $f \sim \mathbf{F}$ in $\text{poly}(\lambda)$.
+- A **PseudoRandom Function** (PRF) is a function $\text{prf}_{\text{seed}} : \{ 0,1 \}^{\text{in}} \rightarrow \{ 0, 1 \}^{\text{out}}$ which is parameterized by a $\lambda$ bit seed. The entire function is described by the value of the seed. It cannot be told apart from a random function $f \sim \mathbf{F}$ in $O(\text{poly}(\lambda))$.
 
-- A **PseudoRandom Permutation** is a bijective PRF which produces outputs of the same dimension of the inputs: $\text{prf}_{\text{seed}} : \{ 0, 1 \}^{\text{len}} \rightarrow \{ 0, 1 \}^{\text{len}}$.
+- A **PseudoRandom Permutation** is a _bijective_ (in the sense that, for each fixed $\text{seed}$, the resulting function is bijective) PRF which produces outputs of the same dimension of the inputs: $\text{prf}_{\text{seed}} : \{ 0, 1 \}^{\text{len}} \rightarrow \{ 0, 1 \}^{\text{len}}$.
 
-Observe that such function can be represented as a sequence with $2^{\text{len}}$ elements, each one being a string of $\text{len}$ bits. Thus, such a function, is a permutation of the sequence with all the strings of $\text{len}$ bits.
+Observe that, fixed a $\text{seed}$, the resulting function can be represented as a sequence with $2^{\text{len}}$ elements, each one being a string of $\text{len}$ bits. Thus, such a function, is a permutation of the sequence with all the strings of $\text{len}$ bits.
 Operatively speaking, these functions act on a block of bits in input and produce a block of bits in output of the same size which looks unrelated from the input. Furthermore, the behavior of such functions is fully identified by the seed.
 
 ---
 
 No formally proven PRP exists. Again, its existence would imply $P \neq NP$.
 PRPs are typically constructed as follows.
-1. Compute a small bijective boolean function $f$ of the input and the key (_here with bijective we mean that fixing the key and trying all possible inputs we get all possible outputs, no matter the fixed key_).
+1. Compute a small bijective boolean function $f$ of the input and the key (_here, again, with bijective we mean that fixing the key and trying all possible inputs we get all possible outputs, no matter the fixed key_).
 2. Compute $f$ again between the previous output and the key.
 3. Repeat $2$ until you're satisfied.
 
-Concrete PRPs go by the historical name of **block ciphers**. They are considered broken if, with less than $2^\lambda$ operations, they can be told apart from a PRP, e.g. via:
+Concrete PRPs go by the historical name of **block ciphers**. They are considered broken if, with less than $\Theta(2^\lambda)$ operations, they can be told apart from a PRP, e.g. via:
 - Deriving the input corresponding to an output without the key.
 - Deriving the key identifying the PRP or reducing the amount of plausible ones.
 - Identifying non-uniformities in their outputs.
@@ -144,7 +144,7 @@ Concrete PRPs go by the historical name of **block ciphers**. They are considere
 The key length $\lambda$ is chosen to be large enough so that computing $2^\lambda$ guesses is not **practically feasible**.
 The following are numbers of operations which provide practically acceptable unfeasibility, according to different standards.
 - **Legacy level security**: at least $2^{80}$ boolean operations.
-- **5 to 10 years security**: at least $2^{256}$ boolean operations.
+- **5 to 10 years security**: at least $2^{128}$ boolean operations.
 - **Long term security**: at least $2^{256}$ boolean operations.
 
 Now we list some **widespread block ciphers**.
@@ -153,7 +153,7 @@ Now we list some **widespread block ciphers**.
 
 #### Electronic CodeBook (ECB) mode
 
-One of the simplest way to use a block cipher for encryption is the **Electronic CodeBook** (**ECB**) **mode**. If the plaintext has lees bits than the block size, we simply pad it and pass it in input to the block cipher. Conversely, we split the input in blocks with the right number of bytes and encode each block with the same key.
+One of the simplest way to use a block cipher for encryption is the **Electronic CodeBook** (**ECB**) **mode**. If the plaintext has less bits than the block size, we simply pad it and pass it in input to the block cipher. Conversely, we split the input in blocks with the right number of bytes and encode each block with the same key.
 In this approach we use the same key for each block, leaking information. Furthermore we preserve the structure of the plaintext: two blocks in the plaintext with the same value, will have the same value also in the ciphertext.
 
 #### Counter (CTR) mode
@@ -180,15 +180,144 @@ This mechanism takes the name from its mechanical counterpart: it is not possibl
 
 With the ciphers that we have seen so far, making changes to the ciphertext (not knowing the key) maps to predictable changes in the decrypted plaintext. This fact can be creatively abused to build decryption attacks. We want to avoid this fact, adding a mechanism to ensure **data integrity**.
 
-One standard mechanism to provide <u>**integrity**</u> are **Message Authentication Codes** (**MACs**). The idea is to add a small piece of information (tag) to the encrypted message that allows to test for message integrity.
+#### Message Authentication Codes
+
+One standard mechanism to provide <u>**integrity**</u> are **Message Authentication Codes** (**MACs**). The idea is to add a small piece of information (tag) <u>to the encrypted message</u> that allows to test for message integrity.
 **Important**: MACs do NOT provide data authentication.
 
 - A **MAC** is constituted by a pair of functions:
 > - COMPUTE_TAG(string, key): returns the tag for the input string;
 > - VERIFY_TAG(string, tag, key): returns true or false.
 
+---
+
 Observe that this method does not provide authentication **since** both the sender and the receiver can craft valid tags.
+
+One possible way of implementing a MAC is the **Cipher Block Chaining MAC** (**CBC-MAC**). It is realized as follows. We encrypt the first block in the plaintext with the block cipher using our key. Then we compute the XOR of such output with the second block of the plaintext and encrypt the result again with the key. We iterate the process until the last block of the plaintext. It can be proved that the approach described so far is secure only for **prefix free** messages (i.e., we don't have two messages which are one the prefix of the other). Encrypting the result once more provably fixes the issue.
+
+#### Hash functions
+
+- An **hash function** is a function $H()$ which maps an arbitrary-length input $x$ on a fixed-length output $h$, known as _digest_. It needs to be **fast**.
+
+Hash function provide a fast way to verify data integrity: comparing the digests.
+The issue with hash functions is that they suffer from the **collision** problem: the codomain is "smaller" than the domain, thus the function can't be 1-to-1.
+
+Given a proper hash function, it should be **computationally infeasible** to find:
+- an input $x$ such that, for a given digest $h$, $H(x) = h$ (this is known as **pre-image attack resistance**);
+- an input $y$ such that, for a given different input $x \neq y$, $H(y) = H(x)$ (this is known as **second pre-image attack resistance**);
+- a pair of inputs $x, y$ such that $H(x) = H(y)$ (this is known as **collision resistance**).
+
+An hash function may be **broken** if, <u>faster than brute-forcing</u>, an attacker is able to find an input (or pair of inputs) satisfying one of the properties above.
+With an $n$-sized function, we can find a pre-image faster than brute-forcing, if we take less than $2^{n-1}$ trials (with $2^{n-1}$ trials you have $50 \%$ chance of finding a pre-image since you're trying half of the $2^n$ $n$-bit longs strings).
+While, we are able to find a collision faster than brute-forcing if we try less than $2^{\frac{n}{2}}$ pairs (again, with $2^{\frac{n}{2}}$ pairs, we have $50 \%$ chance of finding a collision because of the birthday paradox).
+
+Some candidate hash functions are the following:
+- SHA-2 was privately designed by NSA and has a digest of 256, 384, or 512 bits.
+- SHA-3 followed a public design contest (similar to AES) and has again the same digest size of SHA-2.
+
+They are both currently unbroken and widely standardized.
+
+Example of hash function which <u>should not be used</u> are the following:
+- SHA-1 has a digest of 160 bits, it si collision-broken (obtainable in $\approx$ $2^{61}$ ops).
 
 ---
 
-Resume from CBC (Cipher Block Chaining) MAC.
+- MD-5 is horribly broken: it is possible to find collisions in $\approx 2^{11}$ operations and to carry out a second pre-image attack in $\approx 2^{40}$ operations.
+
+Hash function can be used to:
+- store/compare hashes instead of values;
+- to build MACs: generate tag hashing using together the message and a secret string and verify the tag recomputing the same hash (this approach is known as **HMAC**);
+- write down only the hash of the disk image you obtained in official documents for forensic use.
+
+## Asymmetric crypto-systems
+
+There are still some features we would like which are not provided by symmetric crypto-system:
+- agreeing on a short secret over a public channel;
+- confidentially sharing a message over a public authenticated channel without sharing a secret with the recipient;
+- actual data authentication.
+
+Before 1976, the solution was to rely on human carriers/physical signatures. The invention of **asymmetric crypto-systems** revolutionized the scenario.
+
+### Diffie-Hellman key agreement
+
+The goal of the **Diffie-Hellman key agreement** is to make two parties agree on a secret value w/ only public messages.
+
+The procedure relies on the so-called **Computational Diffie-Hellman assumption** (**CDH**).
+- **CDH Assumption**: let $(\mathbf{G}, \cdot) \equiv \langle g \rangle$ be a finite cyclic group, and two numbers $a, b$ sampled uniformly from $\{ 0, \dots, |\mathbf{G}|-1 \}$. Then, given $g^a$ and $g^b$, finding $g^{ab}$ costs more than $\text{poly}(\log|\mathbf{G}|)$. The best current attack approach is to find either $b$ or $a$ (a discrete logarithm problem).
+
+The attacker model is the following:
+- it can eavesdrop anything, but not tamper;
+- the CDH assumption holds.
+
+Now we introduce some definitions needed to outline the procedure.
+- Let $p$ be a prime number. We say that a number $a$ is a **primitive root** of $p$ if raising $a$ to any number between $1$ and $p-1$, $\mod p$, we obtain each number between $1$ and $p-1$.
+
+---
+
+The Diffie-Hellman key agreement works as follows.
+1. Pick a prime $p$ and a primitive root $a$ of $p$ and make both public.
+2. Pick a secret number $X$ in $\{ 1, \dots, p-1 \}$. Each party should pick a secret number. Assuming that Alice and Bob are the parties of the communication, Alice will pick the secret $X_A$ and Bob will pick the secret $X_B$.
+3. Compute $Y = a^X \mod p$ (hence $Y_A = a^{X_A}\mod p$, $Y_B = a^{X_B}\mod p$).
+4. Share $Y$ with the other parties (Alice sends $Y_A$ to Bob and Bob sends $Y_B$ to Alice).
+5. Compute the secret $K = Y_{\text{received}}^X$ (i.e. $K = Y_B^{X_A} = Y_A^{X_B}$).
+
+Due to the CDH assumption, it is hard for someone who eavesdrops on the public channel to compute the secret $K$ knowing just $Y_A$ and $Y_B$.
+
+Let $\lambda = \log |\mathbf{G}|$, breaking the CDH assumption requires using less than $\theta(2^\frac{\lambda}{2})$ operations.
+
+### Public key encryption
+
+The main concept behind public key encryption is the following: the cipher uses two keys key1 and key2. What is encrypted with key1 can be decrypted only with key2 (and not with key1 itself), and vice-versa. One of the two keys is kept **private** by the subject, and the other can be **publicly** disclosed. This solves the problem of key exchange.
+The employed approaches are such that it should be easy to compute the public key from the private key, but the private key "cannot" be retrieved from the public key.
+
+Assuming that the attacker cannot tamper messages, we can achieve **confidentiality** on an untrusted channel as follows. The two parties share the public key on the untrusted channel. Each party encrypts the message they want to send with the public key of the other party. Then the other party is the only one who can decrypt the message, assuming the confidentiality of their private key.
+
+Asymmetric crypto-system tend to be significantly more computationally intensive than symmetric ones. Thus, they are often used to share a secret key between two parties which is then used to communicate through symmetric encryption.
+
+#### RSA algorithm
+
+The **RSA algorithm** is an algorithm for public key encryption. It relies on the hard problem of factorization. The key sizes used in RSA are often of 2048 or 4096 bits. 1024 bit long keys are also usually safe.
+**Important**: even though asymmetric encryption algorithms also have their key length, this is not by itself a metric of security (conversely to what happens for symmetric algorithms). What we should compare is the number of operations required for a brute-force attack.
+
+---
+
+### Authenticating the data
+
+To build a secure hybrid encryption scheme, we need to be sure that the public key that the sender uses is the one of the recipient. That is, we would like to be able to verify the authenticity of a piece of data without a pre-shared secret.
+
+**Digital signatures** solve the problem and much more. Proper signatures cannot be repudiated by the user. They rely on asymmetric cryptographic algorithms.
+In particular they provide authentication and integrity in the following way. A party computes the digest of the message they want to send and then encrypts it with their private key. The other party can use the public key of the sender to decrypt the encrypted digest and compare it against the digest of the received message. Assuming that the private key is kept secret, we are sure of the identity of the sender being the only one with access to their private key, obtaining authentication. Furthermore, by comparing the digest of the message with the decrypted digest, we also get authenticity.
+
+The following are widespread signature schemes:
+- **RSA** (with different order than operations);
+- **Digital Signature Standard** (**DSA**).
+
+### Public key binding problem
+
+We still have an issue: the exchange of public keys **must be secured**. In particular, each public key must be bound to the correct user identity.
+If public keys are not authentic, a Man-In-The-Middle attack is possible on asymmetric encryption and anyone can produce a signature on behalf of anyone else.
+
+A **Public Key Infrastructure** (**PKI**) is what associates keys with identity on a wide scale. A PKI uses a trusted third party authority called a **Certification Authority** (**CA**). The CA **digitally signs** files called **digital certificates**, which bind an identity (a **Distinguished Name** (**DN**)) to a public key.
+In particular, the CA produces a document with the identity of an actor (a DN) and its public key, which is then digitally signed with the secret key of the CA. Then the CA provides the digitally signed certificate to anyone who wants to communicate with the actor. The certificate can be validated through the public key of the CA (as it is usually done with digital signatures). Now we have the same problem of before, we need a secure way to gather the public key of the CA.
+A CA could have its certificate signed by another CA to whom we could ask. Of course this process cannot regress to the infinite. We need a trusted element: a **root of trust**. These are known as **top-level CA**. Their certificate is self-signed. The public keys of such CAs are directly stored in the devices instead of being gathered from the internet. This approach is known as **Software Trusted Storage**.
+
+What we described produces the so-called **certification authorities hierarchy**, in which we distinguish **root CAs** and **subsidiary CAs**.
+
+---
+
+#### Certificate revocation issues
+
+Signatures cannot be revoked, but certificates need to be revoked at times. To do so there exist **Certificate Revocation Lists** (**CRLs**) and, as an alternative, the **Online Certificate Status Protocol** (OCSP) which provides real-time certificate verification, improving efficiency over traditional CRLs.
+
+The sequence of verifications required to check the validity of a certificate is the following.
+
+1. Does the signature validate the document?
+2. Is the public key the one on the certificate?
+3. Is the certificate the one of the subject?
+4. Is the certificate validated by the CA?
+5. Is the root certificate trusted?
+6. Is the certificate in a CRL?
+
+## Fundamentals of information theory
+
+
